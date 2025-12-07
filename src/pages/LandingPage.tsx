@@ -93,10 +93,17 @@ export const LandingPage: React.FC = () => {
 
   return (
     <main className="min-h-screen bg-white relative isolate selection:bg-primary selection:text-white overflow-hidden">
-      {/* Professional Background */}
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white">
+      {/* Professional Animated Background */}
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white overflow-hidden">
+        {/* Grid Pattern */}
         <div className="absolute h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"></div>
+        
+        {/* Animated Orbs */}
+        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px] animate-blob"></div>
+        <div className="absolute right-0 top-20 -z-10 h-[250px] w-[250px] rounded-full bg-purple-500/20 opacity-20 blur-[100px] animate-blob" style={{ animationDelay: "2s" }}></div>
+        <div className="absolute left-10 top-40 -z-10 h-[200px] w-[200px] rounded-full bg-blue-400/20 opacity-20 blur-[100px] animate-blob" style={{ animationDelay: "4s" }}></div>
+        
+        {/* Gradient Overlay */}
         <div className="absolute right-0 top-0 -z-10 h-full w-full bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff1a,transparent)]"></div>
       </div>
       <SEO 
