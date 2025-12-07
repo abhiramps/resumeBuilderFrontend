@@ -434,7 +434,7 @@ const EditorPageContent: React.FC = () => {
 
             {/* Template Selector Dropdown */}
             {showTemplateSelector && (
-                <div className="bg-white border-b border-gray-200 px-4 py-4">
+                <div className="bg-white border-b border-gray-200 px-4 py-4 flex justify-center">
                     <TemplateSelector
                         currentTemplate={resume.template || 'modern'}
                         onTemplateChange={(template) => {
