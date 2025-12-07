@@ -9,6 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/UI/Button";
 import { Input } from "../components/UI/Input";
 import { EmailVerificationBanner } from "../components/UI/EmailVerificationBanner";
+import { SEO } from "../components/common/SEO";
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
@@ -116,8 +117,12 @@ export const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <SEO 
+        title="Sign Up for Free" 
+        description="Create your free account to build ATS-friendly resumes. No credit card required."
+      />
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Header */}
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">

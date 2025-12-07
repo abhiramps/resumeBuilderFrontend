@@ -24,6 +24,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { SEO } from "../components/common/SEO";
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -91,7 +92,13 @@ export const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <SEO 
+        title="Free ATS Resume Builder for Software Engineers" 
+        description="Build professional, ATS-friendly resumes for free. 100% free resume builder with PDF export, real-time preview, and developer-focused templates."
+        keywords={["free resume builder", "completely free cv maker", "free pdf resume", "software engineer resume free"]}
+      />
+      
       {/* Navigation */}
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between">
@@ -129,7 +136,7 @@ export const LandingPage: React.FC = () => {
                   to="/signup"
                   className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm"
                 >
-                  Get Started
+                  Get Started Free
                 </Link>
               </>
             )}
@@ -140,24 +147,24 @@ export const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full mb-8">
-            <Sparkles className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-600">
-              ATS-Friendly Resume Builder for Software Engineers
+          <div className="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-50 rounded-full mb-6 sm:mb-8">
+            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-blue-600">
+              <span className="hidden sm:inline">ATS-Friendly Resume Builder for Software Engineers</span>
+              <span className="sm:hidden">ATS Resume Builder</span>
             </span>
           </div>
 
-          <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Build Resumes That{" "}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2">
+            Build Resumes That Get You Hired{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              Get You Hired
+              For Free
             </span>
           </h1>
 
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
             Create professional, ATS-optimized resumes with our powerful editor.
-            Real-time preview, multiple templates, and complete customization
-            control.
+            Completely free, forever. Real-time preview, multiple templates, and unlimited PDF exports.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -166,7 +173,7 @@ export const LandingPage: React.FC = () => {
               className="group px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl flex items-center space-x-2"
             >
               <span>Start Building</span>
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             {!isAuthenticated && (
               <Link
@@ -183,8 +190,8 @@ export const LandingPage: React.FC = () => {
       {/* Features Grid */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-10 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
               Everything You Need
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -404,6 +411,6 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
       </footer>
-    </div>
+    </main>
   );
 };
