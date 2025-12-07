@@ -13,3 +13,5 @@ export { ProfilePage } from './ProfilePage';
 export { EditorPage } from './EditorPage';
 export { SharePage } from './SharePage';
 export { VersionsPage } from './VersionsPage';
+export { TermsPage } from './TermsPage';
+export { PrivacyPolicyPage } from './PrivacyPolicyPage';

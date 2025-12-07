@@ -394,18 +394,18 @@ export const LandingPage: React.FC = () => {
                 </a>
               </p>
               <div className="flex items-center space-x-6">
-                <a
-                  href="#"
+                <Link
+                  to="/privacy-policy"
                   className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Privacy Policy
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="/terms"
                   className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </div>
             </div>
           </div>
