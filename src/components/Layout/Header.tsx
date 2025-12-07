@@ -13,9 +13,9 @@ const Header: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
 
   // Detect if user is on Mac for keyboard shortcut hints
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-  const undoShortcut = isMac ? '⌘Z' : 'Ctrl+Z';
-  const redoShortcut = isMac ? '⌘⇧Z' : 'Ctrl+Shift+Z';
+  const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+  const undoShortcut = isMac ? "⌘Z" : "Ctrl+Z";
+  const redoShortcut = isMac ? "⌘⇧Z" : "Ctrl+Shift+Z";
 
   const handleTemplateChange = (template: TemplateType) => {
     dispatch({ type: "SET_TEMPLATE", payload: template });
@@ -104,84 +104,93 @@ const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm backdrop-blur-sm bg-white/95">
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="px-2 sm:px-4 lg:px-6 xl:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
           {/* Logo and Title */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FileText className="h-6 w-6 text-primary" />
+          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 min-w-0 flex-1">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+              <div className="p-1.5 sm:p-2 bg-primary-50 rounded-lg flex-shrink-0">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-primary" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 hidden sm:block">
-                  ATS Resume Builder
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">
+                  <span className="hidden sm:inline">ATS Resume Builder</span>
+                  <span className="sm:hidden">ARB</span>
                 </h1>
-                <h1 className="text-lg font-bold text-gray-900 sm:hidden">
-                  ARB
-                </h1>
-                <p className="text-xs text-gray-500 hidden sm:block">
+                <p className="text-xs text-gray-500 hidden sm:block truncate">
                   Professional Resume Creator
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Template Selector */}
-          <TemplateSelector
-            currentTemplate={resume.template}
-            onTemplateChange={handleTemplateChange}
-          />
+          {/* Template Selector - Hidden on mobile */}
+          <div className="hidden md:block flex-shrink-0">
+            <TemplateSelector
+              currentTemplate={resume.template}
+              onTemplateChange={handleTemplateChange}
+            />
+          </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Undo/Redo Buttons */}
-            <div className="flex items-center space-x-1 border-r border-gray-200 pr-2 sm:pr-3">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3 flex-shrink-0">
+            {/* Undo/Redo Buttons - Hidden on mobile */}
+            <div className="hidden md:flex items-center space-x-1 border-r border-gray-200 pr-2 lg:pr-3">
               <button
                 onClick={undo}
                 disabled={!canUndo}
-                className="flex items-center space-x-1 px-2 sm:px-3 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-sm font-medium shadow-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
+                className="flex items-center space-x-1 px-2 lg:px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-xs lg:text-sm font-medium shadow-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
                 title={`Undo (${undoShortcut})`}
               >
-                <Undo className="h-4 w-4" />
-                <span className="hidden lg:inline">Undo</span>
+                <Undo className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                <span className="hidden xl:inline">Undo</span>
               </button>
               <button
                 onClick={redo}
                 disabled={!canRedo}
-                className="flex items-center space-x-1 px-2 sm:px-3 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-sm font-medium shadow-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
+                className="flex items-center space-x-1 px-2 lg:px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-xs lg:text-sm font-medium shadow-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
                 title={`Redo (${redoShortcut})`}
               >
-                <Redo className="h-4 w-4" />
-                <span className="hidden lg:inline">Redo</span>
+                <Redo className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                <span className="hidden xl:inline">Redo</span>
               </button>
             </div>
 
-            <TemplateImportExport />
+            {/* Template Import/Export - Hidden on mobile */}
+            <div className="hidden md:block">
+              <TemplateImportExport />
+            </div>
 
+            {/* Save Button - Icon only on mobile */}
             <button
               onClick={handleSave}
-              className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-sm font-medium shadow-sm"
+              className="flex items-center justify-center px-2 sm:px-3 lg:px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm"
               title="Save Resume"
             >
-              <Save className="h-4 w-4" />
-              <span className="hidden sm:inline">Save</span>
+              <Save className="h-4 w-4 sm:h-4 sm:w-4" />
+              <span className="hidden lg:inline ml-1 sm:ml-2">Save</span>
             </button>
 
+            {/* Export PDF Button */}
             <button
               onClick={handleExportPDF}
               disabled={isExporting}
-              className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-700 transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center px-2 sm:px-3 lg:px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               title="Export PDF"
             >
               {isExporting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="hidden sm:inline">Exporting...</span>
+                  <span className="hidden lg:inline ml-1 sm:ml-2">
+                    Exporting...
+                  </span>
                 </>
               ) : (
                 <>
-                  <Download className="h-4 w-4" />
-                  <span className="hidden sm:inline">Export PDF</span>
+                  <Download className="h-4 w-4 sm:h-4 sm:w-4" />
+                  <span className="hidden lg:inline ml-1 sm:ml-2">
+                    Export PDF
+                  </span>
                 </>
               )}
             </button>

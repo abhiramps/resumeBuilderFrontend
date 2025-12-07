@@ -52,7 +52,7 @@ export const EditorSidebar: React.FC = () => {
     };
 
     return (
-        <div className="h-full overflow-y-auto bg-gray-50 p-4 space-y-6">
+        <div className="h-full overflow-y-auto bg-gray-50 p-3 sm:p-4 space-y-4 sm:space-y-6">
             {/* ATS Score Panel - Always visible at top */}
             <ATSScorePanel validation={atsValidation} />
 
@@ -60,9 +60,9 @@ export const EditorSidebar: React.FC = () => {
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
                 <button
                     onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
-                    className="w-full px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between hover:bg-gray-100 transition-colors"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between hover:bg-gray-100 transition-colors"
                 >
-                    <h3 className="font-semibold text-gray-900">Personal Information</h3>
+                    <h3 className="text-sm sm:text-base font-semibold text-gray-900">Personal Information</h3>
                     {isPersonalInfoCollapsed ? (
                         <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -74,7 +74,7 @@ export const EditorSidebar: React.FC = () => {
                     )}
                 </button>
                 {!isPersonalInfoCollapsed && (
-                    <div className="p-4">
+                    <div className="p-3 sm:p-4">
                         <PersonalInfoEditor />
                     </div>
                 )}
@@ -82,7 +82,7 @@ export const EditorSidebar: React.FC = () => {
 
             {/* Sortable Sections */}
             <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 px-1">
                     Resume Sections
                 </h3>
                 <SortableSectionList
@@ -116,12 +116,13 @@ export const EditorSidebar: React.FC = () => {
                         dispatch({ type: 'ADD_SECTION', payload: newSection });
                     }
                 }}
-                className="w-full py-3 px-4 bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 sm:py-3 px-3 sm:px-4 bg-white border-2 border-dashed border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
             >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Add Custom Section
+                <span className="hidden sm:inline">Add Custom Section</span>
+                <span className="sm:hidden">Add Section</span>
             </button>
         </div>
     );

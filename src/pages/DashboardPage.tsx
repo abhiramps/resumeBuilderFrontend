@@ -154,18 +154,20 @@ export const DashboardPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
             <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">My Resumes</h1>
-                            <p className="text-sm text-gray-600">Welcome back, {user?.fullName || user?.email}</p>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                        <div className="min-w-0 flex-1">
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Resumes</h1>
+                            <p className="text-xs sm:text-sm text-gray-600 truncate">Welcome back, {user?.fullName || user?.email}</p>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <Button variant="secondary" onClick={() => navigate('/profile')}>
-                                Profile
+                        <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                            <Button variant="secondary" onClick={() => navigate('/profile')} className="flex-1 sm:flex-initial text-sm">
+                                <span className="hidden sm:inline">Profile</span>
+                                <span className="sm:hidden">Profile</span>
                             </Button>
-                            <Button variant="secondary" onClick={logout}>
-                                Sign out
+                            <Button variant="secondary" onClick={logout} className="flex-1 sm:flex-initial text-sm">
+                                <span className="hidden sm:inline">Sign out</span>
+                                <span className="sm:hidden">Sign out</span>
                             </Button>
                         </div>
                     </div>
@@ -175,80 +177,84 @@ export const DashboardPage: React.FC = () => {
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Actions Bar */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                    {/* Search */}
-                    <form onSubmit={handleSearchSubmit} className="flex-1">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                            <Input
-                                type="text"
-                                placeholder="Search resumes..."
-                                value={searchQuery}
-                                onChange={handleSearch}
-                                className="pl-10"
-                            />
-                        </div>
-                    </form>
+                <div className="flex flex-col gap-3 sm:gap-4 mb-6">
+                    {/* Top Row: Search and Primary Actions */}
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        {/* Search */}
+                        <form onSubmit={handleSearchSubmit} className="flex-1 min-w-0">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search resumes..."
+                                    value={searchQuery}
+                                    onChange={handleSearch}
+                                    className="pl-9 sm:pl-10 text-sm"
+                                />
+                            </div>
+                        </form>
 
-                    {/* View Toggle */}
-                    <div className="flex gap-2">
-                        <Button
-                            variant={viewMode === 'grid' ? 'primary' : 'secondary'}
-                            onClick={() => setViewMode('grid')}
-                        >
-                            Grid
-                        </Button>
-                        <Button
-                            variant={viewMode === 'list' ? 'primary' : 'secondary'}
-                            onClick={() => setViewMode('list')}
-                        >
-                            List
+                        {/* Create Button - Always visible */}
+                        <Button variant="primary" onClick={handleCreateResume} className="w-full sm:w-auto whitespace-nowrap">
+                            <Plus className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                            <span className="hidden sm:inline">New Resume</span>
+                            <span className="sm:hidden">New</span>
                         </Button>
                     </div>
 
-                    {/* Bulk Select Toggle */}
-                    {filteredResumes.length > 0 && (
-                        <Button
-                            variant={bulkSelectMode ? 'primary' : 'secondary'}
-                            onClick={() => {
-                                setBulkSelectMode(!bulkSelectMode);
-                                setSelectedResumes(new Set());
-                            }}
-                        >
-                            <CheckSquare className="w-5 h-5 mr-2" />
-                            Select
+                    {/* Bottom Row: Secondary Actions */}
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        {/* View Toggle */}
+                        <div className="flex gap-2 border border-gray-200 rounded-lg p-1">
+                            <Button
+                                variant={viewMode === 'grid' ? 'primary' : 'ghost'}
+                                onClick={() => setViewMode('grid')}
+                                className="px-3 py-1.5 text-xs sm:text-sm"
+                            >
+                                <span className="hidden sm:inline">Grid</span>
+                                <span className="sm:hidden">G</span>
+                            </Button>
+                            <Button
+                                variant={viewMode === 'list' ? 'primary' : 'ghost'}
+                                onClick={() => setViewMode('list')}
+                                className="px-3 py-1.5 text-xs sm:text-sm"
+                            >
+                                <span className="hidden sm:inline">List</span>
+                                <span className="sm:hidden">L</span>
+                            </Button>
+                        </div>
+
+                        {/* Bulk Select Toggle */}
+                        {filteredResumes.length > 0 && (
+                            <Button
+                                variant={bulkSelectMode ? 'primary' : 'secondary'}
+                                onClick={() => {
+                                    setBulkSelectMode(!bulkSelectMode);
+                                    setSelectedResumes(new Set());
+                                }}
+                                className="text-xs sm:text-sm"
+                            >
+                                <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                                <span className="hidden sm:inline">Select</span>
+                            </Button>
+                        )}
+
+                        {/* Import Button */}
+                        <Button variant="secondary" onClick={handleImportResume} className="text-xs sm:text-sm">
+                            <Upload className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                            <span className="hidden sm:inline">Import</span>
                         </Button>
-                    )}
-
-                    {/* Import Button */}
-                    <Button 
-                        variant="secondary" 
-                        onClick={handleImportResume} 
-                        className="whitespace-nowrap"
-                        leftIcon={<Upload className="w-5 h-5" />}
-                    >
-                        <span className="hidden sm:inline">Import</span>
-                    </Button>
-
-                    {/* Create Button */}
-                    <Button 
-                        variant="primary" 
-                        onClick={handleCreateResume} 
-                        className="whitespace-nowrap"
-                        leftIcon={<Plus className="w-5 h-5" />}
-                    >
-                        <span className="hidden sm:inline">New Resume</span>
-                    </Button>
+                    </div>
                 </div>
 
                 {/* Bulk Actions Bar */}
                 {bulkSelectMode && (
-                    <div className="flex items-center justify-between p-4 mb-6 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-center gap-4">
-                            <Button variant="secondary" size="sm" onClick={handleSelectAll}>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-4 mb-6 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+                            <Button variant="secondary" size="sm" onClick={handleSelectAll} className="text-xs sm:text-sm">
                                 {selectedResumes.size === filteredResumes.length ? 'Deselect All' : 'Select All'}
                             </Button>
-                            <span className="text-sm text-gray-700">
+                            <span className="text-xs sm:text-sm text-gray-700">
                                 {selectedResumes.size} of {filteredResumes.length} selected
                             </span>
                         </div>
@@ -258,9 +264,11 @@ export const DashboardPage: React.FC = () => {
                                 size="sm"
                                 onClick={handleBulkExport}
                                 disabled={selectedResumes.size === 0}
+                                className="text-xs sm:text-sm w-full sm:w-auto"
                             >
-                                <Download className="w-4 h-4 mr-2" />
-                                Export Selected
+                                <Download className="w-4 h-4 sm:mr-2" />
+                                <span className="hidden sm:inline">Export Selected</span>
+                                <span className="sm:hidden">Export</span>
                             </Button>
                         </div>
                     </div>
@@ -302,7 +310,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Resume Grid */}
                 {!isLoading && filteredResumes.length > 0 && viewMode === 'grid' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                         {filteredResumes.map((resume) => (
                             <ResumeCard
                                 key={resume.id}
