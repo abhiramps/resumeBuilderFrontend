@@ -69,7 +69,7 @@ export const DashboardPage: React.FC = () => {
         try {
             const newResume = await createResume({
                 title: 'Untitled Resume',
-                templateId: 'modern',
+                templateId: 'professional',
                 content: {},
             });
             navigate(`/editor/${newResume.id}`);
@@ -296,9 +296,12 @@ export const DashboardPage: React.FC = () => {
                         </p>
                         {!searchQuery && (
                             <div className="mt-6">
-                                <Button variant="primary" onClick={handleCreateResume}>
-                                    <Plus className="w-5 h-5 mr-2" />
-                                    Create your first resume
+                                <Button 
+                                    variant="primary" 
+                                    onClick={handleCreateResume}
+                                    leftIcon={<Plus className="w-5 h-5" />}
+                                >
+                                    <span>Create your first resume</span>
                                 </Button>
                             </div>
                         )}

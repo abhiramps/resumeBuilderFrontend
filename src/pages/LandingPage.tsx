@@ -24,6 +24,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { SEO } from "../components/common/SEO";
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -91,7 +92,13 @@ export const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <SEO 
+        title="Free ATS Resume Builder for Software Engineers" 
+        description="Build professional, ATS-friendly resumes for free. 100% free resume builder with PDF export, real-time preview, and developer-focused templates."
+        keywords={["free resume builder", "completely free cv maker", "free pdf resume", "software engineer resume free"]}
+      />
+      
       {/* Navigation */}
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex items-center justify-between gap-4">
@@ -129,7 +136,7 @@ export const LandingPage: React.FC = () => {
                   to="/signup"
                   className="px-4 sm:px-6 py-2 text-sm sm:text-base bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap"
                 >
-                  Get Started
+                  Get Started Free
                 </Link>
               </>
             )}
@@ -149,16 +156,15 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2">
-            Build Resumes That{" "}
+            Build Resumes That Get You Hired{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              Get You Hired
+              For Free
             </span>
           </h1>
 
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4">
             Create professional, ATS-optimized resumes with our powerful editor.
-            Real-time preview, multiple templates, and complete customization
-            control.
+            Completely free, forever. Real-time preview, multiple templates, and unlimited PDF exports.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
@@ -388,23 +394,23 @@ export const LandingPage: React.FC = () => {
                 </a>
               </p>
               <div className="flex items-center space-x-6">
-                <a
-                  href="#"
+                <Link
+                  to="/privacy-policy"
                   className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Privacy Policy
-                </a>
-                <a
-                  href="#"
+                </Link>
+                <Link
+                  to="/terms"
                   className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </footer>
-    </div>
+    </main>
   );
 };
