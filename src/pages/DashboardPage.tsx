@@ -69,7 +69,7 @@ export const DashboardPage: React.FC = () => {
         try {
             const newResume = await createResume({
                 title: 'Untitled Resume',
-                templateId: 'modern',
+                templateId: 'professional',
                 content: {},
             });
             navigate(`/editor/${newResume.id}`);
@@ -221,15 +221,23 @@ export const DashboardPage: React.FC = () => {
                     )}
 
                     {/* Import Button */}
-                    <Button variant="secondary" onClick={handleImportResume}>
-                        <Upload className="w-5 h-5 mr-2" />
-                        Import
+                    <Button 
+                        variant="secondary" 
+                        onClick={handleImportResume} 
+                        className="whitespace-nowrap"
+                        leftIcon={<Upload className="w-5 h-5" />}
+                    >
+                        <span className="hidden sm:inline">Import</span>
                     </Button>
 
                     {/* Create Button */}
-                    <Button variant="primary" onClick={handleCreateResume}>
-                        <Plus className="w-5 h-5 mr-2" />
-                        New Resume
+                    <Button 
+                        variant="primary" 
+                        onClick={handleCreateResume} 
+                        className="whitespace-nowrap"
+                        leftIcon={<Plus className="w-5 h-5" />}
+                    >
+                        <span className="hidden sm:inline">New Resume</span>
                     </Button>
                 </div>
 
@@ -280,9 +288,12 @@ export const DashboardPage: React.FC = () => {
                         </p>
                         {!searchQuery && (
                             <div className="mt-6">
-                                <Button variant="primary" onClick={handleCreateResume}>
-                                    <Plus className="w-5 h-5 mr-2" />
-                                    Create your first resume
+                                <Button 
+                                    variant="primary" 
+                                    onClick={handleCreateResume}
+                                    leftIcon={<Plus className="w-5 h-5" />}
+                                >
+                                    <span>Create your first resume</span>
                                 </Button>
                             </div>
                         )}
