@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useResume } from "../../contexts/ResumeContext";
 import { TemplateType } from "../../types/resume.types";
-import { Download, Save, FileText, Loader2, Undo, Redo } from "lucide-react";
+import { Download, Save, Loader2, Undo, Redo } from "lucide-react";
 import { TemplateSelector } from "../UI";
 import { TemplateImportExport } from "./TemplateImportExport";
 import { usePDFExportContext } from "../../contexts/PDFExportContext";
@@ -109,8 +109,8 @@ const Header: React.FC = () => {
           {/* Logo and Title */}
           <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 min-w-0 flex-1">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              <div className="p-1.5 sm:p-2 bg-primary-50 rounded-lg flex-shrink-0">
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-primary" />
+              <div className="flex-shrink-0">
+                <img src="/logo.svg" alt="ATS Resume Builder" className="h-8 w-8 sm:h-10 sm:w-10 hover:scale-105 transition-transform duration-200" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">

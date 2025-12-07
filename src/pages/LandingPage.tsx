@@ -92,7 +92,20 @@ export const LandingPage: React.FC = () => {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <main className="min-h-screen bg-white relative isolate selection:bg-primary selection:text-white overflow-hidden">
+      {/* Professional Animated Background */}
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white overflow-hidden">
+        {/* Grid Pattern */}
+        <div className="absolute h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        
+        {/* Animated Orbs */}
+        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px] animate-blob"></div>
+        <div className="absolute right-0 top-20 -z-10 h-[250px] w-[250px] rounded-full bg-purple-500/20 opacity-20 blur-[100px] animate-blob" style={{ animationDelay: "2s" }}></div>
+        <div className="absolute left-10 top-40 -z-10 h-[200px] w-[200px] rounded-full bg-blue-400/20 opacity-20 blur-[100px] animate-blob" style={{ animationDelay: "4s" }}></div>
+        
+        {/* Gradient Overlay */}
+        <div className="absolute right-0 top-0 -z-10 h-full w-full bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff1a,transparent)]"></div>
+      </div>
       <SEO 
         title="Free ATS Resume Builder for Software Engineers" 
         description="Build professional, ATS-friendly resumes for free. 100% free resume builder with PDF export, real-time preview, and developer-focused templates."
@@ -103,7 +116,7 @@ export const LandingPage: React.FC = () => {
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-2 min-w-0">
-            <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0" />
+            <img src="/logo.svg" alt="Resume Builder" className="h-8 w-8 sm:h-10 sm:w-10" />
             <span className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
               ResumeBuilder
             </span>
@@ -254,7 +267,7 @@ export const LandingPage: React.FC = () => {
             {/* Brand */}
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <FileText className="h-6 w-6 text-primary" />
+                <img src="/logo.svg" alt="Resume Builder" className="h-6 w-6" />
                 <span className="text-lg font-semibold text-gray-900">
                   ResumeBuilder
                 </span>
