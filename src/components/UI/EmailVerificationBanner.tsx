@@ -180,6 +180,9 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
                         <p className="mt-1">
                             Click the link in the email to verify your account and start building your resume.
                         </p>
+                        <p className="mt-1 font-medium">
+                            Please check your spam folder if you do not see the email.
+                        </p>
                     </div>
 
                     {/* Status Messages */}
