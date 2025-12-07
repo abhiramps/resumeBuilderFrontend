@@ -275,13 +275,13 @@ export const SignupPage: React.FC = () => {
             />
             <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
               I agree to the{" "}
-              <a href="#" className="text-blue-600 hover:text-blue-500">
+              <Link to="/terms" className="text-blue-600 hover:text-blue-500">
                 Terms of Service
-              </a>{" "}
+              </Link>{" "}
               and{" "}
-              <a href="#" className="text-blue-600 hover:text-blue-500">
+              <Link to="/privacy-policy" className="text-blue-600 hover:text-blue-500">
                 Privacy Policy
-              </a>
+              </Link>
             </label>
           </div>
 
