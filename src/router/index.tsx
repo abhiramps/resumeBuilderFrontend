@@ -16,6 +16,8 @@ import {
   EditorPage,
   SharePage,
   VersionsPage,
+  TermsPage,
+  PrivacyPolicyPage,
 } from "../pages";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeProvider } from "../contexts/ResumeContext";
@@ -71,6 +73,14 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <LandingPage />,
+  },
+  {
+    path: "/terms",
+    element: <TermsPage />,
+  },
+  {
+    path: "/privacy-policy",
+    element: <PrivacyPolicyPage />,
   },
   {
     path: "/login",

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /editor/
+Disallow: /profile/
+
+Sitemap: https://resumebuildr.org/sitemap.xml

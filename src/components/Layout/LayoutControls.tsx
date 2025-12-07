@@ -239,10 +239,10 @@ export const LayoutControls: React.FC = () => {
       <div className="border-b border-gray-200">
         <button
           onClick={() => toggleSection('template')}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
         >
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center">
-            <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-900 flex items-center">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full mr-2"></div>
             Template Settings
           </h3>
           {isSectionExpanded('template') ? (
@@ -252,7 +252,7 @@ export const LayoutControls: React.FC = () => {
           )}
         </button>
         {isSectionExpanded('template') && (
-          <div className="px-4 pb-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
             <TemplateCustomization />
           </div>
         )}
@@ -262,10 +262,10 @@ export const LayoutControls: React.FC = () => {
       <div className="border-b border-gray-200">
         <button
           onClick={() => toggleSection('margins')}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
         >
-          <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-            <Ruler className="w-4 h-4 text-gray-600 mr-2" />
+          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 flex items-center">
+            <Ruler className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 mr-2" />
             Page Margins
           </h4>
           {isSectionExpanded('margins') ? (
@@ -275,7 +275,7 @@ export const LayoutControls: React.FC = () => {
           )}
         </button>
         {isSectionExpanded('margins') && (
-          <div className="px-4 pb-4 space-y-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4">
             {/* Unit Toggle */}
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-600">Unit:</span>
@@ -387,10 +387,10 @@ export const LayoutControls: React.FC = () => {
       <div className="border-b border-gray-200">
         <button
           onClick={() => toggleSection('spacing')}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
         >
-          <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-            <Space className="w-4 h-4 text-gray-600 mr-2" />
+          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 flex items-center">
+            <Space className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 mr-2" />
             Spacing
           </h4>
           {isSectionExpanded('spacing') ? (
@@ -400,7 +400,7 @@ export const LayoutControls: React.FC = () => {
           )}
         </button>
         {isSectionExpanded('spacing') && (
-          <div className="px-4 pb-4 space-y-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4">
             {/* Section Spacing */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-gray-600">Section Spacing</label>
@@ -448,10 +448,10 @@ export const LayoutControls: React.FC = () => {
       <div className="border-b border-gray-200">
         <button
           onClick={() => toggleSection('typography')}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
         >
-          <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-            <Type className="w-4 h-4 text-gray-600 mr-2" />
+          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 flex items-center">
+            <Type className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 mr-2" />
             Typography
           </h4>
           {isSectionExpanded('typography') ? (
@@ -461,7 +461,7 @@ export const LayoutControls: React.FC = () => {
           )}
         </button>
         {isSectionExpanded('typography') && (
-          <div className="px-4 pb-4 space-y-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4">
             {/* Font Size Presets */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-gray-600">Size Presets</label>
@@ -581,10 +581,10 @@ export const LayoutControls: React.FC = () => {
       <div className="border-b border-gray-200">
         <button
           onClick={() => toggleSection('data')}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
         >
-          <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-            <Database className="w-4 h-4 text-gray-600 mr-2" />
+          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 flex items-center">
+            <Database className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 mr-2" />
             Data Management
           </h4>
           {isSectionExpanded('data') ? (
@@ -594,7 +594,7 @@ export const LayoutControls: React.FC = () => {
           )}
         </button>
         {isSectionExpanded('data') && (
-          <div className="px-4 pb-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
             <DataManagement />
           </div>
         )}
@@ -604,10 +604,10 @@ export const LayoutControls: React.FC = () => {
       <div className="border-b border-gray-200">
         <button
           onClick={() => toggleSection('colors')}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
         >
-          <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-            <Palette className="w-4 h-4 text-gray-600 mr-2" />
+          <h4 className="text-xs sm:text-sm font-semibold text-gray-900 flex items-center">
+            <Palette className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 mr-2" />
             Colors
           </h4>
           {isSectionExpanded('colors') ? (
@@ -617,7 +617,7 @@ export const LayoutControls: React.FC = () => {
           )}
         </button>
         {isSectionExpanded('colors') && (
-          <div className="px-4 pb-4 space-y-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-3 sm:space-y-4">
             {/* Color Presets */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-gray-600">Color Schemes</label>
