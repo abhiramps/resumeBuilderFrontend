@@ -1,0 +1,17 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <desc>Resume Builder Logo - Minimalist Document</desc>
+  <!-- Background Container with Shadow -->
+  <rect x="40" y="30" width="120" height="150" rx="16" fill="#2c3e50" />
+  
+  <!-- Paper/Content Area -->
+  <rect x="65" y="60" width="70" height="90" rx="4" fill="#ffffff" fill-opacity="0.95" />
+  
+  <!-- Accent Lines (Abstract Text) -->
+  <rect x="80" y="85" width="40" height="6" rx="3" fill="#cbd5e1" />
+  <rect x="80" y="105" width="40" height="6" rx="3" fill="#cbd5e1" />
+  <rect x="80" y="125" width="25" height="6" rx="3" fill="#cbd5e1" />
+  
+  <!-- Success/Accent Element (The "Premium" touch) -->
+  <circle cx="140" cy="160" r="24" fill="#6366f1" stroke="#ffffff" stroke-width="4" />
+  <path d="M132 160 L137 165 L148 154" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
