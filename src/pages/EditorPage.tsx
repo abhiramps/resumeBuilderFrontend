@@ -329,10 +329,9 @@ const EditorPageContent: React.FC = () => {
                     <Button
                         variant="secondary"
                         onClick={() => setShowTemplateSelector(!showTemplateSelector)}
-                        className="hidden sm:flex"
+                        className="flex"
                     >
-                        <span className="hidden md:inline">Template</span>
-                        <span className="md:hidden">T</span>
+                        <span className="inline">Template</span>
                     </Button>
 
                     <Button

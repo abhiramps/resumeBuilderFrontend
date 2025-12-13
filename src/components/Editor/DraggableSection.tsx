@@ -18,7 +18,7 @@ export const DraggableSection: React.FC<DraggableSectionProps> = ({
     onToggle,
     onDelete,
 }) => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const {
         attributes,

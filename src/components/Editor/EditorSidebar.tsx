@@ -14,7 +14,7 @@ import { ResumeSection } from '../../types/resume.types';
 
 export const EditorSidebar: React.FC = () => {
     const { resume, dispatch, atsValidation } = useResumeContext();
-    const [isPersonalInfoCollapsed, setIsPersonalInfoCollapsed] = React.useState(false);
+    const [isPersonalInfoCollapsed, setIsPersonalInfoCollapsed] = React.useState(true);
 
     const handleReorderSections = (sectionIds: string[]) => {
         dispatch({ type: 'REORDER_SECTIONS', payload: sectionIds });
