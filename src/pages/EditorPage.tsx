@@ -17,7 +17,7 @@ import { TemplateSelector } from '../components/UI/TemplateSelector';
 
 import { usePDFExportContext } from '../contexts/PDFExportContext';
 import { useReactToPrint } from 'react-to-print';
-import { ArrowLeft, Download, Share2, History, Eye, EyeOff, Settings, Save } from 'lucide-react';
+import { ArrowLeft, Download, Share2, History, Eye, Settings, Save } from 'lucide-react';
 
 const EditorPageContent: React.FC = () => {
     const { id } = useParams<{ id: string }>();
