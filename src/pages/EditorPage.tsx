@@ -25,9 +25,9 @@ const EditorPageContent: React.FC = () => {
     const { currentResume, loadResume, updateResume, isSaving, error } = useResumeBackend();
     const { resume, dispatch } = useResumeContext();
 
-    const [showPreview, setShowPreview] = useState(true);
+    const [activeView, setActiveView] = useState('preview'); // 'edit', 'preview', 'settings'
+    
     const [showRightSidebar, setShowRightSidebar] = useState(true);
-    const [showLeftSidebar, setShowLeftSidebar] = useState(false);
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -43,7 +43,7 @@ const EditorPageContent: React.FC = () => {
             hasLoadedRef.current = true;
             loadResume(id);
         }
-    }, [id]);
+    }, [id, loadResume]);
 
     // Sync backend resume to local context (only once when data is loaded)
     useEffect(() => {
@@ -129,14 +129,14 @@ const EditorPageContent: React.FC = () => {
                 });
             }
         }
-    }, [currentResume?.id]);
+    }, [currentResume, id, dispatch, resume]);
 
     // Initialize edited title when currentResume changes
     useEffect(() => {
         if (currentResume) {
             setEditedTitle(currentResume.title);
         }
-    }, [currentResume?.id]);
+    }, [currentResume]);
 
     // Manual save function
     const handleSave = useCallback(async () => {
@@ -282,10 +282,6 @@ const EditorPageContent: React.FC = () => {
         setShowRightSidebar(!showRightSidebar);
     };
 
-    const togglePreview = () => {
-        setShowPreview(!showPreview);
-    };
-
     if (!currentResume) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -330,7 +326,6 @@ const EditorPageContent: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                    {/* Template Selector - Hidden on mobile, shown on tablet+ */}
                     <Button
                         variant="secondary"
                         onClick={() => setShowTemplateSelector(!showTemplateSelector)}
@@ -340,28 +335,6 @@ const EditorPageContent: React.FC = () => {
                         <span className="md:hidden">T</span>
                     </Button>
 
-                    {/* Toggle Left Sidebar (Mobile) */}
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowLeftSidebar(!showLeftSidebar)}
-                        className="lg:hidden flex-shrink-0"
-                        title="Toggle Editor"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </Button>
-
-                    {/* Toggle Preview (Mobile) */}
-                    <Button
-                        variant="secondary"
-                        onClick={togglePreview}
-                        className="lg:hidden flex-shrink-0"
-                    >
-                        {showPreview ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </Button>
-
-                    {/* Toggle Right Sidebar (Desktop) */}
                     <Button
                         variant="secondary"
                         onClick={toggleRightSidebar}
@@ -371,19 +344,16 @@ const EditorPageContent: React.FC = () => {
                         <Settings className="w-5 h-5" />
                     </Button>
 
-                    {/* Version History - Hidden on mobile */}
                     <Button variant="secondary" onClick={handleVersions} className="hidden md:flex">
                         <History className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                         <span className="hidden lg:inline">Versions</span>
                     </Button>
 
-                    {/* Share - Hidden on mobile */}
                     <Button variant="secondary" onClick={handleShare} className="hidden md:flex">
                         <Share2 className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                         <span className="hidden lg:inline">Share</span>
                     </Button>
 
-                    {/* Save Button */}
                     <Button
                         variant="primary"
                         onClick={handleSave}
@@ -403,7 +373,6 @@ const EditorPageContent: React.FC = () => {
                         )}
                     </Button>
 
-                    {/* Export PDF - Icon only on mobile */}
                     <Button
                         variant="secondary"
                         onClick={handleExportClick}
@@ -425,14 +394,12 @@ const EditorPageContent: React.FC = () => {
                 </div>
             </header>
 
-            {/* Error Message */}
             {error && (
                 <div className="bg-red-50 border-b border-red-200 px-4 py-3">
                     <p className="text-sm text-red-800">{error}</p>
                 </div>
             )}
 
-            {/* Template Selector Dropdown */}
             {showTemplateSelector && (
                 <div className="bg-white border-b border-gray-200 px-4 py-4 flex justify-center">
                     <TemplateSelector
@@ -444,22 +411,41 @@ const EditorPageContent: React.FC = () => {
                 </div>
             )}
 
-            {/* Main Content - Three Panel Layout */}
             <div className="flex-1 flex overflow-hidden relative">
-                {/* Mobile Left Sidebar Overlay */}
-                {showLeftSidebar && (
-                    <div className="lg:hidden fixed inset-0 z-40">
-                        <div 
-                            className="absolute inset-0 bg-black bg-opacity-50"
-                            onClick={() => setShowLeftSidebar(false)}
-                        />
-                        <div 
-                            className="absolute left-0 top-0 bottom-0 w-[85vw] max-w-sm bg-white shadow-xl overflow-y-auto"
-                            onClick={(e) => e.stopPropagation()}
-                        >
+                {/* Desktop Left Panel */}
+                <div className="hidden lg:block w-96 bg-white border-r border-gray-200 overflow-y-auto">
+                    <EditorSidebar />
+                </div>
+
+                {/* Center Panel (Desktop and Mobile Preview) */}
+                <div className="flex-1 overflow-y-auto bg-gray-100 lg:p-6">
+                    <div className="hidden lg:block">
+                        <PreviewContainer showZoomControls={true} showPrintMode={true} />
+                    </div>
+                    <div className="lg:hidden">
+                        {activeView === 'preview' && (
+                           <div className="p-4">
+                                <PreviewContainer showZoomControls={false} showPrintMode={false} />
+                           </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Desktop Right Panel */}
+                {showRightSidebar && (
+                    <div className="hidden lg:block w-80 bg-white border-l border-gray-200 overflow-y-auto">
+                        <LayoutControls />
+                    </div>
+                )}
+
+                {/* Mobile Overlays */}
+                <div className="lg:hidden">
+                    {/* Edit Panel Overlay */}
+                    {activeView === 'edit' && (
+                        <div className="fixed inset-0 z-40 bg-white overflow-y-auto pb-16">
                             <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
                                 <h2 className="text-lg font-semibold">Edit Resume</h2>
-                                <Button variant="ghost" onClick={() => setShowLeftSidebar(false)}>
+                                <Button variant="ghost" onClick={() => setActiveView('preview')}>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -467,55 +453,30 @@ const EditorPageContent: React.FC = () => {
                             </div>
                             <EditorSidebar />
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Desktop/Mobile Left Panel - Editor Sidebar */}
-                <div className={`${showLeftSidebar ? 'lg:block' : 'hidden lg:block'} w-full lg:w-96 bg-white border-r border-gray-200 overflow-y-auto pb-16 lg:pb-0`}>
-                    <EditorSidebar />
+                    {/* Settings Panel Overlay */}
+                    {activeView === 'settings' && (
+                        <div className="fixed inset-0 z-40 bg-white overflow-y-auto pb-16">
+                           <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
+                                <h2 className="text-lg font-semibold">Settings</h2>
+                                <Button variant="ghost" onClick={() => setActiveView('preview')}>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </Button>
+                            </div>
+                            <LayoutControls />
+                        </div>
+                    )}
                 </div>
 
-                {/* Center Panel - Preview (Desktop) */}
-                {showPreview && (
-                    <div className="hidden lg:block flex-1 overflow-y-auto bg-gray-100 p-4 md:p-6">
-                        <PreviewContainer
-                            showZoomControls={true}
-                            showPrintMode={true}
-                        />
-                    </div>
-                )}
-
-                {/* Right Panel - Layout Controls (Desktop) */}
-                {showRightSidebar && (
-                    <div className="hidden lg:block w-80 bg-white border-l border-gray-200 overflow-y-auto">
-                        <LayoutControls />
-                    </div>
-                )}
-
-                {/* Mobile Preview (Full Screen) */}
-                {showPreview && (
-                    <div className="lg:hidden fixed inset-0 z-50 bg-gray-100 overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
-                            <h2 className="text-lg font-semibold">Preview</h2>
-                            <Button variant="ghost" onClick={togglePreview}>
-                                <EyeOff className="w-5 h-5" />
-                            </Button>
-                        </div>
-                        <div className="p-4">
-                            <PreviewContainer
-                                showZoomControls={true}
-                                showPrintMode={true}
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {/* Mobile Bottom Navigation Bar */}
-                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 flex items-center justify-around z-30 shadow-lg">
+                {/* Mobile Bottom Navigation */}
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 flex items-center justify-around z-50 shadow-lg">
                     <Button
                         variant="ghost"
-                        onClick={() => setShowLeftSidebar(!showLeftSidebar)}
-                        className={`flex flex-col items-center gap-1 ${showLeftSidebar ? 'text-blue-600' : 'text-gray-600'}`}
+                        onClick={() => setActiveView('edit')}
+                        className={`flex flex-col items-center gap-1 ${activeView === 'edit' ? 'text-blue-600' : 'text-gray-600'}`}
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -524,42 +485,22 @@ const EditorPageContent: React.FC = () => {
                     </Button>
                     <Button
                         variant="ghost"
-                        onClick={togglePreview}
-                        className={`flex flex-col items-center gap-1 ${showPreview ? 'text-blue-600' : 'text-gray-600'}`}
+                        onClick={() => setActiveView('preview')}
+                        className={`flex flex-col items-center gap-1 ${activeView === 'preview' ? 'text-blue-600' : 'text-gray-600'}`}
                     >
-                        {showPreview ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        <Eye className="w-5 h-5" />
                         <span className="text-xs">Preview</span>
                     </Button>
                     <Button
                         variant="ghost"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="flex flex-col items-center gap-1 text-gray-600"
+                        onClick={() => setActiveView('settings')}
+                        className={`flex flex-col items-center gap-1 ${activeView === 'settings' ? 'text-blue-600' : 'text-gray-600'}`}
                     >
-                        {isSaving ? (
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
-                        ) : (
-                            <Save className="w-5 h-5" />
-                        )}
-                        <span className="text-xs">Save</span>
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        onClick={handleExportClick}
-                        disabled={isExporting}
-                        className="flex flex-col items-center gap-1 text-gray-600"
-                    >
-                        {isExporting ? (
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
-                        ) : (
-                            <Download className="w-5 h-5" />
-                        )}
-                        <span className="text-xs">Export</span>
+                        <Settings className="w-5 h-5" />
+                        <span className="text-xs">Settings</span>
                     </Button>
                 </div>
             </div>
-
-
         </div>
     );
 };
