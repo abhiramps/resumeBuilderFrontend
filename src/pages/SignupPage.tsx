@@ -15,6 +15,7 @@ export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
   const {
     signup,
+    loginWithOAuth,
     isLoading,
     error,
     clearError,
@@ -312,13 +313,9 @@ export const SignupPage: React.FC = () => {
             <Button
               type="button"
               variant="secondary"
-              className="w-full opacity-60 cursor-not-allowed text-sm"
-              disabled={true}
-              onClick={() => {
-                // OAuth implementation will be added
-                console.log("Google OAuth");
-              }}
-              title="OAuth login coming soon"
+              className="w-full text-sm"
+              onClick={() => loginWithOAuth('google')}
+              disabled={isLoading}
             >
               <svg className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" viewBox="0 0 24 24">
                 <path
@@ -345,13 +342,9 @@ export const SignupPage: React.FC = () => {
             <Button
               type="button"
               variant="secondary"
-              className="w-full opacity-60 cursor-not-allowed text-sm"
-              disabled={true}
-              onClick={() => {
-                // OAuth implementation will be added
-                console.log("GitHub OAuth");
-              }}
-              title="OAuth login coming soon"
+              className="w-full text-sm"
+              onClick={() => loginWithOAuth('github')}
+              disabled={isLoading}
             >
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2"

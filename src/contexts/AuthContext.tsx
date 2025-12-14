@@ -20,6 +20,8 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
   clearError: () => void;
+  loginWithOAuth: (provider: 'google' | 'github') => Promise<void>;
+  handleOAuthCallback: (code: string) => Promise<void>;
   // Email verification
   isEmailVerified: boolean;
   pendingVerificationEmail: string | null;
@@ -244,6 +246,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setPendingVerificationEmail(null);
   }, []);
 
+    const loginWithOAuth = useCallback(async (provider: 'google' | 'github') => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const { url } = await authService.signInWithOAuth(provider);
+            window.location.href = url;
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.error?.message || 'OAuth login failed. Please try again.';
+            setError(errorMessage);
+            throw new Error(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const handleOAuthCallback = useCallback(async (code: string) => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const response = await authService.handleOAuthCallback(code);
+            if (response.user) {
+                setUser(response.user);
+            }
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.error?.message || 'OAuth callback failed. Please try again.';
+            setError(errorMessage);
+            throw new Error(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
   /**
    * Check if email is verified
    */
@@ -259,6 +293,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     logout,
     refreshAuth,
     clearError,
+    loginWithOAuth,
+    handleOAuthCallback,
     isEmailVerified,
     pendingVerificationEmail,
     resendVerificationEmail,

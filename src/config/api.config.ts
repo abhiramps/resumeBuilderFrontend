@@ -15,8 +15,9 @@ export const API_CONFIG = {
             SIGNIN: '/auth/signin',
             SIGNOUT: '/auth/signout',
             SESSION: '/auth/session',
-            GOOGLE: '/auth/google',
-            GITHUB: '/auth/github',
+            GOOGLE: '/auth/oauth/google',
+            GITHUB: '/auth/oauth/github',
+            CALLBACK: '/auth/oauth/callback',
         },
 
         // User
