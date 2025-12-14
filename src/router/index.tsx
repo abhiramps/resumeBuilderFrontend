@@ -19,6 +19,7 @@ import {
   TermsPage,
   PrivacyPolicyPage,
   OAuthCallbackPage,
+  ResetPasswordPage,
 } from "../pages";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeProvider } from "../contexts/ResumeContext";
@@ -104,6 +105,14 @@ export const router = createBrowserRouter([
     element: (
       <PublicRoute>
         <ForgotPasswordPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/reset-password",
+    element: (
+      <PublicRoute>
+        <ResetPasswordPage />
       </PublicRoute>
     ),
   },

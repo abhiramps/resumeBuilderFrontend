@@ -18,6 +18,7 @@ export const API_CONFIG = {
             GOOGLE: '/auth/oauth/google',
             GITHUB: '/auth/oauth/github',
             CALLBACK: '/auth/oauth/callback',
+            RESET_PASSWORD: '/auth/reset-password',
         },
 
         // User
