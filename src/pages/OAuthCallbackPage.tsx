@@ -1,38 +1,32 @@
-/**
- * OAuth Callback Page
- * Handles the redirect from the OAuth provider and completes the login process.
- */
 
-import React, { useEffect, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-
-function useQuery() {
-    const { search } = useLocation();
-    return useMemo(() => new URLSearchParams(search), [search]);
-}
 
 export const OAuthCallbackPage: React.FC = () => {
     const navigate = useNavigate();
-    const { handleOAuthCallback, error } = useAuth();
-    const query = useQuery();
+    const { isAuthenticated, error } = useAuth();
+
+    // If authenticated, PublicRoute will handle redirect to /dashboard.
+    // Use this effect for error handling or timeout.
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
     useEffect(() => {
-        const code = query.get('code');
-        if (code) {
-            handleOAuthCallback(code)
-                .then(() => {
-                    navigate('/dashboard');
-                })
-                .catch((err) => {
-                    console.error('OAuth callback error:', err);
-                    navigate('/login');
-                });
-        } else {
-            // No code found, redirect to login
-            navigate('/login');
-        }
-    }, [handleOAuthCallback, navigate, query]);
+        // Fallback timeout if auth doesn't happen
+        const timer = setTimeout(() => {
+            if (!isAuthenticated) {
+                console.error("OAuth callback timeout");
+                navigate('/login?error=timeout');
+            }
+        }, 10000); // 10 seconds timeout
+
+        return () => clearTimeout(timer);
+    }, [isAuthenticated, navigate]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -40,6 +34,7 @@ export const OAuthCallbackPage: React.FC = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
                 <p className="mt-4 text-gray-600">Completing authentication...</p>
                 {error && <p className="mt-4 text-red-600">{error}</p>}
+                <p className="mt-2 text-sm text-gray-500">Please wait while we verify your account.</p>
             </div>
         </div>
     );
