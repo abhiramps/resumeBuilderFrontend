@@ -10,6 +10,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { supabase } from '../lib/supabase';
 import { authService } from "../services/auth.service";
 import { API_CONFIG } from "../config/api.config";
 import type { User, AuthState } from "../types/auth.types";
@@ -21,7 +22,6 @@ interface AuthContextType extends AuthState {
   refreshAuth: () => Promise<void>;
   clearError: () => void;
   loginWithOAuth: (provider: 'google' | 'github') => Promise<void>;
-  handleOAuthCallback: (code: string) => Promise<void>;
   // Email verification
   isEmailVerified: boolean;
   pendingVerificationEmail: string | null;
@@ -44,33 +44,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   >(null);
 
   /**
-   * Initialize auth state on mount
+   * Initialize auth state on mount and listen for changes
    */
   useEffect(() => {
+    let mounted = true;
+
+    // Check for initial session (handling OAuth redirect automatically via Supabase client)
     const initAuth = async () => {
       try {
-        // Check if user is authenticated
-        if (authService.isAuthenticated()) {
-          // Try to get current session
-          const session = await authService.getSession();
-          setUser(session.user);
-        } else {
-          // Check for stored user data
-          const storedUser = authService.getStoredUser();
-          if (storedUser) {
-            setUser(storedUser);
+          if (authService.isAuthenticated()) {
+             const session = await authService.getSession();
+             if (mounted) setUser(session.user);
+          } else {
+             const storedUser = authService.getStoredUser();
+             if (mounted && storedUser) setUser(storedUser);
           }
-        }
       } catch (err) {
-        // If session check fails, clear auth
-        await authService.signOut();
-        setUser(null);
+        if (mounted) {
+            await authService.signOut();
+            setUser(null);
+        }
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
-
+    
     initAuth();
+
+    // Set up real-time auth listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event, session?.user?.email);
+      
+      if (event === 'SIGNED_IN' && session) {
+        // Sync with backend whenever we get a new session (login, oauth, etc)
+        try {
+            const data = await authService.syncWithBackend(session);
+            if (mounted) setUser(data.user);
+        } catch (err) {
+            console.error('Failed to sync auth state:', err);
+            // Fallback to supabase user if sync fails? 
+            // syncWithBackend already handles fallback.
+        }
+      } else if (event === 'SIGNED_OUT') {
+        if (mounted) setUser(null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   /**
@@ -261,23 +286,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
     }, []);
 
-    const handleOAuthCallback = useCallback(async (code: string) => {
-        try {
-            setIsLoading(true);
-            setError(null);
-            const response = await authService.handleOAuthCallback(code);
-            if (response.user) {
-                setUser(response.user);
-            }
-        } catch (err: any) {
-            const errorMessage = err.response?.data?.error?.message || 'OAuth callback failed. Please try again.';
-            setError(errorMessage);
-            throw new Error(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
   /**
    * Check if email is verified
    */
@@ -294,7 +302,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshAuth,
     clearError,
     loginWithOAuth,
-    handleOAuthCallback,
     isEmailVerified,
     pendingVerificationEmail,
     resendVerificationEmail,
