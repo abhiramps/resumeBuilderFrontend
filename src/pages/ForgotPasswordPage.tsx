@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/UI/Button';
 import { Input } from '../components/UI/Input';
+import { authService } from '../services/auth.service';
 
 export const ForgotPasswordPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -42,11 +43,7 @@ export const ForgotPasswordPage: React.FC = () => {
         setError(null);
 
         try {
-            // TODO: Implement password reset API call
-            // await authService.resetPassword(email);
-
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await authService.resetPassword(email);
 
             setIsSuccess(true);
         } catch (err: any) {

@@ -113,7 +113,7 @@ export const authService = {
      */
     async signInWithOAuth(provider: 'google' | 'github'): Promise<OAuthResponse> {
         const redirectUrl = `${window.location.origin}/auth/callback`;
-        console.log("redirectUrl", redirectUrl);
+        // console.log("redirectUrl", redirectUrl);
         
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
@@ -122,8 +122,8 @@ export const authService = {
                 skipBrowserRedirect: true,
             },
         });
-        console.log("data", data);
-        console.log("error", error);
+        // console.log("data", data);
+        // console.log("error", error);
 
 
         if (error) throw error;
@@ -131,8 +131,17 @@ export const authService = {
     },
 
     /**
-     * Handle OAuth callback
+     * Request password reset
      */
+    async resetPassword(email: string): Promise<void> {
+        // We can call supabase directly or our backend if we want to log it
+        // Usually, backend endpoint /auth/reset-password handles this via supabase admin or similar
+        // Let's use the backend endpoint if it exists in API_CONFIG, or fallback to Supabase directly
+        // The backend auth.service.ts has resetPassword method, so let's call backend
+        
+        await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD, { email });
+    },
+
     /**
      * Sync Supabase session with Backend
      */
@@ -149,9 +158,9 @@ export const authService = {
         // 2. Sync with Backend (ensure user exists in DB)
         try {
             // We call the session endpoint which should upsert the user
-            console.log('Frontend: Attempting to sync with backend...');
+            // console.log('Frontend: Attempting to sync with backend...');
             const response = await apiClient.get<SessionResponse>(API_CONFIG.ENDPOINTS.AUTH.SESSION);
-            console.log('Frontend: Backend sync successful', response.data);
+            // console.log('Frontend: Backend sync successful', response.data);
             
             // Return combined data
             return {
