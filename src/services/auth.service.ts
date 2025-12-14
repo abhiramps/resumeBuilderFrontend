@@ -12,6 +12,10 @@ import type {
     SessionResponse,
 } from '../types/api.types';
 
+interface OAuthResponse {
+    url: string;
+}
+
 export const authService = {
     /**
      * Sign up a new user
@@ -81,22 +85,35 @@ export const authService = {
     },
 
     /**
-     * OAuth sign in with Google
+     * OAuth sign in
      */
-    async signInWithGoogle(): Promise<{ url: string }> {
-        const response = await apiClient.post<{ url: string }>(
-            API_CONFIG.ENDPOINTS.AUTH.GOOGLE
-        );
+    async signInWithOAuth(provider: 'google' | 'github'): Promise<OAuthResponse> {
+        const endpoints = {
+            google: API_CONFIG.ENDPOINTS.AUTH.GOOGLE,
+            github: API_CONFIG.ENDPOINTS.AUTH.GITHUB,
+        };
+
+        const response = await apiClient.get<OAuthResponse>(endpoints[provider]);
         return response.data;
     },
 
     /**
-     * OAuth sign in with GitHub
+     * Handle OAuth callback
      */
-    async signInWithGithub(): Promise<{ url: string }> {
-        const response = await apiClient.post<{ url: string }>(
-            API_CONFIG.ENDPOINTS.AUTH.GITHUB
+    async handleOAuthCallback(code: string): Promise<AuthResponse> {
+        const response = await apiClient.get<AuthResponse>(
+            API_CONFIG.ENDPOINTS.AUTH.CALLBACK,
+            {
+                params: { code },
+            }
         );
+
+        if (response.data.session) {
+            setAuthToken(response.data.session.access_token);
+            localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.data.session.refresh_token);
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
+        }
+
         return response.data;
     },
 

@@ -18,6 +18,7 @@ import {
   VersionsPage,
   TermsPage,
   PrivacyPolicyPage,
+  OAuthCallbackPage,
 } from "../pages";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeProvider } from "../contexts/ResumeContext";
@@ -111,6 +112,14 @@ export const router = createBrowserRouter([
     element: (
       <PublicRoute>
         <EmailConfirmPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/auth/callback",
+    element: (
+      <PublicRoute>
+        <OAuthCallbackPage />
       </PublicRoute>
     ),
   },
