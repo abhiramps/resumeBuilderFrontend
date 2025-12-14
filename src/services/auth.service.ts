@@ -76,10 +76,24 @@ export const authService = {
     async signOut(): Promise<void> {
         try {
             await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.SIGNOUT);
-            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Backend signout failed:', error);
         } finally {
-            // Always clear local storage even if API call fails
+            try {
+                await supabase.auth.signOut();
+            } catch (error) {
+                console.error('Supabase signout failed:', error);
+            }
+            
+            // Always clear local storage
             clearAuthToken();
+            
+            // Manually clear Supabase tokens to prevent infinite loops
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+                    localStorage.removeItem(key);
+                }
+            });
         }
     },
 
