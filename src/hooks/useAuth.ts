@@ -71,26 +71,13 @@ export const useSignOut = () => {
 };
 
 /**
- * Hook to sign in with Google OAuth
+ * Hook to sign in with OAuth
  */
-export const useGoogleSignIn = () => {
+export const useOAuthSignIn = () => {
     return useMutation({
-        mutationFn: () => authService.signInWithGoogle(),
+        mutationFn: (provider: 'google' | 'github') => authService.signInWithOAuth(provider),
         onSuccess: (data) => {
-            // Redirect to Google OAuth URL
-            window.location.href = data.url;
-        },
-    });
-};
-
-/**
- * Hook to sign in with GitHub OAuth
- */
-export const useGithubSignIn = () => {
-    return useMutation({
-        mutationFn: () => authService.signInWithGithub(),
-        onSuccess: (data) => {
-            // Redirect to GitHub OAuth URL
+            // Redirect to OAuth URL
             window.location.href = data.url;
         },
     });
@@ -104,8 +91,7 @@ export const useAuth = () => {
     const signUp = useSignUp();
     const signIn = useSignIn();
     const signOut = useSignOut();
-    const googleSignIn = useGoogleSignIn();
-    const githubSignIn = useGithubSignIn();
+    const oauthSignIn = useOAuthSignIn();
 
     return {
         // State
@@ -118,8 +104,7 @@ export const useAuth = () => {
         signUp: signUp.mutate,
         signIn: signIn.mutate,
         signOut: signOut.mutate,
-        signInWithGoogle: googleSignIn.mutate,
-        signInWithGithub: githubSignIn.mutate,
+        signInWithOAuth: oauthSignIn.mutate,
 
         // Mutation states
         isSigningUp: signUp.isPending,
