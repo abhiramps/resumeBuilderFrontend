@@ -16,3 +16,4 @@ export { VersionsPage } from './VersionsPage';
 export { TermsPage } from './TermsPage';
 export { PrivacyPolicyPage } from './PrivacyPolicyPage';
 export { OAuthCallbackPage } from './OAuthCallbackPage';
+export { ResetPasswordPage } from './ResetPasswordPage';
