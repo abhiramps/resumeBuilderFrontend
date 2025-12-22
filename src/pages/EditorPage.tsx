@@ -294,9 +294,9 @@ const EditorPageContent: React.FC = () => {
     }
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50">
+        <div className="h-screen flex flex-col bg-gray-50 print:h-auto print:overflow-visible">
             {/* Header */}
-            <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2">
+            <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 print:hidden">
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                     <Button variant="ghost" onClick={handleBack} className="flex-shrink-0">
                         <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -394,13 +394,13 @@ const EditorPageContent: React.FC = () => {
             </header>
 
             {error && (
-                <div className="bg-red-50 border-b border-red-200 px-4 py-3">
+                <div className="bg-red-50 border-b border-red-200 px-4 py-3 print:hidden">
                     <p className="text-sm text-red-800">{error}</p>
                 </div>
             )}
 
             {showTemplateSelector && (
-                <div className="bg-white border-b border-gray-200 px-4 py-4 flex justify-center">
+                <div className="bg-white border-b border-gray-200 px-4 py-4 flex justify-center print:hidden">
                     <TemplateSelector
                         currentTemplate={resume.template || 'modern'}
                         onTemplateChange={(template) => {
@@ -410,20 +410,20 @@ const EditorPageContent: React.FC = () => {
                 </div>
             )}
 
-            <div className="flex-1 flex overflow-hidden relative">
+            <div className="flex-1 flex overflow-hidden relative print:overflow-visible">
                 {/* Desktop Left Panel */}
-                <div className="hidden lg:block w-96 bg-white border-r border-gray-200 overflow-y-auto">
+                <div className="hidden lg:block w-96 bg-white border-r border-gray-200 overflow-y-auto print:hidden">
                     <EditorSidebar />
                 </div>
 
                 {/* Center Panel (Desktop and Mobile Preview) */}
-                <div className="flex-1 overflow-y-auto bg-gray-100 lg:p-6">
+                <div className="flex-1 overflow-y-auto bg-gray-100 lg:p-6 print:overflow-visible print:bg-white print:p-0">
                     <div className="hidden lg:block">
                         <PreviewContainer showZoomControls={true} showPrintMode={true} />
                     </div>
                     <div className="lg:hidden">
                         {activeView === 'preview' && (
-                           <div className="p-4">
+                           <div className="p-4 print:p-0">
                                 <PreviewContainer showZoomControls={false} showPrintMode={false} />
                            </div>
                         )}
@@ -432,13 +432,13 @@ const EditorPageContent: React.FC = () => {
 
                 {/* Desktop Right Panel */}
                 {showRightSidebar && (
-                    <div className="hidden lg:block w-80 bg-white border-l border-gray-200 overflow-y-auto">
+                    <div className="hidden lg:block w-80 bg-white border-l border-gray-200 overflow-y-auto print:hidden">
                         <LayoutControls />
                     </div>
                 )}
 
                 {/* Mobile Overlays */}
-                <div className="lg:hidden">
+                <div className="lg:hidden print:hidden">
                     {/* Edit Panel Overlay */}
                     {activeView === 'edit' && (
                         <div className="fixed inset-0 z-40 bg-white overflow-y-auto pb-16">
@@ -471,7 +471,7 @@ const EditorPageContent: React.FC = () => {
                 </div>
 
                 {/* Mobile Bottom Navigation */}
-                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 flex items-center justify-around z-50 shadow-lg">
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 flex items-center justify-around z-50 shadow-lg print:hidden">
                     <Button
                         variant="ghost"
                         onClick={() => setActiveView('edit')}

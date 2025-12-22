@@ -508,7 +508,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
     return (
       <div
         ref={ref}
-        className={`minimal-template ${className}`}
+        className={`minimal-template resume-preview ${className}`}
         style={containerStyles}
       >
         <header style={headerStyles}>
