@@ -640,7 +640,7 @@ export const ModernTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
     return (
       <div
         ref={ref}
-        className={`modern-template ${className}`}
+        className={`modern-template resume-preview ${className}`}
         style={containerStyles}
       >
         <header style={headerStyles}>
