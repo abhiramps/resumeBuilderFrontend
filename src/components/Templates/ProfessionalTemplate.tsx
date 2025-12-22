@@ -519,7 +519,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
     return (
       <div
         ref={ref}
-        className={`professional-template ${className}`}
+        className={`professional-template resume-preview ${className}`}
         style={containerStyles}
       >
         {/* Header Section */}

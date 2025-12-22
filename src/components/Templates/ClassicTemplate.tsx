@@ -630,7 +630,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
     return (
       <div
         ref={ref}
-        className={`classic-template ${className}`}
+        className={`classic-template resume-preview ${className}`}
         style={containerStyles}
       >
         {/* Header Section */}

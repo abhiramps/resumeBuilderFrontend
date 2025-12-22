@@ -18,15 +18,41 @@
       /* Margins injected dynamically via pageStyle prop */
     }
 
+    /* Reset body and html for clean print */
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: auto !important;
+      overflow: visible !important;
+      background: white !important;
+    }
+
     /* Hide all non-resume elements */
     body * {
       visibility: hidden;
     }
 
+    /* Explicitly hide app layout elements */
+    header,
+    nav,
+    .header,
+    .navigation,
+    .sidebar,
+    .controls,
+    .toolbar,
+    footer,
+    button,
+    .no-print,
+    .print-hidden {
+      display: none !important;
+      visibility: hidden !important;
+    }
+
     /* Show only the resume preview */
     .resume-preview,
     .resume-preview * {
-      visibility: visible;
+      visibility: visible !important;
     }
 
     /* Position resume at top of page */
@@ -39,6 +65,7 @@
       min-height: auto;
       box-shadow: none !important;
       margin: 0 !important;
+      padding: 0 !important;
       background: white !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -47,24 +74,20 @@
     /* Hide preview container elements */
     .preview-container > *:not(.preview-area) {
       display: none !important;
+      visibility: hidden !important;
     }
 
     .preview-area {
       background: transparent !important;
       padding: 0 !important;
       margin: 0 !important;
+      overflow: visible !important;
     }
 
     .preview-wrapper {
       transform: none !important;
       margin: 0 !important;
       padding: 0 !important;
-    }
-
-    /* Hide non-printable elements */
-    .no-print,
-    .print-hidden {
-      display: none !important;
     }
 
     /* Ensure proper page breaks */
