@@ -1,50 +1,26 @@
-import { useRef, useCallback, useState, useMemo } from 'react';
-import { useReactToPrint } from 'react-to-print';
+import { useRef, useCallback, useState } from 'react';
 import { Resume } from '../types/resume.types';
+import { resumeService } from '../services/resume.service';
 
 export interface PDFExportOptions {
   fileName?: string;
-  paperSize?: 'letter' | 'a4';
-  quality?: 'standard' | 'high';
 }
 
 export interface UsePDFExportReturn {
   componentRef: React.RefObject<HTMLDivElement>;
-  handleExport: (options?: PDFExportOptions) => void;
+  handleExport: (options?: PDFExportOptions, additionalStyles?: string) => Promise<void>;
   isExporting: boolean;
 }
 
 /**
- * Custom hook for PDF export functionality
+ * Custom hook for PDF export functionality using Server-Side Generation
  * 
- * Uses react-to-print library for high-quality PDF generation with:
- * - Exact WYSIWYG rendering
- * - Letter size (8.5" x 11") format
- * - User-defined page margins applied
- * - Automatic filename generation
- * - Loading state management
- * - Error handling
- * - Print-specific CSS optimization
- * 
- * @param resume - Resume data for filename generation and margin settings
- * @returns Object containing componentRef, handleExport function, and isExporting state
- * 
- * @example
- * ```tsx
- * const { componentRef, handleExport, isExporting } = usePDFExport(resume);
- * 
- * return (
- *   <>
- *     <ResumePreview ref={componentRef} resume={resume} />
- *     <button onClick={() => handleExport()} disabled={isExporting}>
- *       {isExporting ? 'Exporting...' : 'Export PDF'}
- *     </button>
- *   </>
- * );
- * ```
+ * Captures the current HTML and CSS of the resume preview and sends it to the backend
+ * for high-quality PDF generation via Puppeteer.
  */
-export const usePDFExport = (resume: Resume): UsePDFExportReturn => {
-  const componentRef = useRef<HTMLDivElement>(null);
+export const usePDFExport = (resume: Resume, externalRef?: React.RefObject<HTMLDivElement>): UsePDFExportReturn => {
+  const localRef = useRef<HTMLDivElement>(null);
+  const componentRef = externalRef || localRef;
   const [isExporting, setIsExporting] = useState(false);
 
   // Generate filename based on resume data and current date
@@ -53,74 +29,75 @@ export const usePDFExport = (resume: Resume): UsePDFExportReturn => {
 
     const name = resume.personalInfo.fullName || 'Resume';
     const date = new Date().toISOString().split('T')[0];
-    return `${name.replace(/\s+/g, '_')}_Resume_${date}`;
+    return `${name.replace(/\s+/g, '_')}_Resume_${date}.pdf`;
   }, [resume.personalInfo.fullName]);
 
-  // Generate dynamic page style with user's margin settings
-  const pageStyle = useMemo(() => {
-    const margins = resume.layout.pageMargins;
-    return `
-      @page {
-        size: letter;
-        margin: ${margins.top}in ${margins.right}in ${margins.bottom}in ${margins.left}in;
-      }
-      @media print {
-        html, body {
-          width: 100%;
-          height: 100%;
-          margin: 0;
-          padding: 0;
-        }
-        body {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          color-adjust: exact;
-        }
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
-        }
-      }
-    `;
-  }, [resume.layout.pageMargins]);
+  // Extract all stylesheets including Tailwind styles
+  const extractStyles = useCallback((): string => {
+    let cssString = '';
+    const styleSheets = Array.from(document.styleSheets);
 
-  // Handle print with react-to-print (v3.x API)
-  const handlePrint = useReactToPrint({
-    contentRef: componentRef,
-    documentTitle: generateFileName(),
-    onBeforePrint: async () => {
-      setIsExporting(true);
-    },
-    onAfterPrint: () => {
-      setIsExporting(false);
-    },
-    onPrintError: (errorLocation, error) => {
-      console.error('PDF Export Error:', errorLocation, error);
-      setIsExporting(false);
-    },
-    pageStyle,
-    suppressErrors: true,
-  });
+    styleSheets.forEach((sheet) => {
+      try {
+        if (sheet.cssRules) {
+          const rules = Array.from(sheet.cssRules);
+          console.log(`Extracting ${rules.length} rules from sheet`);
+          rules.forEach((rule) => {
+            cssString += rule.cssText;
+          });
+        }
+      } catch (e) {
+        console.warn('Could not read stylesheet rule', e);
+      }
+    });
 
-  // Export handler with options
-  const handleExport = useCallback((_options?: PDFExportOptions) => {
+    return cssString;
+  }, []);
+
+  // Export handler
+  const handleExport = useCallback(async (options?: PDFExportOptions, additionalStyles?: string) => {
     if (!componentRef.current) {
       console.error('Component ref not available');
-      setIsExporting(false);
       return;
     }
 
-    // Verify the ref has content
-    if (componentRef.current.innerHTML.length === 0) {
-      console.error('Component ref is empty');
-      setIsExporting(false);
-      return;
-    }
+    try {
+      setIsExporting(true);
 
-    // Trigger print
-    handlePrint();
-  }, [handlePrint]);
+      // 1. Capture HTML content
+      const htmlContent = componentRef.current.outerHTML;
+
+      // 2. Capture Styles
+      let cssContent = extractStyles();
+      
+      // Append additional styles (like @page rules)
+      if (additionalStyles) {
+        cssContent += `\n${additionalStyles}`;
+      }
+
+      // 3. Send to Backend
+      const pdfBlob = await resumeService.exportResume(htmlContent, cssContent);
+
+      // 4. Trigger Download
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = generateFileName(options?.fileName);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('PDF Export failed:', error);
+      // Ideally show a toast notification here if available
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [resume, generateFileName, extractStyles, componentRef]);
 
   return {
     componentRef,

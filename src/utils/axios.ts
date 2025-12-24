@@ -1,9 +1,5 @@
-/**
- * Axios Instance Configuration
- * Configured with interceptors for authentication and error handling
- */
-
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { supabase } from '../lib/supabase';
 import { API_CONFIG, STORAGE_KEYS } from '../config/api.config';
 import type { ApiError } from '../types/api.types';
 
@@ -37,7 +33,7 @@ apiClient.interceptors.response.use(
     (response) => {
         return response;
     },
-    (error: AxiosError<ApiError>) => {
+    async (error: AxiosError<ApiError>) => {
         // Handle specific error cases
         if (error.response) {
             const { status, data } = error.response;
@@ -47,6 +43,9 @@ apiClient.interceptors.response.use(
                 localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
                 localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
                 localStorage.removeItem(STORAGE_KEYS.USER);
+                
+                // CRITICAL: Sign out from Supabase to prevent auto-login loop
+                await supabase.auth.signOut();
 
                 // Redirect to login if not already there
                 if (!window.location.pathname.includes('/login')) {

@@ -116,10 +116,13 @@ export const resumeService = {
     /**
      * Export resume in specified format
      */
-    async exportResume(id: string, format: 'pdf' | 'docx' | 'json'): Promise<Blob> {
+    /**
+     * Export resume to PDF via server-side generation
+     */
+    async exportResume(html: string, css: string): Promise<Blob> {
         const response = await apiClient.post(
-            API_CONFIG.ENDPOINTS.RESUMES.EXPORT(id),
-            { format },
+            API_CONFIG.ENDPOINTS.RESUMES.EXPORT,
+            { html, css },
             {
                 responseType: 'blob',
             }

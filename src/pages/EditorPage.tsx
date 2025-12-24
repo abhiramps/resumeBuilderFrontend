@@ -16,8 +16,9 @@ import { SaveStatusIndicator } from '../components/UI/SaveStatusIndicator';
 import { TemplateSelector } from '../components/UI/TemplateSelector';
 
 import { usePDFExportContext } from '../contexts/PDFExportContext';
+import { usePDFExport } from '../hooks/usePDFExport';
 import { useReactToPrint } from 'react-to-print';
-import { ArrowLeft, Download, Share2, History, Eye, Settings, Save } from 'lucide-react';
+import { ArrowLeft, Download, Share2, History, Eye, Settings, Save, ChevronDown } from 'lucide-react';
 
 const EditorPageContent: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -26,12 +27,85 @@ const EditorPageContent: React.FC = () => {
     const { resume, dispatch } = useResumeContext();
 
     const [activeView, setActiveView] = useState('preview'); // 'edit', 'preview', 'settings'
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [editedTitle, setEditedTitle] = useState('');
     
     const [showRightSidebar, setShowRightSidebar] = useState(true);
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
-    const [isExporting, setIsExporting] = useState(false);
-    const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [editedTitle, setEditedTitle] = useState('');
+    const [showExportMenu, setShowExportMenu] = useState(false);
+    const exportMenuRef = useRef<HTMLDivElement>(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+                setShowExportMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // PDF Export using context ref
+    const { previewRef } = usePDFExportContext();
+    const { handleExport, isExporting: isServerExporting } = usePDFExport(resume, previewRef);
+
+    // Client-side print logic
+    const pageStyle = `
+        @page {
+            size: letter;
+            margin: ${resume.layout.pageMargins.top}in ${resume.layout.pageMargins.right}in ${resume.layout.pageMargins.bottom}in ${resume.layout.pageMargins.left}in;
+        }
+        @media print {
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+        }
+    `;
+
+    const [isClientExporting, setIsClientExporting] = useState(false);
+
+    const handlePrint = useReactToPrint({
+        contentRef: previewRef,
+        documentTitle: `${resume.personalInfo.fullName || 'Resume'}_${new Date().toISOString().split('T')[0]}`,
+        onBeforePrint: async () => {
+            setIsClientExporting(true);
+        },
+        onAfterPrint: () => {
+            setIsClientExporting(false);
+        },
+        onPrintError: (errorLocation, error) => {
+            console.error('PDF Export Error:', errorLocation, error);
+            setIsClientExporting(false);
+        },
+        pageStyle,
+        suppressErrors: true,
+    });
+
+    const handleExportOption = async (type: 'server' | 'client') => {
+        setShowExportMenu(false);
+        if (type === 'server') {
+            await handleExport(undefined, pageStyle);
+        } else {
+            handlePrint();
+        }
+    };
+
+    const isExporting = isServerExporting || isClientExporting;
 
     // Track if we've loaded the resume from backend
     const hasLoadedRef = useRef(false);
@@ -219,64 +293,7 @@ const EditorPageContent: React.FC = () => {
         }
     };
 
-    // PDF Export using context ref
-    const { previewRef } = usePDFExportContext();
-
-    const generateFileName = () => {
-        const name = resume.personalInfo.fullName || 'Resume';
-        const date = new Date().toISOString().split('T')[0];
-        return `${name.replace(/\s+/g, '_')}_Resume_${date}`;
-    };
-
-    const pageStyle = `
-        @page {
-            size: letter;
-            margin: ${resume.layout.pageMargins.top}in ${resume.layout.pageMargins.right}in ${resume.layout.pageMargins.bottom}in ${resume.layout.pageMargins.left}in;
-        }
-        @media print {
-            html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                color-adjust: exact;
-            }
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-        }
-    `;
-
-    const handlePrint = useReactToPrint({
-        contentRef: previewRef,
-        documentTitle: generateFileName(),
-        onBeforePrint: async () => {
-            setIsExporting(true);
-        },
-        onAfterPrint: () => {
-            setIsExporting(false);
-        },
-        onPrintError: (errorLocation, error) => {
-            console.error('PDF Export Error:', errorLocation, error);
-            setIsExporting(false);
-        },
-        pageStyle,
-        suppressErrors: true,
-    });
-
-    const handleExportClick = () => {
-        if (!previewRef.current) {
-            console.error('Preview ref not available');
-            return;
-        }
-        handlePrint();
-    };
+    // PDF Logic handled above in state declaration for Dual Export support
 
     const toggleRightSidebar = () => {
         setShowRightSidebar(!showRightSidebar);
@@ -372,24 +389,44 @@ const EditorPageContent: React.FC = () => {
                         )}
                     </Button>
 
-                    <Button
-                        variant="secondary"
-                        onClick={handleExportClick}
-                        disabled={isExporting}
-                        className="flex-shrink-0"
-                    >
-                        {isExporting ? (
-                            <>
-                                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white sm:mr-2"></div>
-                                <span className="hidden sm:inline">Exporting...</span>
-                            </>
-                        ) : (
-                            <>
-                                <Download className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-                                <span className="hidden sm:inline">Export PDF</span>
-                            </>
+                    <div className="relative" ref={exportMenuRef}>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShowExportMenu(!showExportMenu)}
+                            disabled={isExporting}
+                            className="flex-shrink-0"
+                        >
+                            {isExporting ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white sm:mr-2"></div>
+                                    <span className="hidden sm:inline">Exporting...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                                    <span className="hidden sm:inline">Export PDF</span>
+                                    <ChevronDown className="w-4 h-4 ml-1" />
+                                </>
+                            )}
+                        </Button>
+
+                        {showExportMenu && !isExporting && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200 py-1">
+                                <button
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    onClick={() => handleExportOption('server')}
+                                >
+                                    Server Export (Beta)
+                                </button>
+                                <button
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    onClick={() => handleExportOption('client')}
+                                >
+                                    Client Export (Stable)
+                                </button>
+                            </div>
                         )}
-                    </Button>
+                    </div>
                 </div>
             </header>
 

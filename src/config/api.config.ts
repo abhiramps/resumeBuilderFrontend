@@ -48,7 +48,7 @@ export const API_CONFIG = {
             RESTORE_VERSION: (id: string, versionId: string) => `/resumes/${id}/versions/${versionId}/restore`,
 
             // Export
-            EXPORT: (id: string) => `/resumes/${id}/export`,
+            EXPORT: '/resumes/export',
 
             // Import
             IMPORT: '/resumes/import',
