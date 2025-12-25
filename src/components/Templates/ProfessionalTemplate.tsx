@@ -1,6 +1,7 @@
-import React, { forwardRef, memo } from "react";
+import React, { forwardRef, memo, useRef, useImperativeHandle } from "react";
 import { TemplateBaseProps } from "./TemplateBase";
 import { templateHelpers } from "../../utils/templateHelpers";
+import { usePageBreaks } from "../../hooks/usePageBreaks";
 import {
   WorkExperience,
   Education,
@@ -28,6 +29,16 @@ import {
 const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
   (props, ref) => {
     const { resume, layout, className = "", printMode = false } = props;
+
+    // Create internal ref for usePageBreaks hook
+    const internalRef = useRef<HTMLDivElement>(null);
+
+    // Sync internal ref with forwarded ref
+    useImperativeHandle(ref, () => internalRef.current as HTMLDivElement);
+
+    // Apply pagination logic in print mode
+    usePageBreaks(internalRef, [resume, layout], printMode);
+
     const enabledSections = resume.sections
       .filter((section) => section.enabled)
       .sort((a, b) => a.order - b.order);
@@ -192,6 +203,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.experiences.map((exp, index) => (
             <div
               key={exp.id || index}
+              className="resume-item"
               style={{
                 marginBottom: "8px",
                 pageBreakInside: "avoid",
@@ -284,6 +296,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.projects.map((project, index) => (
             <div
               key={project.id || index}
+              className="resume-item"
               style={{
                 marginBottom: "8px",
                 pageBreakInside: "avoid",
@@ -357,6 +370,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.education.map((edu, index) => (
             <div
               key={edu.id || index}
+              className="resume-item"
               style={{
                 marginBottom:
                   index < content.education.length - 1 ? "8px" : "0",
@@ -436,6 +450,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.certifications.map((cert, index) => (
             <div
               key={cert.id || index}
+              className="resume-item"
               style={{
                 marginBottom: "3px",
                 pageBreakInside: "avoid",
@@ -518,7 +533,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
 
     return (
       <div
-        ref={ref}
+        ref={internalRef}
         className={`professional-template resume-preview ${className}`}
         style={containerStyles}
       >

@@ -189,38 +189,55 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
           className="preview-wrapper flex justify-center"
           style={{ minHeight: "600px" }}
         >
-          {/* Wrapper with zoom - NOT applied during print */}
-          <div style={printMode ? {} : containerStyles}>
+          {/* Wrapper with zoom */}
+          <div style={containerStyles}>
             {printMode ? (
-              /* Print Mode: Simulate actual printed pages with margins */
-              <div
-                className="print-mode-simulation"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "20px",
-                  background: "white",
-                }}
-              >
-                {/* Wrapper adds visual page margins that simulate @page margins */}
                 <div
+                  className="print-mode-simulation"
                   style={{
-                    width: "8.5in",
-                    minHeight: "11in",
-                    background: "white",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                    /* Use dynamic margins from layout settings to match PDF export */
-                    padding: `${resume.layout.pageMargins.top}in ${resume.layout.pageMargins.right}in ${resume.layout.pageMargins.bottom}in ${resume.layout.pageMargins.left}in`,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "20px",
+                    width: "100%",
                   }}
                 >
-                  <ResumePreview
-                    ref={previewRef}
-                    resume={resume}
-                    printMode={printMode}
-                    className=""
-                  />
+                  {/* Wrapper adds visual page margins and page break simulation */}
+                  <div
+                    style={{
+                      width: "8.5in",
+                      minHeight: "11in",
+                      /* 
+                         Simulate separate pages using a repeating gradient background.
+                         Page Height: 11in (approx 1056px at 96 DPI)
+                         Gap: 40px
+                      */
+                      backgroundImage: `repeating-linear-gradient(
+                        to bottom,
+                        #ffffff,
+                        #ffffff 1056px,
+                        #d1d5db 1056px,
+                        #d1d5db 1096px
+                      )`,
+                      position: "relative",
+                      /* Padding matching the layout */
+                      padding: `${resume.layout.pageMargins.top}in ${resume.layout.pageMargins.right}in ${resume.layout.pageMargins.bottom}in ${resume.layout.pageMargins.left}in`,
+                    }}
+                  >
+                   
+                    <ResumePreview
+                      ref={previewRef}
+                      resume={resume}
+                      printMode={printMode}
+                      className=""
+                    />
+
+                  </div>
+                  
+                  <div className="text-gray-400 text-xs mt-2">
+                    * Lines indicate approximate 11" page breaks
+                  </div>
                 </div>
-              </div>
             ) : (
               /* Normal Mode: Single continuous view */
               <ResumePreview
