@@ -1,4 +1,4 @@
-import React, { forwardRef, memo } from "react";
+import React, { forwardRef, memo, useRef, useImperativeHandle } from "react";
 import { TemplateBaseProps } from "./TemplateBase";
 import { templateHelpers } from "../../utils/templateHelpers";
 import { usePageBreaks } from "../../hooks/usePageBreaks";
@@ -29,9 +29,15 @@ import {
 const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
   (props, ref) => {
     const { resume, layout, className = "", printMode = false } = props;
-    
+
+    // Create internal ref for usePageBreaks hook
+    const internalRef = useRef<HTMLDivElement>(null);
+
+    // Sync internal ref with forwarded ref
+    useImperativeHandle(ref, () => internalRef.current as HTMLDivElement);
+
     // Apply pagination logic in print mode
-    usePageBreaks(ref, [resume, layout], printMode);
+    usePageBreaks(internalRef, [resume, layout], printMode);
 
     const enabledSections = resume.sections
       .filter((section) => section.enabled)
@@ -527,7 +533,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
 
     return (
       <div
-        ref={ref}
+        ref={internalRef}
         className={`professional-template resume-preview ${className}`}
         style={containerStyles}
       >
