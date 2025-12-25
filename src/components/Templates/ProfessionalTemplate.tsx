@@ -1,6 +1,7 @@
 import React, { forwardRef, memo } from "react";
 import { TemplateBaseProps } from "./TemplateBase";
 import { templateHelpers } from "../../utils/templateHelpers";
+import { usePageBreaks } from "../../hooks/usePageBreaks";
 import {
   WorkExperience,
   Education,
@@ -28,6 +29,10 @@ import {
 const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
   (props, ref) => {
     const { resume, layout, className = "", printMode = false } = props;
+    
+    // Apply pagination logic in print mode
+    usePageBreaks(ref, [resume, layout], printMode);
+
     const enabledSections = resume.sections
       .filter((section) => section.enabled)
       .sort((a, b) => a.order - b.order);
@@ -192,6 +197,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.experiences.map((exp, index) => (
             <div
               key={exp.id || index}
+              className="resume-item"
               style={{
                 marginBottom: "8px",
                 pageBreakInside: "avoid",
@@ -284,6 +290,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.projects.map((project, index) => (
             <div
               key={project.id || index}
+              className="resume-item"
               style={{
                 marginBottom: "8px",
                 pageBreakInside: "avoid",
@@ -357,6 +364,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.education.map((edu, index) => (
             <div
               key={edu.id || index}
+              className="resume-item"
               style={{
                 marginBottom:
                   index < content.education.length - 1 ? "8px" : "0",
@@ -436,6 +444,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           {content.certifications.map((cert, index) => (
             <div
               key={cert.id || index}
+              className="resume-item"
               style={{
                 marginBottom: "3px",
                 pageBreakInside: "avoid",
