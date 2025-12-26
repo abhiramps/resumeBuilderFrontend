@@ -35,6 +35,19 @@ export const usePDFExport = (resume: Resume, externalRef?: React.RefObject<HTMLD
   // Extract all stylesheets including Tailwind styles
   const extractStyles = useCallback((): string => {
     let cssString = '';
+
+    // Add explicit font-family override for the resume
+    // This ensures the user's selected font is applied in server-side PDF generation
+    const fontFamily = resume.layout.fontFamily || 'Arial';
+    const fontOverride = `
+      /* Force font-family for PDF generation */
+      body, * {
+        font-family: ${fontFamily}, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      }
+    `;
+
+    cssString += fontOverride;
+
     const styleSheets = Array.from(document.styleSheets);
 
     styleSheets.forEach((sheet) => {
@@ -52,7 +65,7 @@ export const usePDFExport = (resume: Resume, externalRef?: React.RefObject<HTMLD
     });
 
     return cssString;
-  }, []);
+  }, [resume.layout.fontFamily]);
 
   // Export handler
   const handleExport = useCallback(async (options?: PDFExportOptions, additionalStyles?: string) => {
@@ -69,7 +82,7 @@ export const usePDFExport = (resume: Resume, externalRef?: React.RefObject<HTMLD
 
       // 2. Capture Styles
       let cssContent = extractStyles();
-      
+
       // Append additional styles (like @page rules)
       if (additionalStyles) {
         cssContent += `\n${additionalStyles}`;
@@ -85,7 +98,7 @@ export const usePDFExport = (resume: Resume, externalRef?: React.RefObject<HTMLD
       link.download = generateFileName(options?.fileName);
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
