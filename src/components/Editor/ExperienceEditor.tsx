@@ -779,6 +779,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
                     <button
                         onClick={addExperience}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-gray-700 hover:bg-gray-800 rounded-md transition-colors"
+                        data-tutorial="work-experience"
                     >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

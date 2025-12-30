@@ -19,6 +19,7 @@ import { usePDFExportContext } from '../contexts/PDFExportContext';
 import { usePDFExport } from '../hooks/usePDFExport';
 import { useReactToPrint } from 'react-to-print';
 import { ArrowLeft, Download, Share2, History, Eye, Settings, Save, ChevronDown } from 'lucide-react';
+import { QuickStartTutorial } from '../components/Tutorial';
 
 const EditorPageContent: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -29,11 +30,14 @@ const EditorPageContent: React.FC = () => {
     const [activeView, setActiveView] = useState('preview'); // 'edit', 'preview', 'settings'
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState('');
-    
+
     const [showRightSidebar, setShowRightSidebar] = useState(true);
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
     const [showExportMenu, setShowExportMenu] = useState(false);
     const exportMenuRef = useRef<HTMLDivElement>(null);
+
+    // Track if this is a newly created resume (created within last 30 seconds)
+    const [isNewResume, setIsNewResume] = useState(false);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -123,6 +127,12 @@ const EditorPageContent: React.FC = () => {
     useEffect(() => {
         if (currentResume && currentResume.id === id && !hasSyncedRef.current) {
             hasSyncedRef.current = true;
+
+            // Check if this is a newly created resume (created within last 30 seconds)
+            const createdAt = new Date(currentResume.createdAt);
+            const now = new Date();
+            const diffInSeconds = (now.getTime() - createdAt.getTime()) / 1000;
+            setIsNewResume(diffInSeconds < 30);
 
             // Update local context with backend data
             if (currentResume.content) {
@@ -312,6 +322,12 @@ const EditorPageContent: React.FC = () => {
 
     return (
         <div className="h-screen flex flex-col bg-gray-50 print:h-auto print:overflow-visible">
+            {/* Quick Start Tutorial */}
+            <QuickStartTutorial
+                resumeId={id}
+                isNewResume={isNewResume}
+            />
+
             {/* Header */}
             <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 print:hidden">
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
@@ -347,6 +363,7 @@ const EditorPageContent: React.FC = () => {
                         variant="secondary"
                         onClick={() => setShowTemplateSelector(!showTemplateSelector)}
                         className="flex"
+                        data-tutorial="template-selector"
                     >
                         <span className="inline">Template</span>
                     </Button>
@@ -356,6 +373,7 @@ const EditorPageContent: React.FC = () => {
                         onClick={toggleRightSidebar}
                         className="hidden lg:flex"
                         title="Toggle Layout Controls"
+                        data-tutorial="layout-controls"
                     >
                         <Settings className="w-5 h-5" />
                     </Button>
@@ -395,6 +413,7 @@ const EditorPageContent: React.FC = () => {
                             onClick={() => setShowExportMenu(!showExportMenu)}
                             disabled={isExporting}
                             className="flex-shrink-0"
+                            data-tutorial="export-button"
                         >
                             {isExporting ? (
                                 <>
@@ -460,9 +479,9 @@ const EditorPageContent: React.FC = () => {
                     </div>
                     <div className="lg:hidden">
                         {activeView === 'preview' && (
-                           <div className="p-4 print:p-0">
+                            <div className="p-4 print:p-0">
                                 <PreviewContainer showZoomControls={false} showPrintMode={false} />
-                           </div>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -494,7 +513,7 @@ const EditorPageContent: React.FC = () => {
                     {/* Settings Panel Overlay */}
                     {activeView === 'settings' && (
                         <div className="fixed inset-0 z-40 bg-white overflow-y-auto pb-16">
-                           <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
+                            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-10">
                                 <h2 className="text-lg font-semibold">Settings</h2>
                                 <Button variant="ghost" onClick={() => setActiveView('preview')}>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -57,7 +57,7 @@ export const EditorSidebar: React.FC = () => {
             <ATSScorePanel validation={atsValidation} />
 
             {/* Personal Information - Not draggable, always at top */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm" data-tutorial="personal-info">
                 <button
                     onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between hover:bg-gray-100 transition-colors"
