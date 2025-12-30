@@ -52,6 +52,8 @@ export const API_CONFIG = {
 
             // Import
             IMPORT: '/resumes/import',
+            IMPORT_AI: '/resumes/import-ai',
+            IMPORT_AI_STATUS: '/resumes/import-ai/status',
         },
     },
 } as const;

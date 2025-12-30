@@ -150,4 +150,66 @@ export const resumeService = {
 
         return response.data.data;
     },
+
+    /**
+     * Import resume using AI parsing (PDF/DOCX)
+     */
+    async importResumeAI(file: File): Promise<{
+        resume: ResumeResponse;
+        confidenceScore: number;
+        incompleteSections: string[];
+        cached?: boolean;
+    }> {
+        // Convert file to base64
+        const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = reader.result as string;
+                // Remove data URL prefix (e.g., "data:application/pdf;base64,")
+                const base64Data = result.split(',')[1];
+                resolve(base64Data);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        const response = await apiClient.post<{
+            success: boolean;
+            data: {
+                resume: ResumeResponse;
+                confidenceScore: number;
+                incompleteSections: string[];
+                cached?: boolean;
+            };
+        }>(
+            API_CONFIG.ENDPOINTS.RESUMES.IMPORT_AI,
+            {
+                file: base64,
+                filename: file.name,
+                contentType: file.type,
+            }
+        );
+
+        return response.data.data;
+    },
+
+    /**
+     * Check AI import rate limit status
+     */
+    async checkImportRateLimit(): Promise<{
+        remaining: number;
+        resetTime: number;
+        limit: number;
+    }> {
+        const response = await apiClient.get<{
+            success: boolean;
+            data: {
+                remaining: number;
+                resetTime: number;
+                limit: number;
+            };
+        }>(API_CONFIG.ENDPOINTS.RESUMES.IMPORT_AI_STATUS);
+
+        return response.data.data;
+    },
 };
