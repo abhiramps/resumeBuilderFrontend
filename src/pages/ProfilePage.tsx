@@ -8,11 +8,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/UI/Button';
 import { Input } from '../components/UI/Input';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, PlayCircle } from 'lucide-react';
+import { useReplayTutorial } from '../components/Tutorial';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const { replayTutorial } = useReplayTutorial();
 
     const [formData, setFormData] = useState({
         fullName: user?.fullName || '',
@@ -138,6 +140,27 @@ export const ProfilePage: React.FC = () => {
                                     </Button>
                                 </>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-200" />
+
+                    {/* Tutorial Section */}
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Tutorial</h2>
+                        <div className="border border-gray-200 rounded-lg p-4">
+                            <h3 className="text-sm font-medium text-gray-900 mb-2">Quick Start Tutorial</h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Replay the interactive tutorial to learn how to use the resume builder.
+                            </p>
+                            <Button
+                                variant="secondary"
+                                onClick={replayTutorial}
+                                leftIcon={<PlayCircle className="w-4 h-4" />}
+                            >
+                                Replay Tutorial
+                            </Button>
                         </div>
                     </div>
 
