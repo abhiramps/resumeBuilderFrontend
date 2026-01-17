@@ -156,6 +156,36 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
       },
     },
   },
+  academic: {
+    id: "academic",
+    name: "Academic",
+    description: "LaTeX-inspired academic resume for research and FAANG positions",
+    preview: "",
+    styles: {
+      header: {
+        nameSize: 20,
+        titleSize: 11,
+        contactSize: 10,
+        alignment: "center",
+      },
+      sections: {
+        headerStyle: "uppercase",
+        headerSize: 11,
+        headerDecoration: "none",
+        spacing: 16,
+      },
+      layout: {
+        maxWidth: 800,
+        columns: 1,
+      },
+      colors: {
+        primary: "#000000",
+        secondary: "#333333",
+        text: "#000000",
+        background: "#ffffff",
+      },
+    },
+  },
 };
 
 // Template utility functions

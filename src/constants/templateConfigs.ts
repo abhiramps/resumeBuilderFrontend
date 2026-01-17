@@ -137,12 +137,45 @@ export const PROFESSIONAL_TEMPLATE_CONFIG: TemplateConfig = {
   },
 };
 
+// Academic Template Configuration (LaTeX-inspired)
+export const ACADEMIC_TEMPLATE_CONFIG: TemplateConfig = {
+  id: "academic",
+  name: "Academic",
+  description: "LaTeX-inspired academic resume for research and FAANG positions",
+  preview: "",
+  styles: {
+    header: {
+      nameSize: 20,
+      titleSize: 11,
+      contactSize: 10,
+      alignment: "center",
+    },
+    sections: {
+      headerStyle: "uppercase",
+      headerSize: 11,
+      headerDecoration: "border-bottom",
+      spacing: 16,
+    },
+    layout: {
+      maxWidth: 800,
+      columns: 1,
+    },
+    colors: {
+      primary: "#000000",
+      secondary: "#333333",
+      text: "#000000",
+      background: "#ffffff",
+    },
+  },
+};
+
 // Template configurations mapping
 export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
   classic: CLASSIC_TEMPLATE_CONFIG,
   modern: MODERN_TEMPLATE_CONFIG,
   minimal: MINIMAL_TEMPLATE_CONFIG,
   professional: PROFESSIONAL_TEMPLATE_CONFIG,
+  academic: ACADEMIC_TEMPLATE_CONFIG,
 };
 
 // Default layout settings for each template
@@ -182,6 +215,15 @@ export const TEMPLATE_DEFAULT_LAYOUTS = {
     fontFamily: "Arial",
     colors: { primary: "#2c3e50", secondary: "#555555", text: "#333333" },
   },
+
+  academic: {
+    pageMargins: { top: 0.4, right: 0.4, bottom: 0.4, left: 0.4 },
+    sectionSpacing: 16,
+    lineHeight: 1.3,
+    fontSize: { name: 20, title: 11, sectionHeader: 11, body: 10 },
+    fontFamily: "Times New Roman",
+    colors: { primary: "#000000", secondary: "#333333", text: "#000000" },
+  },
 } as const;
 
 // Customization capabilities for each template
@@ -220,6 +262,17 @@ export const TEMPLATE_CUSTOMIZATION_OPTIONS = {
   },
 
   professional: {
+    customizableColors: ["primary", "secondary"],
+    customizableFonts: true,
+    customizableSpacing: true,
+    customizableMargins: true,
+    maxColumns: 1,
+    supportsImages: false,
+    supportsTables: false,
+    atsCompliant: true,
+  },
+
+  academic: {
     customizableColors: ["primary", "secondary"],
     customizableFonts: true,
     customizableSpacing: true,
