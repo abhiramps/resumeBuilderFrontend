@@ -188,6 +188,7 @@ export const useTemplate = () => {
       modern: 90,
       minimal: 98,
       professional: 100,
+      academic: 98,
     };
 
     const atsScore = atsScores[templateId];
@@ -238,6 +239,7 @@ export const useTemplate = () => {
       modern: 90,
       minimal: 98,
       professional: 100,
+      academic: 98,
     };
 
     const bestForMap = {
@@ -245,6 +247,7 @@ export const useTemplate = () => {
       modern: ['Tech companies', 'Startups', 'Creative roles'],
       minimal: ['Academic positions', 'Research roles', 'Content-heavy resumes'],
       professional: ['Backend engineering', 'DevOps', 'Technical leadership'],
+      academic: ['Academic positions', 'Research roles', 'FAANG applications', 'Graduate students'],
     };
 
     return {

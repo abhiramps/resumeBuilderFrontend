@@ -126,6 +126,7 @@ export const getFontFamilyForTemplate = (templateType: TemplateType): string => 
     modern: 'Arial, Helvetica, sans-serif',
     minimal: 'Arial, Helvetica, sans-serif',
     professional: 'Arial, Helvetica, sans-serif',
+    academic: 'Times New Roman, serif',
   };
 
   return fontMap[templateType];
@@ -144,6 +145,7 @@ export const applyFontSizeAdjustments = (
     modern: 1.0,
     minimal: 0.95, // Slightly smaller for space efficiency
     professional: 1.0,
+    academic: 0.95,
   };
 
   return baseFontSize * adjustments[templateType];
@@ -218,6 +220,7 @@ export const getSpacingMultiplier = (templateType: TemplateType): number => {
     modern: 1.1, // Slightly more spacious
     minimal: 0.8, // More compact
     professional: 1.0,
+    academic: 0.9,
   };
 
   return multipliers[templateType];
@@ -322,6 +325,21 @@ export const TEMPLATE_PRESETS: Record<TemplateType, Partial<LayoutSettings>> = {
       primary: '#2c3e50',
       secondary: '#555',
       text: '#333',
+    },
+    lineHeight: 1.3,
+  },
+  academic: {
+    fontFamily: 'Times New Roman, serif',
+    fontSize: {
+      name: 20,
+      title: 11,
+      sectionHeader: 11,
+      body: 10,
+    },
+    colors: {
+      primary: '#000000',
+      secondary: '#333333',
+      text: '#000000',
     },
     lineHeight: 1.3,
   },
