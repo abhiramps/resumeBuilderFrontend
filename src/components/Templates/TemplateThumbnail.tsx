@@ -21,6 +21,7 @@ export const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
     modern: <ModernThumbnail />,
     minimal: <MinimalThumbnail />,
     professional: <ProfessionalThumbnail />,
+    academic: <AcademicThumbnail />,
   };
 
   return (
@@ -730,6 +731,243 @@ const ProfessionalThumbnail: React.FC = () => (
     />
     <rect x="140" y="242" width="40" height="3" rx="1" fill="#666" />
     <rect x="20" y="249" width="120" height="3" rx="1" fill="#555" />
+  </svg>
+);
+
+/**
+ * Academic Template Thumbnail
+ * LaTeX-inspired academic resume layout
+ */
+const AcademicThumbnail: React.FC = () => (
+  <svg viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="260" fill="white" />
+
+    {/* Header - Centered LaTeX style */}
+    <rect x="55" y="20" width="90" height="7" rx="1" fill="#000" />
+    <rect x="60" y="31" width="80" height="3" rx="1" fill="#000" opacity="0.7" />
+    <rect x="65" y="37" width="70" height="3" rx="1" fill="#000" opacity="0.7" />
+
+    {/* Section 1 - OBJECTIVE */}
+    <rect x="20" y="50" width="50" height="4" rx="1" fill="#000" />
+    <rect
+      x="20"
+      y="58"
+      width="160"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+      fontStyle="italic"
+    />
+    <rect
+      x="20"
+      y="64"
+      width="155"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+      fontStyle="italic"
+    />
+
+    {/* Section 2 - EDUCATION */}
+    <rect x="20" y="75" width="55" height="4" rx="1" fill="#000" />
+    <rect
+      x="20"
+      y="83"
+      width="90"
+      height="4"
+      rx="1"
+      fill="#000"
+      opacity="0.9"
+    />
+    <rect x="140" y="83" width="40" height="3" rx="1" fill="#000" opacity="0.7" fontStyle="italic" />
+    <rect
+      x="20"
+      y="90"
+      width="80"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+      fontStyle="italic"
+    />
+    <rect
+      x="20"
+      y="96"
+      width="140"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.5"
+    />
+
+    {/* Section 3 - SKILLS */}
+    <rect x="20" y="107" width="35" height="4" rx="1" fill="#000" />
+    {/* Table-like skills layout */}
+    <rect
+      x="20"
+      y="115"
+      width="45"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.8"
+    />
+    <rect
+      x="68"
+      y="115"
+      width="110"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+    <rect
+      x="20"
+      y="121"
+      width="40"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.8"
+    />
+    <rect
+      x="63"
+      y="121"
+      width="115"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+    <rect
+      x="20"
+      y="127"
+      width="35"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.8"
+    />
+    <rect
+      x="58"
+      y="127"
+      width="120"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+
+    {/* Section 4 - EXPERIENCE */}
+    <rect x="20" y="140" width="60" height="4" rx="1" fill="#000" />
+    <rect
+      x="20"
+      y="148"
+      width="75"
+      height="4"
+      rx="1"
+      fill="#000"
+      opacity="0.9"
+    />
+    <rect x="140" y="148" width="40" height="3" rx="1" fill="#000" opacity="0.7" />
+    <rect
+      x="20"
+      y="155"
+      width="90"
+      height="3"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+      fontStyle="italic"
+    />
+    <circle cx="23" cy="163" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="161"
+      width="145"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+    <circle cx="23" cy="169" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="167"
+      width="140"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+    <circle cx="23" cy="175" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="173"
+      width="135"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+
+    {/* Section 5 - PROJECTS */}
+    <rect x="20" y="186" width="50" height="4" rx="1" fill="#000" />
+    <circle cx="23" cy="195" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="193"
+      width="150"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+    <circle cx="23" cy="201" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="199"
+      width="145"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+    <circle cx="23" cy="207" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="205"
+      width="140"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+
+    {/* Section 6 - EXTRA-CURRICULAR */}
+    <rect x="20" y="218" width="110" height="4" rx="1" fill="#000" />
+    <circle cx="23" cy="227" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="225"
+      width="150"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
+    <circle cx="23" cy="233" r="1.5" fill="#000" />
+    <rect
+      x="28"
+      y="231"
+      width="145"
+      height="2.5"
+      rx="1"
+      fill="#000"
+      opacity="0.6"
+    />
   </svg>
 );
 

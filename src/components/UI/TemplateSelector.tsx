@@ -72,6 +72,19 @@ const TEMPLATE_INFO: Record<TemplateType, TemplateInfo> = {
       "Single-page optimized",
     ],
   },
+  academic: {
+    id: "academic",
+    name: "Academic",
+    description: "LaTeX-inspired academic resume for research and FAANG positions",
+    atsScore: 98,
+    bestFor: "Academic positions, research roles, FAANG applications, graduate students",
+    features: [
+      "LaTeX-style layout",
+      "Serif typography",
+      "Centered header",
+      "Traditional formatting",
+    ],
+  },
 };
 
 export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
@@ -115,9 +128,8 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
       >
         <span className="text-gray-700">{currentInfo.name}</span>
         <ChevronDown
-          className={`h-4 w-4 text-gray-500 transition-transform ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -167,13 +179,12 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                           <div
                             key={template.id}
                             onClick={() => handleTemplateSelect(template.id)}
-                            className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                              isSelected
+                            className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${isSelected
                                 ? "border-blue-500 bg-blue-50"
                                 : isCurrent
-                                ? "border-green-500 bg-green-50"
-                                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                            }`}
+                                  ? "border-green-500 bg-green-50"
+                                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                              }`}
                           >
                             {/* Current Badge */}
                             {isCurrent && (
@@ -208,13 +219,12 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                                     ATS:
                                   </span>
                                   <span
-                                    className={`text-xs font-bold ${
-                                      template.atsScore >= 95
+                                    className={`text-xs font-bold ${template.atsScore >= 95
                                         ? "text-green-600"
                                         : template.atsScore >= 90
-                                        ? "text-blue-600"
-                                        : "text-yellow-600"
-                                    }`}
+                                          ? "text-blue-600"
+                                          : "text-yellow-600"
+                                      }`}
                                   >
                                     {template.atsScore}/100
                                   </span>
@@ -255,7 +265,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                   <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
                     <div className="text-sm text-gray-600">
                       {selectedTemplate &&
-                      selectedTemplate !== currentTemplate ? (
+                        selectedTemplate !== currentTemplate ? (
                         <span>
                           Switching to{" "}
                           <strong>
@@ -283,12 +293,11 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                           !selectedTemplate ||
                           selectedTemplate === currentTemplate
                         }
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          selectedTemplate &&
-                          selectedTemplate !== currentTemplate
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedTemplate &&
+                            selectedTemplate !== currentTemplate
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        }`}
+                          }`}
                       >
                         Apply Template
                       </button>

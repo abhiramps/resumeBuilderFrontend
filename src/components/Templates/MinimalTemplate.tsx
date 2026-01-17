@@ -89,37 +89,57 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
       letterSpacing: "0.5px",
     };
 
+    const linkStyles: React.CSSProperties = {
+      color: "#0000EE",
+      textDecoration: "none",
+    };
+
     const renderContactInfo = () => {
       const contactItems = [];
 
       if (resume.personalInfo?.email) {
-        contactItems.push(resume.personalInfo.email);
+        contactItems.push(
+          <a key="email" href={`mailto:${resume.personalInfo.email}`} style={linkStyles}>
+            {resume.personalInfo.email}
+          </a>
+        );
       }
       if (resume.personalInfo?.phone) {
         contactItems.push(
-          templateHelpers.phone.format(resume.personalInfo.phone)
+          <span key="phone">{templateHelpers.phone.format(resume.personalInfo.phone)}</span>
         );
       }
       if (resume.personalInfo?.location) {
-        contactItems.push(resume.personalInfo.location);
+        contactItems.push(<span key="location">{resume.personalInfo.location}</span>);
       }
       if (resume.personalInfo?.linkedin) {
         contactItems.push(
-          templateHelpers.url.formatForDisplay(resume.personalInfo.linkedin)
+          <a key="linkedin" href={resume.personalInfo.linkedin} style={linkStyles}>
+            {templateHelpers.url.formatForDisplay(resume.personalInfo.linkedin)}
+          </a>
         );
       }
       if (resume.personalInfo?.github) {
         contactItems.push(
-          templateHelpers.url.formatForDisplay(resume.personalInfo.github)
+          <a key="github" href={resume.personalInfo.github} style={linkStyles}>
+            {templateHelpers.url.formatForDisplay(resume.personalInfo.github)}
+          </a>
         );
       }
       if (resume.personalInfo?.portfolio) {
         contactItems.push(
-          templateHelpers.url.formatForDisplay(resume.personalInfo.portfolio)
+          <a key="portfolio" href={resume.personalInfo.portfolio} style={linkStyles}>
+            {templateHelpers.url.formatForDisplay(resume.personalInfo.portfolio)}
+          </a>
         );
       }
 
-      return contactItems.join(" | ");
+      return contactItems.map((item, index) => (
+        <React.Fragment key={index}>
+          {index > 0 && " | "}
+          {item}
+        </React.Fragment>
+      ));
     };
 
     const renderSummary = (content: { summary: string }) => {
@@ -451,6 +471,18 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                   }}
                 >
                   {project.description}
+                </p>
+              )}
+              {project.url && (
+                <p
+                  style={{
+                    margin: "2px 0 0 0",
+                    fontSize: `${layout.fontSize.body - 1}pt`,
+                  }}
+                >
+                  <a href={project.url} style={linkStyles}>
+                    {templateHelpers.url.formatForDisplay(project.url)}
+                  </a>
                 </p>
               )}
             </div>
