@@ -7,7 +7,7 @@
 export { TemplateBase, templateUtils } from "./TemplateBase";
 export type { TemplateBaseProps } from "./TemplateBase";
 
-//Add new templates here 
+//Add new templates here  
 // Template components
 export { ClassicTemplate } from "./ClassicTemplate";
 export { ModernTemplate } from "./ModernTemplate";
