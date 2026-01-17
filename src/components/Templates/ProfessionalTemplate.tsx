@@ -109,11 +109,20 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
       letterSpacing: "0.5px",
     };
 
+    const linkStyles: React.CSSProperties = {
+      color: "#0000EE",
+      textDecoration: "none",
+    };
+
     const renderContactInfo = () => {
-      const contactParts: string[] = [];
+      const contactParts: (string | JSX.Element)[] = [];
 
       if (resume.personalInfo?.email) {
-        contactParts.push(resume.personalInfo.email);
+        contactParts.push(
+          <a key="email" href={`mailto:${resume.personalInfo.email}`} style={linkStyles}>
+            {resume.personalInfo.email}
+          </a>
+        );
       }
       if (resume.personalInfo?.phone) {
         contactParts.push(resume.personalInfo.phone);
@@ -122,31 +131,55 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
         contactParts.push(resume.personalInfo.location);
       }
 
-      const firstLine = contactParts.join(" | ");
+      const firstLine = contactParts.length > 0 ? (
+        <div>
+          {contactParts.map((part, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && " | "}
+              {part}
+            </React.Fragment>
+          ))}
+        </div>
+      ) : null;
 
-      const linkParts: string[] = [];
+      const linkParts: JSX.Element[] = [];
       if (resume.personalInfo?.linkedin) {
         linkParts.push(
-          templateHelpers.url.formatForDisplay(resume.personalInfo.linkedin)
+          <a key="linkedin" href={resume.personalInfo.linkedin} style={linkStyles}>
+            {templateHelpers.url.formatForDisplay(resume.personalInfo.linkedin)}
+          </a>
         );
       }
       if (resume.personalInfo?.github) {
         linkParts.push(
-          templateHelpers.url.formatForDisplay(resume.personalInfo.github)
+          <a key="github" href={resume.personalInfo.github} style={linkStyles}>
+            {templateHelpers.url.formatForDisplay(resume.personalInfo.github)}
+          </a>
         );
       }
       if (resume.personalInfo?.portfolio) {
         linkParts.push(
-          templateHelpers.url.formatForDisplay(resume.personalInfo.portfolio)
+          <a key="portfolio" href={resume.personalInfo.portfolio} style={linkStyles}>
+            {templateHelpers.url.formatForDisplay(resume.personalInfo.portfolio)}
+          </a>
         );
       }
 
-      const secondLine = linkParts.join(" | ");
+      const secondLine = linkParts.length > 0 ? (
+        <div>
+          {linkParts.map((part, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && " | "}
+              {part}
+            </React.Fragment>
+          ))}
+        </div>
+      ) : null;
 
       return (
         <>
-          {firstLine && <div>{firstLine}</div>}
-          {secondLine && <div>{secondLine}</div>}
+          {firstLine}
+          {secondLine}
         </>
       );
     };
@@ -354,6 +387,18 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
                   }}
                 >
                   {project.description}
+                </p>
+              )}
+              {project.url && (
+                <p
+                  style={{
+                    margin: "3px 0",
+                    fontSize: `${(layout.fontSize?.body || 10) - 0.5}pt`,
+                  }}
+                >
+                  <a href={project.url} style={linkStyles}>
+                    {templateHelpers.url.formatForDisplay(project.url)}
+                  </a>
                 </p>
               )}
             </div>

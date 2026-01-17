@@ -692,6 +692,7 @@ export const getTemplateATSScore = (templateType: TemplateType): number => {
     modern: 92,
     minimal: 100,
     professional: 95,
+    academic: 98,
   };
 
   return scores[templateType];
