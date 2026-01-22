@@ -232,22 +232,41 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
             );
         };
 
-        const renderSkills = (content: { skills: Skill[] }) => {
+        const renderSkills = (content: { skills: Skill[]; skillCategories?: Record<string, string> }) => {
             if (!content.skills || content.skills.length === 0) return null;
 
-            const skillsByCategory = content.skills.reduce((acc, skill) => {
-                const category = skill.category || "other";
-                if (!acc[category]) acc[category] = [];
-                acc[category].push(skill.name);
-                return acc;
-            }, {} as Record<string, string[]>);
+            // Helper function to get category display name
+            const getCategoryDisplayName = (categoryKey: string): string => {
+                const defaultNames: Record<string, string> = {
+                    languages: "Programming Languages",
+                    frameworks: "Frameworks & Libraries",
+                    databases: "Databases",
+                    tools: "Tools & Software",
+                    cloud: "Cloud & DevOps",
+                    other: "Other"
+                };
+                return defaultNames[categoryKey] || categoryKey;
+            };
+
+            // Group skills by their custom category name
+            const skillsByCategory: Record<string, string[]> = {};
+
+            content.skills.forEach(skill => {
+                // Get the custom category name from the mapping, or use default
+                const categoryName = content.skillCategories?.[skill.id] || getCategoryDisplayName(skill.category);
+
+                if (!skillsByCategory[categoryName]) {
+                    skillsByCategory[categoryName] = [];
+                }
+                skillsByCategory[categoryName].push(skill.name);
+            });
 
             return (
                 <div style={{ marginLeft: "0" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", borderSpacing: 0 }}>
                         <tbody>
-                            {Object.entries(skillsByCategory).map(([category, skillNames]) => (
-                                <tr key={category}>
+                            {Object.entries(skillsByCategory).map(([categoryName, skillNames]) => (
+                                <tr key={categoryName}>
                                     <td
                                         style={{
                                             fontSize: `${layout.fontSize.body}pt`,
@@ -258,7 +277,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                                             whiteSpace: "nowrap",
                                         }}
                                     >
-                                        {category.replace(/([A-Z])/g, " $1").trim()}
+                                        {categoryName}
                                     </td>
                                     <td
                                         style={{

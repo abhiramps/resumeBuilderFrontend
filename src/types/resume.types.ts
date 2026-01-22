@@ -64,6 +64,7 @@ export interface Skill {
   | "tools"
   | "cloud"
   | "other";
+  customCategory?: string;
   level: "beginner" | "intermediate" | "advanced" | "expert";
 }
 
