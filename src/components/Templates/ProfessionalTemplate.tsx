@@ -199,27 +199,46 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
       );
     };
 
-    const renderSkills = (content: { skills: Skill[] }) => {
+    const renderSkills = (content: { skills: Skill[]; skillCategories?: Record<string, string> }) => {
       if (!content.skills || content.skills.length === 0) return null;
 
-      const skillsByCategory = content.skills.reduce((acc, skill) => {
-        const category = skill.category || "other";
-        if (!acc[category]) acc[category] = [];
-        acc[category].push(skill.name);
-        return acc;
-      }, {} as Record<string, string[]>);
+      // Helper function to get category display name
+      const getCategoryDisplayName = (categoryKey: string): string => {
+        const defaultNames: Record<string, string> = {
+          languages: "Programming Languages",
+          frameworks: "Frameworks & Libraries",
+          databases: "Databases",
+          tools: "Tools & Software",
+          cloud: "Cloud & DevOps",
+          other: "Other"
+        };
+        return defaultNames[categoryKey] || categoryKey;
+      };
+
+      // Group skills by their custom category name
+      const skillsByCategory: Record<string, string[]> = {};
+
+      content.skills.forEach(skill => {
+        // Get the custom category name from the mapping, or use default
+        const categoryName = content.skillCategories?.[skill.id] || getCategoryDisplayName(skill.category);
+
+        if (!skillsByCategory[categoryName]) {
+          skillsByCategory[categoryName] = [];
+        }
+        skillsByCategory[categoryName].push(skill.name);
+      });
 
       return (
         <div style={{ lineHeight: layout.lineHeight || 1.4 }}>
-          {Object.entries(skillsByCategory).map(([category, skillNames]) => (
-            <div key={category} style={{ marginBottom: "3px" }}>
+          {Object.entries(skillsByCategory).map(([categoryName, skillNames]) => (
+            <div key={categoryName} style={{ marginBottom: "3px" }}>
               <strong
                 style={{
                   color: primaryColor,
                   fontWeight: 600,
                 }}
               >
-                {category.replace(/([A-Z])/g, " $1").trim()}:
+                {categoryName}:
               </strong>{" "}
               {skillNames.join(", ")}
             </div>
