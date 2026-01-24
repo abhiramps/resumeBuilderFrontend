@@ -57,14 +57,7 @@ export type ProjectItem = Project;
 export interface Skill {
   id: string;
   name: string;
-  category:
-  | "languages"
-  | "frameworks"
-  | "databases"
-  | "tools"
-  | "cloud"
-  | "other";
-  customCategory?: string;
+  category: string;
   level: "beginner" | "intermediate" | "advanced" | "expert";
 }
 
