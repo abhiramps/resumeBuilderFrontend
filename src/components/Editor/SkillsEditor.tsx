@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Input } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
-import { Skill, SkillCategory } from "../../types/resume.types";
+import { useResumeBackend } from "../../contexts/ResumeBackendContext";
+import { Skill, SkillCategory, Resume } from "../../types/resume.types";
 import {
     validateSkillCategory,
     hasValidationErrors,
@@ -13,6 +14,57 @@ import {
     getPopularSkillsForCategory,
     CATEGORY_TEMPLATES
 } from "../../utils/skillsValidation";
+
+// Helper to convert frontend Resume state to backend ResumeContent
+const mapResumeToContent = (resume: Resume): any => {
+    const content: any = {
+        personalInfo: resume.personalInfo,
+        sectionOrder: resume.sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            enabled: s.enabled,
+            order: s.order
+        }))
+    };
+
+    resume.sections.forEach(section => {
+        // Map content regardless of enabled status to ensure data persistence
+        const sectionContent = section.content as any;
+        switch (section.type) {
+            case 'summary':
+                content.summary = sectionContent.summary;
+                break;
+            case 'experience':
+                content.experience = sectionContent.experiences;
+                break;
+            case 'education':
+                content.education = sectionContent.education;
+                break;
+            case 'skills':
+                content.skills = sectionContent.skills;
+                break;
+            case 'projects':
+                content.projects = sectionContent.projects;
+                break;
+            case 'certifications':
+                content.certifications = sectionContent.certifications;
+                break;
+            case 'custom':
+                if (!content.customSections) content.customSections = [];
+                content.customSections.push({
+                    id: sectionContent.custom.id,
+                    title: sectionContent.custom.title,
+                    content: sectionContent.custom.content,
+                    order: section.order // custom sections might need order
+                });
+                break;
+        }
+    });
+    return content;
+};
+
+
 
 /**
  * Skills Editor Component Props
@@ -677,6 +729,31 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
         debouncedUpdate(updatedCategories);
     };
 
+    const { updateResume } = useResumeBackend();
+
+    /**
+     * Helper to save skills to backend
+     */
+    const saveToBackend = (categories: SkillCategory[]) => {
+        const flatSkills: Skill[] = [];
+        categories.forEach(category => {
+            category.skills.forEach(skill => {
+                const updatedSkill: Skill = {
+                    ...skill,
+                    category: category.categoryName,
+                };
+                flatSkills.push(updatedSkill);
+            });
+        });
+
+        const contentToSave = mapResumeToContent(resume);
+        contentToSave.skills = flatSkills;
+
+        updateResume({
+            content: contentToSave as any
+        });
+    };
+
     /**
      * Add new skill category
      */
@@ -688,6 +765,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
 
         const updatedCategories = [...skillCategories, newCategory];
         updateSkillCategories(updatedCategories);
+        saveToBackend(updatedCategories); // Ensure immediate save
         setEditingCategoryIndex(updatedCategories.length - 1);
     };
 
@@ -707,6 +785,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
     const deleteCategory = (index: number) => {
         const updatedCategories = skillCategories.filter((_, i) => i !== index);
         updateSkillCategories(updatedCategories);
+        saveToBackend(updatedCategories);
         if (editingCategoryIndex === index) {
             setEditingCategoryIndex(null);
         }
@@ -730,14 +809,16 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
             };
             const updatedCategories = [...skillCategories, duplicatedCategory];
             updateSkillCategories(updatedCategories);
+            saveToBackend(updatedCategories);
             setEditingCategoryIndex(updatedCategories.length - 1);
         }
     };
 
-    /**
-     * Toggle edit mode for category
-     */
     const toggleEditCategory = (index: number) => {
+        // If we are currently editing this category and toggling it off (saving)
+        if (editingCategoryIndex === index) {
+            saveToBackend(skillCategories);
+        }
         setEditingCategoryIndex(editingCategoryIndex === index ? null : index);
     };
 
@@ -750,6 +831,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
             [updatedCategories[index - 1], updatedCategories[index]] =
                 [updatedCategories[index], updatedCategories[index - 1]];
             updateSkillCategories(updatedCategories);
+            saveToBackend(updatedCategories);
         }
     };
 
@@ -762,6 +844,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
             [updatedCategories[index], updatedCategories[index + 1]] =
                 [updatedCategories[index + 1], updatedCategories[index]];
             updateSkillCategories(updatedCategories);
+            saveToBackend(updatedCategories);
         }
     };
 
@@ -804,6 +887,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
             });
 
             updateSkillCategories(mergedCategories);
+            saveToBackend(mergedCategories);
             setShowTemplates(false);
         }
     };
