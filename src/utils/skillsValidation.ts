@@ -258,22 +258,45 @@ export const filterSkillSuggestions = (
 
 /**
  * Map category name to suggestion key
+ * Used only for finding relevant suggestions, not for data validation
  */
 const getCategoryKey = (categoryName: string): string | null => {
+  const normalized = categoryName.toLowerCase().trim();
+  
+  // Direct match check
+  if (SKILL_SUGGESTIONS[normalized as keyof typeof SKILL_SUGGESTIONS]) {
+    return normalized;
+  }
+
+  // Common aliases mapping
   const mapping: { [key: string]: string } = {
-    "languages": "languages",
+    "programming languages": "languages",
     "frontend frameworks": "frontend",
-    "frontend": "frontend",
     "backend technologies": "backend", 
-    "backend": "backend",
-    "databases": "databases",
     "cloud & devops": "cloud",
-    "cloud": "cloud",
     "devops": "cloud",
     "tools & software": "tools",
-    "tools": "tools",
     "mobile development": "mobile",
-    "mobile": "mobile",
+    "design tools": "design",
+  };
+
+  // Check aliases
+  if (mapping[normalized]) {
+    return mapping[normalized];
+  }
+
+  // Loose partial matching
+  if (normalized.includes("language")) return "languages";
+  if (normalized.includes("database")) return "databases";
+  if (normalized.includes("cloud")) return "cloud";
+  if (normalized.includes("tool")) return "tools";
+  if (normalized.includes("test")) return "testing";
+  if (normalized.includes("design")) return "design";
+
+  return null;
+};
+
+/**
     "testing": "testing",
     "design tools": "design",
     "design": "design",
@@ -437,7 +460,7 @@ export const convertSkillsToCategories = (skills: Skill[]): SkillCategory[] => {
 
   // Group skills by category
   skills.forEach(skill => {
-    const categoryName = getCategoryDisplayName(skill.category);
+    const categoryName = skill.category || "Other";
     if (!categoryMap.has(categoryName)) {
       categoryMap.set(categoryName, []);
     }
@@ -454,17 +477,12 @@ export const convertSkillsToCategories = (skills: Skill[]): SkillCategory[] => {
 /**
  * Convert category key to display name
  */
-const getCategoryDisplayName = (category: string): string => {
-  const mapping: { [key: string]: string } = {
-    "languages": "Languages",
-    "frameworks": "Frontend Frameworks",
-    "databases": "Databases",
-    "tools": "Tools & Software",
-    "cloud": "Cloud & DevOps",
-    "other": "Other"
-  };
-
-  return mapping[category] || "Other";
+/**
+ * Convert category key to display name
+ * @deprecated Valid for dynamic categories where key === name
+ */
+export const getCategoryDisplayName = (category: string): string => {
+  return category;
 };
 
 /**

@@ -62,52 +62,8 @@ const SKILL_LEVELS = [
  * Only maps to predefined keys if it's an exact or very close match
  * Otherwise, returns "other" to allow custom categories
  */
-const mapCategoryNameToKey = (categoryName: string): Skill["category"] => {
-    const lowerName = categoryName.toLowerCase().trim();
-
-    // Exact matches only for predefined categories
-    const exactMatches: Record<string, Skill["category"]> = {
-        "languages": "languages",
-        "programming languages": "languages",
-        "frameworks": "frameworks",
-        "frameworks & libraries": "frameworks",
-        "libraries": "frameworks",
-        "databases": "databases",
-        "database": "databases",
-        "tools": "tools",
-        "tools & software": "tools",
-        "software": "tools",
-        "cloud": "cloud",
-        "cloud & devops": "cloud",
-        "devops": "cloud",
-        "other": "other"
-    };
-
-    // Check for exact match first
-    if (exactMatches[lowerName]) {
-        return exactMatches[lowerName];
-    }
-
-    // For any custom category name, use "other" as the key
-    // The actual display name will be stored in categoryNames mapping
-    return "other";
-};
-
-/**
- * Convert category key to display name
- */
-const getCategoryDisplayName = (categoryKey: Skill["category"]): string => {
-    const mapping: Record<Skill["category"], string> = {
-        "languages": "Programming Languages",
-        "frameworks": "Frameworks & Libraries",
-        "databases": "Databases",
-        "tools": "Tools & Software",
-        "cloud": "Cloud & DevOps",
-        "other": "Other"
-    };
-
-    return mapping[categoryKey] || "Other";
-};
+// Removed mapCategoryNameToKey and getCategoryDisplayName as they are no longer needed
+// We use the category name directly as the category key
 
 /**
  * Skill Tag Input Component
@@ -141,13 +97,11 @@ const SkillTagInput: React.FC<SkillTagInputProps> = ({
     const addSkill = (skillName: string, level: Skill["level"] = "intermediate") => {
         const trimmedName = skillName.trim();
         if (trimmedName && !skills.some(skill => skill.name.toLowerCase() === trimmedName.toLowerCase())) {
-            // Map category name to proper category key
-            const categoryKey = mapCategoryNameToKey(categoryName);
+            // Use category name directly
             const newSkill: Skill = {
                 id: generateId(),
                 name: trimmedName,
-                category: categoryKey,
-                customCategory: categoryKey === "other" && categoryName.toLowerCase() !== "other" ? categoryName : undefined,
+                category: categoryName,
                 level: level,
             };
             onSkillsUpdate([...skills, newSkill]);
@@ -183,15 +137,12 @@ const SkillTagInput: React.FC<SkillTagInputProps> = ({
     const handleBulkAdd = () => {
         const skillNames = parseSkillsInput(bulkInput);
         const existingNames = skills.map(skill => skill.name.toLowerCase());
-        const categoryKey = mapCategoryNameToKey(categoryName);
-
         const newSkills = skillNames
             .filter(name => !existingNames.includes(name.toLowerCase()))
             .map(name => ({
                 id: generateId(),
                 name,
-                category: categoryKey,
-                customCategory: categoryKey === "other" && categoryName.toLowerCase() !== "other" ? categoryName : undefined,
+                category: categoryName,
                 level: "intermediate" as const,
             }));
 
@@ -388,10 +339,9 @@ const SkillCategoryComponent: React.FC<SkillCategoryComponentProps> = ({
 
         // If category name changed, update all skills' category field
         if (field === 'categoryName') {
-            const categoryKey = mapCategoryNameToKey(value);
             const updatedSkills = category.skills.map(skill => ({
                 ...skill,
-                category: categoryKey
+                category: value
             }));
             onUpdate(categoryIndex, { [field]: value, skills: updatedSkills });
         } else {
@@ -405,10 +355,10 @@ const SkillCategoryComponent: React.FC<SkillCategoryComponentProps> = ({
 
     const handleSkillsUpdate = (skills: Skill[]) => {
         // Ensure all skills have the correct category
-        const categoryKey = mapCategoryNameToKey(category.categoryName);
+        // Ensure all skills have the correct category
         const updatedSkills = skills.map(skill => ({
             ...skill,
-            category: categoryKey
+            category: category.categoryName
         }));
         handleCategoryUpdate("skills", updatedSkills);
     };
@@ -638,27 +588,15 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
             const categoryMap = new Map<string, Skill[]>();
 
             flatSkills.forEach(skill => {
-                const categoryKey = skill.category;
+                const categoryName = skill.category || "Other";
                 
-                // Use a composite key or just group by display name if we want to preserve distinct custom categories
-                // For now, let's group by categoryKey but check if we need to split based on custom names
-                
-                // Better approach: Group by categoryKey first, but if it's 'other' and has a customCategory, treat it as unique
-                const groupingKey = skill.customCategory ? `custom:${skill.customCategory}` : categoryKey;
-                
-                if (!categoryMap.has(groupingKey)) {
-                    categoryMap.set(groupingKey, []);
+                if (!categoryMap.has(categoryName)) {
+                    categoryMap.set(categoryName, []);
                 }
-                categoryMap.get(groupingKey)!.push(skill);
+                categoryMap.get(categoryName)!.push(skill);
             });
 
-            return Array.from(categoryMap.entries()).map(([key, skills]) => {
-                let categoryName = "";
-                if (key.startsWith("custom:")) {
-                    categoryName = key.substring(7);
-                } else {
-                    categoryName = getCategoryDisplayName(key as Skill["category"]);
-                }
+            return Array.from(categoryMap.entries()).map(([categoryName, skills]) => {
                 return {
                     categoryName,
                     skills
@@ -686,14 +624,9 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
 
                 updatedCategories.forEach(category => {
                     category.skills.forEach(skill => {
-                        // Check if this is a custom category (mapped to "other" but not named "Other")
-                        const mappedKey = mapCategoryNameToKey(category.categoryName);
-                        const isCustom = mappedKey === "other" && category.categoryName.toLowerCase() !== "other";
-
                         const updatedSkill: Skill = {
                             ...skill,
-                            category: mappedKey,
-                            customCategory: isCustom ? category.categoryName : undefined
+                            category: category.categoryName,
                         };
 
                         flatSkills.push(updatedSkill);
@@ -786,14 +719,13 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
         const categoryToDuplicate = skillCategories[index];
         if (categoryToDuplicate) {
             const newCategoryName = `${categoryToDuplicate.categoryName} (Copy)`;
-            const categoryKey = mapCategoryNameToKey(newCategoryName);
             const duplicatedCategory: SkillCategory = {
                 ...categoryToDuplicate,
                 categoryName: newCategoryName,
                 skills: categoryToDuplicate.skills.map(skill => ({
                     ...skill,
                     id: generateId(),
-                    category: categoryKey,
+                    category: newCategoryName,
                 })),
             };
             const updatedCategories = [...skillCategories, duplicatedCategory];
@@ -840,13 +772,12 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
         const template = CATEGORY_TEMPLATES[templateId as keyof typeof CATEGORY_TEMPLATES];
         if (template) {
             const newCategories = template.categories.map(cat => {
-                const categoryKey = mapCategoryNameToKey(cat.categoryName);
                 return {
                     categoryName: cat.categoryName,
                     skills: cat.skills.map(skillName => ({
                         id: generateId(),
                         name: skillName,
-                        category: categoryKey,
+                        category: cat.categoryName,
                         level: "intermediate" as const,
                     })),
                 };
@@ -862,10 +793,9 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
                 if (existingIndex >= 0) {
                     // Merge skills into existing category
                     const existingSkillNames = mergedCategories[existingIndex].skills.map(s => s.name.toLowerCase());
-                    const categoryKey = mapCategoryNameToKey(newCat.categoryName);
                     const newSkills = newCat.skills
                         .filter(skill => !existingSkillNames.includes(skill.name.toLowerCase()))
-                        .map(skill => ({ ...skill, category: categoryKey }));
+                        .map(skill => ({ ...skill, category: newCat.categoryName })); // Ensure category name matches
                     mergedCategories[existingIndex].skills.push(...newSkills);
                 } else {
                     // Add new category
