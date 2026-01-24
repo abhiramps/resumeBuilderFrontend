@@ -370,29 +370,17 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
     /**
      * Render skills section
      */
-    const renderSkills = (content: { skills: Skill[]; skillCategories?: Record<string, string> }) => {
+    /**
+     * Render skills section
+     */
+    const renderSkills = (content: { skills: Skill[] }) => {
       if (!content.skills || content.skills.length === 0) return null;
 
-      // Helper function to get category display name
-      const getCategoryDisplayName = (categoryKey: string): string => {
-        const defaultNames: Record<string, string> = {
-          languages: "Programming Languages",
-          frameworks: "Frameworks & Libraries",
-          databases: "Databases",
-          tools: "Tools & Software",
-          cloud: "Cloud & DevOps",
-          other: "Other"
-        };
-        return defaultNames[categoryKey] || categoryKey;
-      };
-
-      // Group skills by their custom category name
+      // Group skills by category
       const skillsByCategory: Record<string, string[]> = {};
 
-      content.skills.forEach(skill => {
-        // Get the custom category name from the mapping, or use default
-        const categoryName = content.skillCategories?.[skill.id] || getCategoryDisplayName(skill.category);
-
+      content.skills.forEach((skill) => {
+        const categoryName = skill.category || "Other";
         if (!skillsByCategory[categoryName]) {
           skillsByCategory[categoryName] = [];
         }
