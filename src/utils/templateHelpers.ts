@@ -290,16 +290,10 @@ export const phoneHelpers = {
 
     // Format based on length and format type
     if (digits.length === 10) {
-      switch (format) {
-        case 'standard':
-          return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-        case 'international':
-          return `+1 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
-        case 'dots':
-          return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
-        default:
-          return phone;
-      }
+      // Indian format as requested: 97459 91905 (without country code)
+      return `${digits.slice(0, 5)} ${digits.slice(5)}`;
+    } else if (digits.length === 12 && digits.startsWith('91')) {
+      return `+${digits.slice(0, 2)} ${digits.slice(2, 7)} ${digits.slice(7)}`;
     } else if (digits.length === 11 && digits[0] === '1') {
       const mainDigits = digits.slice(1);
       switch (format) {
@@ -327,7 +321,8 @@ export const phoneHelpers = {
     if (!phone) return false;
 
     const digits = phone.replace(/\D/g, '');
-    return digits.length === 10 || (digits.length === 11 && digits[0] === '1');
+    // Allow 10 (standard), 11 (US/other), 12 (91+10)
+    return digits.length >= 10 && digits.length <= 13;
   },
 
   /**

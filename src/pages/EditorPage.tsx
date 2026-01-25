@@ -126,6 +126,18 @@ const EditorPageContent: React.FC = () => {
     // Track if we've loaded the resume from backend
     const hasLoadedRef = useRef(false);
     const hasSyncedRef = useRef(false);
+    const lastTemplateRef = useRef(resume.template);
+
+    // Watch for template changes to trigger autosave
+    useEffect(() => {
+        if (hasSyncedRef.current && lastTemplateRef.current !== resume.template) {
+            lastTemplateRef.current = resume.template;
+            // Autosave template change
+            if (currentResume) {
+                updateResume({ templateId: resume.template });
+            }
+        }
+    }, [resume.template, currentResume, updateResume]);
 
     // Load resume on mount - only once
     useEffect(() => {
@@ -174,6 +186,9 @@ const EditorPageContent: React.FC = () => {
                                 break;
                             case 'certifications':
                                 content = { certifications: currentResume.content.certifications || [] };
+                                break;
+                            case 'additional-info':
+                                content = { additionalInfo: currentResume.content.additionalInfo || [] };
                                 break;
                             case 'custom':
                                 const customSectionData = currentResume.content.customSections?.find(
@@ -243,6 +258,12 @@ const EditorPageContent: React.FC = () => {
                                 content: { certifications: currentResume.content.certifications }
                             };
                         }
+                        if (section.type === 'additional-info' && currentResume.content.additionalInfo) {
+                            return {
+                                ...section,
+                                content: { additionalInfo: currentResume.content.additionalInfo }
+                            };
+                        }
                         return section;
                     });
                 }
@@ -282,6 +303,7 @@ const EditorPageContent: React.FC = () => {
         const skillsSection = resume.sections.find(s => s.type === 'skills');
         const projectsSection = resume.sections.find(s => s.type === 'projects');
         const certificationsSection = resume.sections.find(s => s.type === 'certifications');
+        const additionalInfoSection = resume.sections.find(s => s.type === 'additional-info');
 
         // Save section metadata (order, enabled status, etc.)
         const sectionOrder = resume.sections.map(section => ({
@@ -303,6 +325,7 @@ const EditorPageContent: React.FC = () => {
                 skills: (skillsSection?.content as any)?.skills || [],
                 projects: (projectsSection?.content as any)?.projects || [],
                 certifications: (certificationsSection?.content as any)?.certifications || [],
+                additionalInfo: (additionalInfoSection?.content as any)?.additionalInfo || [],
                 sectionOrder,
                 layout: resume.layout,
             },

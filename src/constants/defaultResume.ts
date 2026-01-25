@@ -288,6 +288,27 @@ const defaultSections: ResumeSection[] = [
       ],
     },
   },
+  {
+    id: generateId(),
+    type: "additional-info",
+    title: "Additional Information",
+    enabled: true,
+    order: 6,
+    content: {
+      additionalInfo: [
+        {
+          id: generateId(),
+          title: "Languages",
+          content: ["English (Native)", "Spanish (Professional)"],
+        },
+        {
+          id: generateId(),
+          title: "Volunteering",
+          content: ["Mentor at Codebar", "Local Food Bank Volunteer"],
+        },
+      ],
+    },
+  },
 ];
 
 // Create default resume

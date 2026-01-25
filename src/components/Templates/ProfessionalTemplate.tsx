@@ -8,6 +8,7 @@ import {
   Skill,
   Certification,
   Project,
+  AdditionalInfoItem,
 } from "../../types/resume.types";
 
 /**
@@ -551,6 +552,53 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
       );
     };
 
+    const renderAdditionalInfo = (content: {
+      additionalInfo: AdditionalInfoItem[];
+    }) => {
+      if (!content.additionalInfo || content.additionalInfo.length === 0)
+        return null;
+
+      return (
+        <div>
+          {content.additionalInfo.map((item, index) => (
+            <div
+              key={item.id || index}
+              style={{
+                marginBottom: "12px",
+                pageBreakInside: "avoid",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "baseline" }}>
+                <h3
+                    style={{
+                    fontSize: `${layout.fontSize.body}pt`,
+                    fontWeight: "bold",
+                    color: layout.colors?.text || "#000",
+                    margin: "0 8px 4px 0",
+                    width: "140px", 
+                    flexShrink: 0,
+                    }}
+                >
+                    {item.title}
+                </h3>
+                <div style={{ flex: 1 }}>
+                     {item.content.map((line, i) => (
+                        <div key={i} style={{
+                            fontSize: `${layout.fontSize.body}pt`,
+                            color: layout.colors?.text || "#333",
+                            marginBottom: "2px",
+                        }}>
+                            • {line}
+                        </div>
+                     ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
     const renderCustom = (content: {
       custom: { title: string; content: string };
     }) => {
@@ -580,6 +628,10 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           );
         case "projects":
           return renderProjects(section.content as { projects: Project[] });
+        case "additional-info":
+          return renderAdditionalInfo(
+            section.content as { additionalInfo: AdditionalInfoItem[] }
+          );
         case "education":
           return renderEducation(section.content as { education: Education[] });
         case "certifications":
