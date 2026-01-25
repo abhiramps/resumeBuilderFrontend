@@ -40,10 +40,10 @@ export const DraggableSection: React.FC<DraggableSectionProps> = ({
             ref={setNodeRef}
             style={style}
             className={`bg-white rounded-lg border ${isDragging ? 'border-blue-500 shadow-lg' : 'border-gray-200'
-                } mb-4 overflow-hidden`}
+                } mb-4`}
         >
             {/* Section Header with Drag Handle */}
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
                 {/* Drag Handle */}
                 <button
                     {...attributes}

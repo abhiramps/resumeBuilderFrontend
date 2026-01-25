@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Input, Select } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
-import { Education } from "../../types/resume.types";
+import { useResumeBackend } from "../../contexts/ResumeBackendContext";
+import { Education, Resume } from "../../types/resume.types";
 
 /**
  * Education Editor Component Props
@@ -23,6 +24,64 @@ export interface EducationEntryProps {
     onMoveUp: (id: string) => void;
     onMoveDown: (id: string) => void;
 }
+
+/**
+ * Coursework Manager Props
+ */
+export interface CourseworkManagerProps {
+    coursework: string[];
+    onUpdate: (coursework: string[]) => void;
+    maxCourses?: number;
+}
+
+// Helper to convert frontend Resume state to backend ResumeContent
+const mapResumeToContent = (resume: Resume): any => {
+    const content: any = {
+        personalInfo: resume.personalInfo,
+        sectionOrder: resume.sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            enabled: s.enabled,
+            order: s.order
+        }))
+    };
+
+    resume.sections.forEach(section => {
+        // Map content regardless of enabled status to ensure data persistence
+        const sectionContent = section.content as any;
+        switch (section.type) {
+            case 'summary':
+                content.summary = sectionContent.summary;
+                break;
+            case 'experience':
+                content.experience = sectionContent.experiences;
+                break;
+            case 'education':
+                content.education = sectionContent.education;
+                break;
+            case 'skills':
+                content.skills = sectionContent.skills;
+                break;
+            case 'projects':
+                content.projects = sectionContent.projects;
+                break;
+            case 'certifications':
+                content.certifications = sectionContent.certifications;
+                break;
+            case 'custom':
+                if (!content.customSections) content.customSections = [];
+                content.customSections.push({
+                    id: sectionContent.custom.id,
+                    title: sectionContent.custom.title,
+                    content: sectionContent.custom.content,
+                    order: section.order
+                });
+                break;
+        }
+    });
+    return content;
+};
 
 /**
  * Coursework Manager Props
@@ -388,7 +447,7 @@ const EducationEntry: React.FC<EducationEntryProps> = ({
                     </div>
 
                     {/* Institution and Location */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                         <Input
                             label="University/Institution"
                             value={localEducation.institution}
@@ -410,7 +469,7 @@ const EducationEntry: React.FC<EducationEntryProps> = ({
                     <div className="space-y-2">
                         <h5 className="text-xs font-medium text-gray-700">Study Period</h5>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3">
                             <div className="grid grid-cols-2 gap-2">
                                 <Select
                                     label="Start Month"
@@ -523,6 +582,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
     className = "",
 }) => {
     const { resume, dispatch } = useResumeContext();
+    const { updateResume } = useResumeBackend();
     const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
     // Find the education section
@@ -579,6 +639,18 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
     }, []);
 
     /**
+     * Helper to save education to backend
+     */
+    const saveToBackend = (updatedEducation: Education[]) => {
+        const contentToSave = mapResumeToContent(resume);
+        contentToSave.education = updatedEducation;
+
+        updateResume({
+            content: contentToSave as any
+        });
+    };
+
+    /**
      * Add new education entry
      */
     const addEducation = () => {
@@ -595,6 +667,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
 
         const updatedEducation = [...educationEntries, newEducation];
         debouncedUpdate(updatedEducation);
+        saveToBackend(updatedEducation);
         setEditingEntryId(newEducation.id);
     };
 
@@ -606,6 +679,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
             edu.id === id ? { ...edu, ...updates } : edu
         );
         debouncedUpdate(updatedEducation);
+        saveToBackend(updatedEducation);
     };
 
     /**
@@ -614,6 +688,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
     const deleteEducation = (id: string) => {
         const updatedEducation = educationEntries.filter((edu) => edu.id !== id);
         debouncedUpdate(updatedEducation);
+        saveToBackend(updatedEducation);
         if (editingEntryId === id) {
             setEditingEntryId(null);
         }
@@ -632,6 +707,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
             };
             const updatedEducation = [...educationEntries, duplicatedEducation];
             debouncedUpdate(updatedEducation);
+            saveToBackend(updatedEducation);
             setEditingEntryId(duplicatedEducation.id);
         }
     };
@@ -640,6 +716,9 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
      * Toggle edit mode for entry
      */
     const toggleEditEntry = (id: string) => {
+        if (editingEntryId === id) {
+             saveToBackend(educationEntries);
+        }
         setEditingEntryId(editingEntryId === id ? null : id);
     };
 
@@ -653,6 +732,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
             [updatedEducation[currentIndex - 1], updatedEducation[currentIndex]] =
                 [updatedEducation[currentIndex], updatedEducation[currentIndex - 1]];
             debouncedUpdate(updatedEducation);
+            saveToBackend(updatedEducation);
         }
     };
 
@@ -666,6 +746,7 @@ export const EducationEditor: React.FC<EducationEditorProps> = ({
             [updatedEducation[currentIndex], updatedEducation[currentIndex + 1]] =
                 [updatedEducation[currentIndex + 1], updatedEducation[currentIndex]];
             debouncedUpdate(updatedEducation);
+            saveToBackend(updatedEducation);
         }
     };
 
