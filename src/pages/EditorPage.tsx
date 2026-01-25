@@ -126,6 +126,18 @@ const EditorPageContent: React.FC = () => {
     // Track if we've loaded the resume from backend
     const hasLoadedRef = useRef(false);
     const hasSyncedRef = useRef(false);
+    const lastTemplateRef = useRef(resume.template);
+
+    // Watch for template changes to trigger autosave
+    useEffect(() => {
+        if (hasSyncedRef.current && lastTemplateRef.current !== resume.template) {
+            lastTemplateRef.current = resume.template;
+            // Autosave template change
+            if (currentResume) {
+                updateResume({ templateId: resume.template });
+            }
+        }
+    }, [resume.template, currentResume, updateResume]);
 
     // Load resume on mount - only once
     useEffect(() => {
