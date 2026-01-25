@@ -1,5 +1,6 @@
-import React, { FC } from "react";
+import React, { FC, useState, useCallback, useRef, useEffect } from "react";
 import { useResumeContext } from "../../contexts/ResumeContext";
+import { useResumeBackend } from "../../contexts/ResumeBackendContext";
 import { Button, Input } from "../UI";
 import {
   DndContext,
@@ -64,7 +65,7 @@ const SortableItem: FC<{ item: any; onUpdate: any; onDelete: any }> = ({ item, o
             <textarea
               value={Array.isArray(item.content) ? item.content.join('\n') : item.content}
               onChange={(e) => onUpdate(item.id, "content", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[100px]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[100px] text-sm"
               placeholder="e.g. English (Native)\nSpanish (Conversational)"
             />
           </div>
@@ -84,6 +85,11 @@ const SortableItem: FC<{ item: any; onUpdate: any; onDelete: any }> = ({ item, o
 
 export const AdditionalInfoEditor: React.FC = () => {
   const { resume, dispatch } = useResumeContext();
+  const { currentResume, updateResume } = useResumeBackend();
+  
+  // Autosave status state
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -94,9 +100,90 @@ export const AdditionalInfoEditor: React.FC = () => {
 
   const section = resume.sections.find((s) => s.type === "additional-info");
 
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
   if (!section) return null;
 
   const items = (section.content as any).additionalInfo || [];
+
+  /**
+   * content mapper helper
+   */
+  const mapResumeToContent = (updatedAdditionalInfo: any[]) => {
+      const content: any = {
+          personalInfo: resume.personalInfo,
+          sectionOrder: resume.sections.map(s => ({
+              id: s.id,
+              type: s.type,
+              title: s.title,
+              enabled: s.enabled,
+              order: s.order
+          })),
+          additionalInfo: updatedAdditionalInfo,
+          // Map other sections from backend state if available to preserve them
+          summary: currentResume?.content?.summary || (resume.sections.find(s => s.type === 'summary')?.content as any)?.summary || '',
+          experience: currentResume?.content?.experience || (resume.sections.find(s => s.type === 'experience')?.content as any)?.experiences || [],
+          education: currentResume?.content?.education || (resume.sections.find(s => s.type === 'education')?.content as any)?.education || [],
+          skills: currentResume?.content?.skills || (resume.sections.find(s => s.type === 'skills')?.content as any)?.skills || [],
+          certifications: currentResume?.content?.certifications || (resume.sections.find(s => s.type === 'certifications')?.content as any)?.certifications || [],
+          projects: currentResume?.content?.projects || (resume.sections.find(s => s.type === 'projects')?.content as any)?.projects || [],
+          languages: currentResume?.content?.languages || [],
+          customSections: currentResume?.content?.customSections || resume.sections
+              .filter(s => s.type === 'custom')
+              .map(s => ({
+                  id: s.id,
+                  title: s.title,
+                  content: (s.content as any)?.custom?.content || '',
+                  order: s.order
+              })),
+          layout: currentResume?.content?.layout || resume.layout
+      };
+      return content;
+  };
+
+  /**
+   * Save to backend helper
+   */
+  const saveToBackend = async (updatedItems: any[]) => {
+    if (!currentResume) return;
+
+    try {
+      setSaveStatus("saving");
+      const content = mapResumeToContent(updatedItems);
+      await updateResume({ content });
+      setSaveStatus("saved");
+      
+      // Reset to idle after delay
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (err) {
+      console.error("Autosave failed:", err);
+      setSaveStatus("error");
+    }
+  };
+
+  /**
+   * Debounced save function
+   */
+  const debouncedSave = useCallback(
+    (updatedItems: any[]) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      setSaveStatus("saving");
+      
+      debounceTimerRef.current = setTimeout(() => {
+        saveToBackend(updatedItems);
+      }, 1000);
+    },
+    [currentResume, resume, updateResume]
+  );
 
   const handleAddItem = () => {
     const newItem = {
@@ -105,17 +192,21 @@ export const AdditionalInfoEditor: React.FC = () => {
       content: [],
     };
 
+    const updatedItems = [...items, newItem];
+
     dispatch({
       type: "UPDATE_SECTION",
       payload: {
         id: section.id,
         updates: {
           content: {
-            additionalInfo: [...items, newItem],
+            additionalInfo: updatedItems,
           },
         },
       },
     });
+
+    debouncedSave(updatedItems);
   };
 
   const handleUpdateItem = (id: string, field: "title" | "content", value: any) => {
@@ -140,6 +231,8 @@ export const AdditionalInfoEditor: React.FC = () => {
         },
       },
     });
+
+    debouncedSave(updatedItems);
   };
 
   const handleDeleteItem = (id: string) => {
@@ -156,6 +249,8 @@ export const AdditionalInfoEditor: React.FC = () => {
           },
         },
       });
+
+      debouncedSave(updatedItems);
     }
   };
 
@@ -179,16 +274,46 @@ export const AdditionalInfoEditor: React.FC = () => {
           },
         },
       });
+
+      debouncedSave(newItems);
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium text-gray-900">Additional Information</h3>
-        <Button onClick={handleAddItem} size="sm">
-          Add Item
-        </Button>
+        <div>
+            <h3 className="text-lg font-medium text-gray-900">Additional Information</h3>
+            <p className="text-sm text-gray-500">Add extra sections like Languages, Interests, or Volunteer work</p>
+        </div>
+        <div className="flex items-center gap-4">
+            {/* Autosave Status Indicator */}
+            {saveStatus === "saving" && (
+                <span className="text-xs text-gray-400 flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-1.5 animate-pulse"></div>
+                    Saving...
+                </span>
+            )}
+            {saveStatus === "saved" && (
+                <span className="text-xs text-green-600 flex items-center">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Saved
+                </span>
+            )}
+            {saveStatus === "error" && (
+                <span className="text-xs text-red-500 flex items-center">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Error saving
+                </span>
+            )}
+            <Button onClick={handleAddItem} size="sm">
+            Add Item
+            </Button>
+        </div>
       </div>
 
       <DndContext
