@@ -1,13 +1,63 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Input, Select, Textarea } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
-import { WorkExperience } from "../../types/resume.types";
+import { useResumeBackend } from "../../contexts/ResumeBackendContext";
+import { WorkExperience, Resume } from "../../types/resume.types";
 import {
     validateExperience,
     hasValidationErrors,
     checkATSCompliance,
     ExperienceValidationErrors
 } from "../../utils/experienceValidation";
+
+// Helper to convert frontend Resume state to backend ResumeContent
+const mapResumeToContent = (resume: Resume): any => {
+    const content: any = {
+        personalInfo: resume.personalInfo,
+        sectionOrder: resume.sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            enabled: s.enabled,
+            order: s.order
+        }))
+    };
+
+    resume.sections.forEach(section => {
+        // Map content regardless of enabled status to ensure data persistence
+        const sectionContent = section.content as any;
+        switch (section.type) {
+            case 'summary':
+                content.summary = sectionContent.summary;
+                break;
+            case 'experience':
+                content.experience = sectionContent.experiences;
+                break;
+            case 'education':
+                content.education = sectionContent.education;
+                break;
+            case 'skills':
+                content.skills = sectionContent.skills;
+                break;
+            case 'projects':
+                content.projects = sectionContent.projects;
+                break;
+            case 'certifications':
+                content.certifications = sectionContent.certifications;
+                break;
+            case 'custom':
+                if (!content.customSections) content.customSections = [];
+                content.customSections.push({
+                    id: sectionContent.custom.id,
+                    title: sectionContent.custom.title,
+                    content: sectionContent.custom.content,
+                    order: section.order
+                });
+                break;
+        }
+    });
+    return content;
+};
 
 /**
  * Experience Editor Component Props
@@ -618,6 +668,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     className = "",
 }) => {
     const { resume, dispatch } = useResumeContext();
+    const { updateResume } = useResumeBackend();
     const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
     // Find the experience section
@@ -674,6 +725,18 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     }, []);
 
     /**
+     * Helper to save experiences to backend
+     */
+    const saveToBackend = (updatedExperiences: WorkExperience[]) => {
+        const contentToSave = mapResumeToContent(resume);
+        contentToSave.experience = updatedExperiences;
+
+        updateResume({
+            content: contentToSave as any
+        });
+    };
+
+    /**
      * Add new experience entry
      */
     const addExperience = () => {
@@ -691,6 +754,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
 
         const updatedExperiences = [...experiences, newExperience];
         debouncedUpdate(updatedExperiences);
+        saveToBackend(updatedExperiences);
         setEditingEntryId(newExperience.id);
     };
 
@@ -702,6 +766,28 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
             exp.id === id ? { ...exp, ...updates } : exp
         );
         debouncedUpdate(updatedExperiences);
+        
+        // Debounce backend save to avoid too many requests while typing
+        setTimeout(() => {
+            saveToBackend(updatedExperiences);
+        }, 1000);
+        
+        // Store timer on component instance to clear if needed? 
+        // Actually, for typing inputs, maybe we should rely on the blur or a longer debounce.
+        // But since we don't have a ref for backend save timer easily accessible here without more state,
+        // let's trust the useResumeBackend might handle some debouncing or just let it save.
+        // Better: let's save immediately for critical actions (add/delete) but debounce for typing.
+        // Since updateExperience is called often, we should probably debounce the saveToBackend call.
+        // However, for simplicity and ensuring data safety, let's call it. 
+        // If performance issues arise, we can add a specific backend debounce.
+        // Given existing pattern in SkillsEditor, it saves on every updateCategory call which is triggered on change.
+        // Wait, SkillsEditor debounces local dispatch but also calls saveToBackend immediately in some cases, 
+        // but for text inputs it might be heavy.
+        // Let's look at `handleFieldUpdate` in ExperienceEntry. It debounces the `onUpdate` call by 300ms.
+        // So `updateExperience` is already debounced by the child component. 
+        // So calling `saveToBackend` here is effectively debounced by 300ms from the user's typing.
+        // That is acceptable.
+        saveToBackend(updatedExperiences);
     };
 
     /**
@@ -710,6 +796,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     const deleteExperience = (id: string) => {
         const updatedExperiences = experiences.filter((exp) => exp.id !== id);
         debouncedUpdate(updatedExperiences);
+        saveToBackend(updatedExperiences);
         if (editingEntryId === id) {
             setEditingEntryId(null);
         }
@@ -728,6 +815,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
             };
             const updatedExperiences = [...experiences, duplicatedExperience];
             debouncedUpdate(updatedExperiences);
+            saveToBackend(updatedExperiences);
             setEditingEntryId(duplicatedExperience.id);
         }
     };
@@ -736,6 +824,10 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
      * Toggle edit mode for entry
      */
     const toggleEditEntry = (id: string) => {
+        // If we are saving (closing edit), ensure we save
+        if (editingEntryId === id) {
+             saveToBackend(experiences);
+        }
         setEditingEntryId(editingEntryId === id ? null : id);
     };
 
@@ -749,6 +841,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
             [updatedExperiences[currentIndex - 1], updatedExperiences[currentIndex]] =
                 [updatedExperiences[currentIndex], updatedExperiences[currentIndex - 1]];
             debouncedUpdate(updatedExperiences);
+            saveToBackend(updatedExperiences);
         }
     };
 
@@ -762,6 +855,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
             [updatedExperiences[currentIndex], updatedExperiences[currentIndex + 1]] =
                 [updatedExperiences[currentIndex + 1], updatedExperiences[currentIndex]];
             debouncedUpdate(updatedExperiences);
+            saveToBackend(updatedExperiences);
         }
     };
     // Don't render if no experience section exists

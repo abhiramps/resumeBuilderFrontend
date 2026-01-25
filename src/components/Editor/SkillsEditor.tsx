@@ -660,6 +660,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
 
     // Ref to store the debounce timer
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const backendSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     /**
      * Debounced update function
@@ -711,6 +712,9 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
         return () => {
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
+            }
+            if (backendSaveTimerRef.current) {
+                clearTimeout(backendSaveTimerRef.current);
             }
         };
     }, []);
@@ -777,6 +781,14 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
             i === index ? { ...category, ...updates } : category
         );
         updateSkillCategories(updatedCategories);
+
+        // Debounce backend save
+        if (backendSaveTimerRef.current) {
+            clearTimeout(backendSaveTimerRef.current);
+        }
+        backendSaveTimerRef.current = setTimeout(() => {
+            saveToBackend(updatedCategories);
+        }, 1000);
     };
 
     /**

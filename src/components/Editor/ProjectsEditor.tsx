@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Input, Select, Textarea } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
-import { Project } from "../../types/resume.types";
+import { useResumeBackend } from "../../contexts/ResumeBackendContext";
+import { Project, Resume } from "../../types/resume.types";
 import {
     validateProject,
     hasValidationErrors,
@@ -10,6 +11,55 @@ import {
     TECH_STACK_SUGGESTIONS,
     filterTechStackSuggestions
 } from "../../utils/projectValidation";
+
+// Helper to convert frontend Resume state to backend ResumeContent
+const mapResumeToContent = (resume: Resume): any => {
+    const content: any = {
+        personalInfo: resume.personalInfo,
+        sectionOrder: resume.sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            enabled: s.enabled,
+            order: s.order
+        }))
+    };
+
+    resume.sections.forEach(section => {
+        // Map content regardless of enabled status to ensure data persistence
+        const sectionContent = section.content as any;
+        switch (section.type) {
+            case 'summary':
+                content.summary = sectionContent.summary;
+                break;
+            case 'experience':
+                content.experience = sectionContent.experiences;
+                break;
+            case 'education':
+                content.education = sectionContent.education;
+                break;
+            case 'skills':
+                content.skills = sectionContent.skills;
+                break;
+            case 'projects':
+                content.projects = sectionContent.projects;
+                break;
+            case 'certifications':
+                content.certifications = sectionContent.certifications;
+                break;
+            case 'custom':
+                if (!content.customSections) content.customSections = [];
+                content.customSections.push({
+                    id: sectionContent.custom.id,
+                    title: sectionContent.custom.title,
+                    content: sectionContent.custom.content,
+                    order: section.order
+                });
+                break;
+        }
+    });
+    return content;
+};
 
 /**
  * Projects Editor Component Props
@@ -702,6 +752,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
     className = "",
 }) => {
     const { resume, dispatch } = useResumeContext();
+    const { updateResume } = useResumeBackend();
     const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
     // Find the projects section
@@ -758,6 +809,18 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
     }, []);
 
     /**
+     * Helper to save projects to backend
+     */
+    const saveToBackend = (updatedProjects: Project[]) => {
+        const contentToSave = mapResumeToContent(resume);
+        contentToSave.projects = updatedProjects;
+
+        updateResume({
+            content: contentToSave as any
+        });
+    };
+
+    /**
      * Add new project entry
      */
     const addProject = () => {
@@ -775,6 +838,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
 
         const updatedProjects = [...projects, newProject];
         debouncedUpdate(updatedProjects);
+        saveToBackend(updatedProjects);
         setEditingProjectId(newProject.id);
     };
 
@@ -786,6 +850,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
             proj.id === id ? { ...proj, ...updates } : proj
         );
         debouncedUpdate(updatedProjects);
+        saveToBackend(updatedProjects);
     };
 
     /**
@@ -794,6 +859,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
     const deleteProject = (id: string) => {
         const updatedProjects = projects.filter((proj) => proj.id !== id);
         debouncedUpdate(updatedProjects);
+        saveToBackend(updatedProjects);
         if (editingProjectId === id) {
             setEditingProjectId(null);
         }
@@ -812,6 +878,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
             };
             const updatedProjects = [...projects, duplicatedProject];
             debouncedUpdate(updatedProjects);
+            saveToBackend(updatedProjects);
             setEditingProjectId(duplicatedProject.id);
         }
     };
@@ -820,6 +887,9 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
      * Toggle edit mode for project
      */
     const toggleEditProject = (id: string) => {
+        if (editingProjectId === id) {
+            saveToBackend(projects);
+        }
         setEditingProjectId(editingProjectId === id ? null : id);
     };
 
@@ -833,6 +903,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
             [updatedProjects[currentIndex - 1], updatedProjects[currentIndex]] =
                 [updatedProjects[currentIndex], updatedProjects[currentIndex - 1]];
             debouncedUpdate(updatedProjects);
+            saveToBackend(updatedProjects);
         }
     };
 
@@ -846,6 +917,7 @@ export const ProjectsEditor: React.FC<ProjectsEditorProps> = ({
             [updatedProjects[currentIndex], updatedProjects[currentIndex + 1]] =
                 [updatedProjects[currentIndex + 1], updatedProjects[currentIndex]];
             debouncedUpdate(updatedProjects);
+            saveToBackend(updatedProjects);
         }
     };
 
