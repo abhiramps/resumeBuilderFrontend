@@ -85,6 +85,27 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
     /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
 
   /**
+   * Check if the personal info is valid for saving to backend
+   */
+  const isPersonalInfoValid = (info: PersonalInfo): boolean => {
+    // Check required fields
+    if (!info.fullName.trim()) return false;
+    if (!info.title.trim()) return false;
+    if (!info.location.trim()) return false;
+
+    // Check formatted fields
+    if (validateEmail(info.email)) return false;
+    if (validatePhone(info.phone)) return false;
+
+    // Check optional URLs
+    if (info.linkedin && validateUrl(info.linkedin, "LinkedIn")) return false;
+    if (info.github && validateUrl(info.github, "GitHub")) return false;
+    if (info.portfolio && validateUrl(info.portfolio, "Portfolio")) return false;
+
+    return true;
+  };
+
+  /**
    * Validate email format
    */
   const validateEmail = (email: string): string | undefined => {
@@ -187,14 +208,19 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
       setSaveStatus("saving");
 
       debounceTimerRef.current = setTimeout(() => {
-        // 1. Update Context
+        // 1. Update Context (always update UI state)
         dispatch({
           type: "UPDATE_PERSONAL_INFO",
           payload: updatedInfo,
         });
 
-        // 2. Persist to Backend
-        saveToBackend(updatedInfo);
+        // 2. Persist to Backend - ONLY if valid to avoid API errors
+        if (isPersonalInfoValid(updatedInfo)) {
+          saveToBackend(updatedInfo);
+        } else {
+          // If invalid, don't try to save to backend, just reset status
+          setSaveStatus("idle");
+        }
       }, 1000); // 1 second delay
     },
     [dispatch, currentResume, updateResume]
