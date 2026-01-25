@@ -483,7 +483,7 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
               Basic Information
             </h4>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <Input
                 label="Full Name"
                 value={personalInfo.fullName}
@@ -503,7 +503,7 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <Input
                 label="Email Address"
                 type="email"

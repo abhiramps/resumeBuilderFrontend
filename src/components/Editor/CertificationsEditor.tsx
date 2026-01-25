@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Input, Select } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
-import { Certification } from "../../types/resume.types";
+import { useResumeBackend } from "../../contexts/ResumeBackendContext";
+import { Certification, Resume } from "../../types/resume.types";
 
 export interface CertificationsEditorProps {
     className?: string;
@@ -17,6 +18,55 @@ export interface CertificationEntryProps {
     onMoveUp: (id: string) => void;
     onMoveDown: (id: string) => void;
 }
+
+// Helper to convert frontend Resume state to backend ResumeContent
+const mapResumeToContent = (resume: Resume): any => {
+    const content: any = {
+        personalInfo: resume.personalInfo,
+        sectionOrder: resume.sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            enabled: s.enabled,
+            order: s.order
+        }))
+    };
+
+    resume.sections.forEach(section => {
+        // Map content regardless of enabled status to ensure data persistence
+        const sectionContent = section.content as any;
+        switch (section.type) {
+            case 'summary':
+                content.summary = sectionContent.summary;
+                break;
+            case 'experience':
+                content.experience = sectionContent.experiences;
+                break;
+            case 'education':
+                content.education = sectionContent.education;
+                break;
+            case 'skills':
+                content.skills = sectionContent.skills;
+                break;
+            case 'projects':
+                content.projects = sectionContent.projects;
+                break;
+            case 'certifications':
+                content.certifications = sectionContent.certifications;
+                break;
+            case 'custom':
+                if (!content.customSections) content.customSections = [];
+                content.customSections.push({
+                    id: sectionContent.custom.id,
+                    title: sectionContent.custom.title,
+                    content: sectionContent.custom.content,
+                    order: section.order
+                });
+                break;
+        }
+    });
+    return content;
+};
 
 const MONTH_OPTIONS = [
     { value: "01", label: "January" },
@@ -194,11 +244,6 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1 flex-shrink-0">
-                    {isExpiringSoon() && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            ⚠ Expiring Soon
-                        </span>
-                    )}
                     <button type="button" onClick={() => onMoveUp(certification.id)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded" title="Move up">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -224,6 +269,15 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
                     </button>
                 </div>
             </div>
+
+            {/* Expiring Soon Status Tag */}
+            {isExpiringSoon() && (
+                <div className="flex">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                        ⚠ Expiring Soon
+                    </span>
+                </div>
+            )}
 
             {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -320,6 +374,7 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
 
 export const CertificationsEditor: React.FC<CertificationsEditorProps> = ({ className = "" }) => {
     const { resume, dispatch } = useResumeContext();
+    const { updateResume } = useResumeBackend();
     const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
     const certificationsSection = (resume.sections || []).find((section) => section.type === "certifications");
@@ -359,6 +414,18 @@ export const CertificationsEditor: React.FC<CertificationsEditorProps> = ({ clas
         };
     }, []);
 
+    /**
+     * Helper to save certifications to backend
+     */
+    const saveToBackend = (updatedCertifications: Certification[]) => {
+        const contentToSave = mapResumeToContent(resume);
+        contentToSave.certifications = updatedCertifications;
+
+        updateResume({
+            content: contentToSave as any
+        });
+    };
+
     const addCertification = () => {
         const newCertification: Certification = {
             id: generateId(),
@@ -371,17 +438,20 @@ export const CertificationsEditor: React.FC<CertificationsEditorProps> = ({ clas
         };
         const updated = [...certifications, newCertification];
         debouncedUpdate(updated);
+        saveToBackend(updated);
         setEditingEntryId(newCertification.id);
     };
 
     const updateCertification = (id: string, updates: Partial<Certification>) => {
         const updated = certifications.map((cert) => (cert.id === id ? { ...cert, ...updates } : cert));
         debouncedUpdate(updated);
+        saveToBackend(updated);
     };
 
     const deleteCertification = (id: string) => {
         const updated = certifications.filter((cert) => cert.id !== id);
         debouncedUpdate(updated);
+        saveToBackend(updated);
         if (editingEntryId === id) setEditingEntryId(null);
     };
 
@@ -391,11 +461,17 @@ export const CertificationsEditor: React.FC<CertificationsEditorProps> = ({ clas
             const duplicated: Certification = { ...certToDuplicate, id: generateId(), name: `${certToDuplicate.name} (Copy)` };
             const updated = [...certifications, duplicated];
             debouncedUpdate(updated);
+            saveToBackend(updated);
             setEditingEntryId(duplicated.id);
         }
     };
 
-    const toggleEditEntry = (id: string) => setEditingEntryId(editingEntryId === id ? null : id);
+    const toggleEditEntry = (id: string) => {
+        if (editingEntryId === id) {
+             saveToBackend(certifications);
+        }
+        setEditingEntryId(editingEntryId === id ? null : id);
+    };
 
     const moveCertificationUp = (id: string) => {
         const currentIndex = certifications.findIndex((cert) => cert.id === id);
@@ -403,6 +479,7 @@ export const CertificationsEditor: React.FC<CertificationsEditorProps> = ({ clas
             const updated = [...certifications];
             [updated[currentIndex - 1], updated[currentIndex]] = [updated[currentIndex], updated[currentIndex - 1]];
             debouncedUpdate(updated);
+            saveToBackend(updated);
         }
     };
 
@@ -412,6 +489,7 @@ export const CertificationsEditor: React.FC<CertificationsEditorProps> = ({ clas
             const updated = [...certifications];
             [updated[currentIndex], updated[currentIndex + 1]] = [updated[currentIndex + 1], updated[currentIndex]];
             debouncedUpdate(updated);
+            saveToBackend(updated);
         }
     };
 

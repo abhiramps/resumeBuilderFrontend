@@ -136,66 +136,103 @@ const EditorPageContent: React.FC = () => {
 
             // Update local context with backend data
             if (currentResume.content) {
-                // Reconstruct sections from backend data
-                let updatedSections = resume.sections.map(section => {
-                    if (section.type === 'summary' && currentResume.content.summary) {
-                        return {
-                            ...section,
-                            content: { summary: currentResume.content.summary }
-                        };
-                    }
-                    if (section.type === 'experience' && currentResume.content.experience) {
-                        return {
-                            ...section,
-                            content: { experiences: currentResume.content.experience }
-                        };
-                    }
-                    if (section.type === 'education' && currentResume.content.education) {
-                        return {
-                            ...section,
-                            content: { education: currentResume.content.education }
-                        };
-                    }
-                    if (section.type === 'skills' && currentResume.content.skills) {
-                        return {
-                            ...section,
-                            content: { skills: currentResume.content.skills }
-                        };
-                    }
-                    if (section.type === 'projects' && currentResume.content.projects) {
-                        return {
-                            ...section,
-                            content: { projects: currentResume.content.projects }
-                        };
-                    }
-                    if (section.type === 'certifications' && currentResume.content.certifications) {
-                        return {
-                            ...section,
-                            content: { certifications: currentResume.content.certifications }
-                        };
-                    }
-                    return section;
-                });
+                let updatedSections = [];
 
-                // Restore section order and metadata if saved
+                // Use sectionOrder as the source of truth for sections if available
                 if (currentResume.content.sectionOrder && currentResume.content.sectionOrder.length > 0) {
-                    updatedSections = updatedSections.map(section => {
-                        const savedMetadata = currentResume.content.sectionOrder?.find(
-                            s => s.type === section.type
-                        );
-                        if (savedMetadata) {
+                    updatedSections = currentResume.content.sectionOrder.map(metadata => {
+                        let content: any = {};
+
+                        // Map content based on section type
+                        switch (metadata.type) {
+                            case 'summary':
+                                content = { summary: currentResume.content.summary || '' };
+                                break;
+                            case 'experience':
+                                content = { experiences: currentResume.content.experience || [] };
+                                break;
+                            case 'education':
+                                content = { education: currentResume.content.education || [] };
+                                break;
+                            case 'skills':
+                                content = { skills: currentResume.content.skills || [] };
+                                break;
+                            case 'projects':
+                                content = { projects: currentResume.content.projects || [] };
+                                break;
+                            case 'certifications':
+                                content = { certifications: currentResume.content.certifications || [] };
+                                break;
+                            case 'custom':
+                                const customSectionData = currentResume.content.customSections?.find(
+                                    cs => cs.id === metadata.id
+                                );
+                                content = {
+                                    custom: {
+                                        id: metadata.id,
+                                        title: metadata.title,
+                                        content: customSectionData?.content || ''
+                                    }
+                                };
+                                break;
+                            default:
+                                // Handle potential standard sections that might be missing in switch
+                                break;
+                        }
+
+                        return {
+                            id: metadata.id,
+                            type: metadata.type as any,
+                            title: metadata.title,
+                            enabled: metadata.enabled,
+                            order: metadata.order,
+                            content: content
+                        };
+                    });
+                    
+                    // Sort by saved order just in case
+                    updatedSections.sort((a, b) => a.order - b.order);
+                } else {
+                    // Fallback: Reconstruct from default sections (legacy/empty support)
+                    updatedSections = resume.sections.map(section => {
+                        if (section.type === 'summary' && currentResume.content.summary) {
                             return {
                                 ...section,
-                                id: savedMetadata.id,
-                                title: savedMetadata.title,
-                                enabled: savedMetadata.enabled,
-                                order: savedMetadata.order,
+                                content: { summary: currentResume.content.summary }
+                            };
+                        }
+                        if (section.type === 'experience' && currentResume.content.experience) {
+                            return {
+                                ...section,
+                                content: { experiences: currentResume.content.experience }
+                            };
+                        }
+                        if (section.type === 'education' && currentResume.content.education) {
+                            return {
+                                ...section,
+                                content: { education: currentResume.content.education }
+                            };
+                        }
+                        if (section.type === 'skills' && currentResume.content.skills) {
+                            return {
+                                ...section,
+                                content: { skills: currentResume.content.skills }
+                            };
+                        }
+                        if (section.type === 'projects' && currentResume.content.projects) {
+                            return {
+                                ...section,
+                                content: { projects: currentResume.content.projects }
+                            };
+                        }
+                        if (section.type === 'certifications' && currentResume.content.certifications) {
+                            return {
+                                ...section,
+                                content: { certifications: currentResume.content.certifications }
                             };
                         }
                         return section;
                     });
-                    // Sort by saved order
-                    updatedSections.sort((a, b) => a.order - b.order);
                 }
 
                 dispatch({

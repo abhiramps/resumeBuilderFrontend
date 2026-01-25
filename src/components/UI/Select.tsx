@@ -226,7 +226,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
             }
           >
             <span
-              className={selectedOption ? "text-gray-900" : "text-gray-500"}
+              className={`block truncate ${selectedOption ? "text-gray-900" : "text-gray-500"}`}
             >
               {selectedOption ? selectedOption.label : placeholder}
             </span>
