@@ -18,7 +18,7 @@ import { TemplateSelector } from '../components/UI/TemplateSelector';
 import { usePDFExportContext } from '../contexts/PDFExportContext';
 import { usePDFExport } from '../hooks/usePDFExport';
 import { useReactToPrint } from 'react-to-print';
-import { ArrowLeft, Download, Share2, History, Eye, Settings, Save, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Download, Share2, History, Eye, Settings, Save, ChevronDown, Edit2 } from 'lucide-react';
 import { QuickStartTutorial } from '../components/Tutorial';
 
 const EditorPageContent: React.FC = () => {
@@ -36,6 +36,9 @@ const EditorPageContent: React.FC = () => {
     const [showExportMenu, setShowExportMenu] = useState(false);
     const exportMenuRef = useRef<HTMLDivElement>(null);
 
+    // Ref for debouncing title save
+    const titleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
     // Track if this is a newly created resume (created within last 30 seconds)
     const [isNewResume, setIsNewResume] = useState(false);
 
@@ -50,6 +53,15 @@ const EditorPageContent: React.FC = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // Cleanup title save timer
+    useEffect(() => {
+        return () => {
+            if (titleSaveTimerRef.current) {
+                clearTimeout(titleSaveTimerRef.current);
+            }
         };
     }, []);
 
@@ -254,10 +266,10 @@ const EditorPageContent: React.FC = () => {
 
     // Initialize edited title when currentResume changes
     useEffect(() => {
-        if (currentResume) {
+        if (currentResume && !isEditingTitle) {
             setEditedTitle(currentResume.title);
         }
-    }, [currentResume]);
+    }, [currentResume, isEditingTitle]);
 
     // Manual save function
     const handleSave = useCallback(async () => {
@@ -302,13 +314,31 @@ const EditorPageContent: React.FC = () => {
     };
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEditedTitle(e.target.value);
+        const newTitle = e.target.value;
+        setEditedTitle(newTitle);
+
+        // Debounce backend save
+        if (titleSaveTimerRef.current) {
+            clearTimeout(titleSaveTimerRef.current);
+        }
+
+        titleSaveTimerRef.current = setTimeout(() => {
+            if (newTitle.trim() !== '' && currentResume && newTitle !== currentResume.title) {
+                updateResume({ title: newTitle });
+            }
+        }, 1000);
     };
 
     const handleTitleBlur = () => {
         setIsEditingTitle(false);
         if (editedTitle.trim() === '') {
             setEditedTitle(currentResume?.title || 'Untitled Resume');
+        } else if (currentResume && editedTitle !== currentResume.title) {
+            // Ensure immediate save on blur if changed
+            if (titleSaveTimerRef.current) {
+                clearTimeout(titleSaveTimerRef.current);
+            }
+            updateResume({ title: editedTitle });
         }
     };
 
@@ -317,10 +347,19 @@ const EditorPageContent: React.FC = () => {
             setIsEditingTitle(false);
             if (editedTitle.trim() === '') {
                 setEditedTitle(currentResume?.title || 'Untitled Resume');
+            } else if (currentResume && editedTitle !== currentResume.title) {
+                // Ensure immediate save on Enter if changed
+                if (titleSaveTimerRef.current) {
+                    clearTimeout(titleSaveTimerRef.current);
+                }
+                updateResume({ title: editedTitle });
             }
         } else if (e.key === 'Escape') {
             setEditedTitle(currentResume?.title || 'Untitled Resume');
             setIsEditingTitle(false);
+            if (titleSaveTimerRef.current) {
+                clearTimeout(titleSaveTimerRef.current);
+            }
         }
     };
 
@@ -383,13 +422,16 @@ const EditorPageContent: React.FC = () => {
                                 className="text-sm sm:text-lg font-semibold text-gray-900 border-b-2 border-blue-600 focus:outline-none bg-transparent px-1 w-full"
                             />
                         ) : (
-                            <h1
-                                className="text-sm sm:text-lg font-semibold text-gray-900 cursor-pointer hover:text-blue-600 transition-colors truncate"
+                            <div
+                                className="flex items-center gap-2 cursor-pointer group min-w-0"
                                 onClick={handleTitleClick}
                                 title="Click to edit title"
                             >
-                                {editedTitle || currentResume.title}
-                            </h1>
+                                <h1 className="text-sm sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                                    {editedTitle || currentResume.title}
+                                </h1>
+                                <Edit2 className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
+                            </div>
                         )}
                         <SaveStatusIndicator isSaving={isSaving} />
                     </div>
