@@ -120,18 +120,51 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   };
 
   return (
-    <div className="relative">
-      {/* Trigger Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 text-sm font-medium shadow-sm"
-      >
-        <span className="text-gray-700">{currentInfo.name}</span>
-        <ChevronDown
-          className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""
-            }`}
-        />
-      </button>
+    <div className="w-full max-w-3xl mx-auto">
+      {/* Selected Template Info Card */}
+      <div className="flex items-center p-2 sm:p-3 bg-gray-50 border border-gray-200 rounded-xl transition-all hover:border-gray-300 hover:shadow-sm">
+        {/* Thumbnail Preview */}
+        <div className="h-16 w-12 sm:h-20 sm:w-16 flex-shrink-0 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+          <TemplateThumbnail 
+            templateType={currentTemplate} 
+            className="w-full h-full object-cover origin-top transform scale-100" 
+          />
+        </div>
+
+        {/* Info Text */}
+        <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="font-bold text-gray-900 text-sm sm:text-base truncate">
+              {currentInfo.name}
+            </h3>
+            <span className="hidden sm:inline-flex px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium border border-green-200">
+              Active
+            </span>
+            <span className={`hidden sm:inline-flex px-2 py-0.5 text-xs rounded-full font-medium border ${
+                currentInfo.atsScore >= 95 ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+            }`}>
+              ATS Score: {currentInfo.atsScore}
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 line-clamp-1 sm:line-clamp-2">
+            {currentInfo.description}
+          </p>
+          <div className="flex sm:hidden items-center gap-2 mt-1">
+             <span className="text-xs text-green-600 font-medium">Active</span>
+             <span className="text-xs text-gray-400">•</span>
+             <span className="text-xs text-gray-500">ATS: {currentInfo.atsScore}</span>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="ml-3 sm:ml-4 px-3 sm:px-4 py-2 bg-white border border-gray-200 hover:border-blue-400 hover:text-blue-600 text-gray-700 text-xs sm:text-sm font-medium rounded-lg shadow-sm transition-all flex items-center gap-2 flex-shrink-0 group"
+        >
+          <span>Change</span>
+          <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-y-0.5 transition-transform" />
+        </button>
+      </div>
 
       {/* Modal Overlay */}
       {isOpen &&
