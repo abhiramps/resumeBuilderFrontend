@@ -7,6 +7,7 @@ import {
   Skill,
   Certification,
   Project,
+  AdditionalInfoItem,
 } from "../../types/resume.types";
 
 /**
@@ -509,6 +510,53 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
       );
     };
 
+    const renderAdditionalInfo = (content: {
+      additionalInfo: AdditionalInfoItem[];
+    }) => {
+      if (!content.additionalInfo || content.additionalInfo.length === 0)
+        return null;
+
+      return (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
+          {content.additionalInfo.map((item, index) => (
+            <div
+              key={item.id || index}
+              style={{
+                 minWidth: "200px",
+                 flex: 1,
+                 pageBreakInside: "avoid",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: `${layout.fontSize.body}pt`,
+                  fontWeight: 600,
+                  color: layout.colors?.text || "#000",
+                  margin: "0 0 6px 0",
+                  letterSpacing: "0.5px",
+                  textTransform: "uppercase",
+                  borderBottom: "1px solid #eee",
+                  paddingBottom: "4px"
+                }}
+              >
+                {item.title}
+              </h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                 {item.content.map((line, i) => (
+                    <span key={i} style={{
+                        fontSize: `${layout.fontSize.body}pt`,
+                        color: layout.colors?.secondary || "#555",
+                    }}>
+                        {line}
+                    </span>
+                 ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
     const renderCustom = (content: {
       custom: { title: string; content: string };
     }) => {
@@ -546,6 +594,10 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
           );
         case "projects":
           return renderProjects(section.content as { projects: Project[] });
+        case "additional-info":
+          return renderAdditionalInfo(
+            section.content as { additionalInfo: AdditionalInfoItem[] }
+          );
         case "custom":
           return renderCustom(
             section.content as { custom: { title: string; content: string } }

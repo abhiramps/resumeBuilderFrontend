@@ -24,6 +24,7 @@ const STANDARD_SECTION_HEADERS = [
   'skills',
   'education',
   'certifications',
+  'additional information',
 ];
 
 /**

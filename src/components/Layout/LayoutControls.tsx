@@ -1,10 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useResumeContext } from '../../contexts/ResumeContext';
+import { useResumeBackend } from '../../contexts/ResumeBackendContext';
 import { Ruler, Space, RotateCcw, Link2, Unlink, Type, Palette, ChevronDown, ChevronRight, Database } from 'lucide-react';
 import { TemplateCustomization } from './TemplateCustomization';
 import { DataManagement } from './DataManagement';
+import { Resume, LayoutSettings } from '../../types/resume.types';
 
 type Unit = 'inches' | 'mm';
+
+// Helper to convert frontend Resume state to backend ResumeContent
+const mapResumeToContent = (resume: Resume, updatedLayout?: LayoutSettings): any => {
+    const content: any = {
+        personalInfo: resume.personalInfo,
+        sectionOrder: resume.sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            enabled: s.enabled,
+            order: s.order
+        })),
+        layout: updatedLayout || resume.layout
+    };
+
+    resume.sections.forEach(section => {
+        const sectionContent = section.content as any;
+        switch (section.type) {
+            case 'summary':
+                content.summary = sectionContent.summary;
+                break;
+            case 'experience':
+                content.experience = sectionContent.experiences;
+                break;
+            case 'education':
+                content.education = sectionContent.education;
+                break;
+            case 'skills':
+                content.skills = sectionContent.skills;
+                break;
+            case 'projects':
+                content.projects = sectionContent.projects;
+                break;
+            case 'certifications':
+                content.certifications = sectionContent.certifications;
+                break;
+            case 'additional-info':
+                content.additionalInfo = sectionContent.additionalInfo;
+                break;
+            case 'custom':
+                if (!content.customSections) content.customSections = [];
+                content.customSections.push({
+                    id: sectionContent.custom.id,
+                    title: sectionContent.custom.title,
+                    content: sectionContent.custom.content,
+                    order: section.order
+                });
+                break;
+        }
+    });
+    return content;
+};
 
 const MARGIN_PRESETS = {
   narrow: { top: 0.5, right: 0.5, bottom: 0.5, left: 0.5 },
@@ -64,11 +118,16 @@ const COLOR_PRESETS = {
 
 export const LayoutControls: React.FC = () => {
   const { resume, dispatch } = useResumeContext();
+  const { currentResume, updateResume } = useResumeBackend();
   const [unit, setUnit] = useState<Unit>('inches');
   const [linkedMargins, setLinkedMargins] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['margins', 'typography', 'data'])
   );
+  
+  // Autosave status state
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => {
@@ -85,6 +144,63 @@ export const LayoutControls: React.FC = () => {
   const isSectionExpanded = (sectionId: string) => expandedSections.has(sectionId);
 
   const { pageMargins, sectionSpacing, lineHeight, fontSize, fontFamily, colors } = resume.layout;
+
+  /**
+   * Save to backend helper
+   */
+  const saveToBackend = async (updatedLayout?: LayoutSettings) => {
+    if (!currentResume) return;
+
+    try {
+      setSaveStatus("saving");
+      const content = mapResumeToContent(resume, updatedLayout);
+      await updateResume({ content });
+      setSaveStatus("saved");
+      
+      // Reset to idle after delay
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (err) {
+      console.error("Autosave failed:", err);
+      setSaveStatus("error");
+    }
+  };
+
+  /**
+   * Debounced save function
+   */
+  const debouncedSave = useCallback(
+    (updatedLayout?: LayoutSettings) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      setSaveStatus("saving");
+      
+      debounceTimerRef.current = setTimeout(() => {
+        saveToBackend(updatedLayout);
+      }, 1000);
+    },
+    [currentResume, resume, updateResume]
+  );
+
+  // Watch for layout changes to trigger autosave
+  // This handles all layout updates including those from presets or child components
+  const lastLayoutRef = useRef(resume.layout);
+  useEffect(() => {
+    if (JSON.stringify(lastLayoutRef.current) !== JSON.stringify(resume.layout)) {
+      debouncedSave(resume.layout);
+      lastLayoutRef.current = resume.layout;
+    }
+  }, [resume.layout, debouncedSave]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Convert inches to mm and vice versa
   const convertToDisplay = (inches: number): number => {
@@ -235,6 +351,33 @@ export const LayoutControls: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col overflow-y-auto custom-scrollbar">
+      {/* Global Autosave Status Indicator */}
+      {(saveStatus !== "idle") && (
+          <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm px-4 py-2 border-b border-gray-100 flex justify-end">
+                {saveStatus === "saving" && (
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-blue-500 flex items-center">
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5 animate-pulse"></div>
+                        Autosaving Settings...
+                    </span>
+                )}
+                {saveStatus === "saved" && (
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-green-600 flex items-center">
+                        <svg className="w-2.5 h-2.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.4} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Settings Saved
+                    </span>
+                )}
+                {saveStatus === "error" && (
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-red-500 flex items-center">
+                        <svg className="w-2.5 h-2.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.4} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Sync Error
+                    </span>
+                )}
+          </div>
+      )}
       {/* Template-Specific Customization - Collapsible */}
       <div className="border-b border-gray-200">
         <button

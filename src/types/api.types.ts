@@ -152,6 +152,7 @@ export interface ResumeContent {
     certifications?: CertificationItem[];
     projects?: ProjectItem[];
     languages?: LanguageItem[];
+    additionalInfo?: AdditionalInfoItem[];
     customSections?: CustomSectionItem[];
     sectionOrder?: SectionMetadata[];
     layout?: ResumeLayout;
@@ -263,6 +264,12 @@ export interface CustomSectionItem {
     title: string;
     content: string;
     order: number;
+}
+
+export interface AdditionalInfoItem {
+    id: string;
+    title: string;
+    content: string[];
 }
 
 // Resume response from backend

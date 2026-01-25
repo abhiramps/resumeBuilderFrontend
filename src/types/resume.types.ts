@@ -113,6 +113,12 @@ export interface Language {
 // Alias for backend API compatibility
 export type LanguageItem = Language;
 
+export interface AdditionalInfoItem {
+  id: string;
+  title: string;
+  content: string[];
+}
+
 export type SectionType =
   | "summary"
   | "experience"
@@ -120,6 +126,7 @@ export type SectionType =
   | "skills"
   | "education"
   | "certifications"
+  | "additional-info"
   | "custom";
 
 /**
@@ -140,6 +147,7 @@ export interface ResumeSection {
   | { skills: Skill[] }
   | { education: Education[] }
   | { certifications: Certification[] }
+  | { additionalInfo: AdditionalInfoItem[] }
   | { custom: CustomSection };
 }
 
@@ -228,6 +236,7 @@ export interface ResumeContent {
   certifications?: Certification[];
   projects?: Project[];
   languages?: Language[];
+  additionalInfo?: AdditionalInfoItem[];
   customSections?: CustomSection[];
 }
 
@@ -305,6 +314,8 @@ export type ResumeSectionContent<T extends SectionType> = T extends "summary"
   ? { education: Education[] }
   : T extends "certifications"
   ? { certifications: Certification[] }
+  : T extends "additional-info"
+  ? { additionalInfo: AdditionalInfoItem[] }
   : T extends "custom"
   ? { custom: CustomSection }
   : never;

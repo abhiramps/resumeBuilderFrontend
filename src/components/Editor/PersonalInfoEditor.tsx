@@ -3,7 +3,6 @@ import { Input, Button } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
 import { useResumeBackend } from "../../contexts/ResumeBackendContext";
 import { PersonalInfo } from "../../types/resume.types";
-import type { UpdateResumeRequest } from "../../types/api.types";
 
 /**
  * Custom link interface for additional URLs
@@ -53,7 +52,6 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
   const {
     currentResume,
     updateResume,
-    isSaving: backendIsSaving,
   } = useResumeBackend();
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(
     resume.personalInfo
@@ -61,9 +59,9 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  // Autosave status state
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const lastSavedDataRef = useRef<string>(JSON.stringify(resume.personalInfo));
 
   // Update local state when context changes
   useEffect(() => {
@@ -85,6 +83,27 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
    */
   const urlRegex =
     /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+
+  /**
+   * Check if the personal info is valid for saving to backend
+   */
+  const isPersonalInfoValid = (info: PersonalInfo): boolean => {
+    // Check required fields
+    if (!info.fullName.trim()) return false;
+    if (!info.title.trim()) return false;
+    if (!info.location.trim()) return false;
+
+    // Check formatted fields
+    if (validateEmail(info.email)) return false;
+    if (validatePhone(info.phone)) return false;
+
+    // Check optional URLs
+    if (info.linkedin && validateUrl(info.linkedin, "LinkedIn")) return false;
+    if (info.github && validateUrl(info.github, "GitHub")) return false;
+    if (info.portfolio && validateUrl(info.portfolio, "Portfolio")) return false;
+
+    return true;
+  };
 
   /**
    * Validate email format
@@ -126,95 +145,89 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
     return undefined;
   };
 
-  /**
-   * Validate all fields
-   */
-  const validateForm = (): ValidationErrors => {
-    const newErrors: ValidationErrors = {};
 
-    // Required fields
-    if (!personalInfo.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    }
-
-    if (!personalInfo.title.trim()) {
-      newErrors.title = "Professional title is required";
-    }
-
-    if (!personalInfo.location.trim()) {
-      newErrors.location = "Location is required";
-    }
-
-    // Email validation
-    const emailError = validateEmail(personalInfo.email);
-    if (emailError) {
-      newErrors.email = emailError;
-    }
-
-    // Phone validation
-    const phoneError = validatePhone(personalInfo.phone);
-    if (phoneError) {
-      newErrors.phone = phoneError;
-    }
-
-    // URL validations
-    const linkedinError = validateUrl(personalInfo.linkedin || "", "LinkedIn");
-    if (linkedinError) {
-      newErrors.linkedin = linkedinError;
-    }
-
-    const githubError = validateUrl(personalInfo.github || "", "GitHub");
-    if (githubError) {
-      newErrors.github = githubError;
-    }
-
-    const portfolioError = validateUrl(
-      personalInfo.portfolio || "",
-      "Portfolio"
-    );
-    if (portfolioError) {
-      newErrors.portfolio = portfolioError;
-    }
-
-    // Custom links validation
-    const customLinkErrors: { [key: string]: string } = {};
-    customLinks.forEach((link) => {
-      const urlError = validateUrl(link.url, link.label);
-      if (urlError) {
-        customLinkErrors[link.id] = urlError;
-      }
-    });
-    if (Object.keys(customLinkErrors).length > 0) {
-      newErrors.customLinks = customLinkErrors;
-    }
-
-    return newErrors;
-  };
 
   // Debounce timer ref
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
-   * Debounced dispatch to context (300ms delay)
+   * content mapper helper (reused from ProjectsEditor concept)
    */
-  const debouncedDispatch = useCallback(
-    (field: keyof PersonalInfo, value: string) => {
+  const mapResumeToContent = (currentResume: any, updatedPersonalInfo: PersonalInfo) => {
+      const content: any = {
+          personalInfo: updatedPersonalInfo,
+          sectionOrder: currentResume.content?.sectionOrder || [],
+          // Preserve other sections
+          summary: currentResume.content?.summary,
+          experience: currentResume.content?.experience,
+          education: currentResume.content?.education,
+          skills: currentResume.content?.skills,
+          certifications: currentResume.content?.certifications,
+          projects: currentResume.content?.projects,
+          languages: currentResume.content?.languages,
+          customSections: currentResume.content?.customSections,
+          layout: currentResume.content?.layout,
+          additionalInfo: currentResume.content?.additionalInfo
+      };
+      return content;
+  };
+
+  /**
+   * Save to backend helper
+   */
+  const saveToBackend = async (updatedInfo: PersonalInfo) => {
+    if (!currentResume) return;
+
+    try {
+      setSaveStatus("saving");
+      
+      const content = mapResumeToContent(currentResume, updatedInfo);
+      
+      await updateResume({ content });
+      
+      setSaveStatus("saved");
+      lastSavedDataRef.current = JSON.stringify(updatedInfo);
+      
+      // Reset to idle after delay
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (err) {
+      console.error("Autosave failed:", err);
+      setSaveStatus("error");
+    }
+  };
+
+  /**
+   * Debounced save function
+   */
+  const debouncedSave = useCallback(
+    (updatedInfo: PersonalInfo) => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
 
+      setSaveStatus("saving");
+
       debounceTimerRef.current = setTimeout(() => {
+        // 1. Update Context (always update UI state)
         dispatch({
           type: "UPDATE_PERSONAL_INFO",
-          payload: { [field]: value },
+          payload: updatedInfo,
         });
-      }, 300);
+
+        // 2. Persist to Backend - ONLY if valid to avoid API errors
+        if (isPersonalInfoValid(updatedInfo)) {
+          saveToBackend(updatedInfo);
+        } else {
+          // If invalid, don't try to save to backend, just reset status
+          setSaveStatus("idle");
+        }
+      }, 1000); // 1 second delay
     },
-    [dispatch]
+    [dispatch, currentResume, updateResume]
   );
 
   /**
-   * Handle input change with real-time validation
+   * Handle input change with real-time validation and autosave
    */
   const handleInputChange = (field: keyof PersonalInfo, value: string) => {
     const updatedInfo = { ...personalInfo, [field]: value };
@@ -248,8 +261,8 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
       [field]: fieldError,
     }));
 
-    // Debounced update to context
-    debouncedDispatch(field, value);
+    // Trigger autosave
+    debouncedSave(updatedInfo);
   };
 
   // Cleanup debounce timer on unmount
@@ -319,106 +332,6 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
   };
 
   /**
-   * Check if there are critical errors (required fields only)
-   * This determines if the save button should be disabled
-   */
-  const hasCriticalErrors = (): boolean => {
-    // Only check required fields: fullName, title, email, phone, location
-    if (!personalInfo.fullName.trim()) return true;
-    if (!personalInfo.title.trim()) return true;
-    if (!personalInfo.location.trim()) return true;
-
-    // Check for validation errors on required fields
-    if (
-      errors.fullName ||
-      errors.title ||
-      errors.email ||
-      errors.phone ||
-      errors.location
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
-  /**
-   * Handle form submission
-   */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validateForm();
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    // Form is valid, update local context first
-    dispatch({
-      type: "UPDATE_PERSONAL_INFO",
-      payload: personalInfo,
-    });
-
-    // Save to backend if we have a current resume
-    if (!currentResume) {
-      console.warn("No current resume to save");
-      return;
-    }
-
-    setIsSaving(true);
-    setSaveError(null);
-    setSaveSuccess(false);
-
-    try {
-      // Transform resume data to UpdateResumeRequest format
-      // Preserve all existing content and only update personalInfo
-      const updateData: UpdateResumeRequest = {
-        content: {
-          personalInfo: {
-            fullName: personalInfo.fullName,
-            title: personalInfo.title,
-            email: personalInfo.email,
-            phone: personalInfo.phone,
-            location: personalInfo.location,
-            linkedin: personalInfo.linkedin,
-            github: personalInfo.github,
-            portfolio: personalInfo.portfolio,
-            website: personalInfo.website,
-          },
-          // Preserve all other content from current resume
-          ...(currentResume.content && {
-            summary: currentResume.content.summary,
-            experience: currentResume.content.experience,
-            education: currentResume.content.education,
-            skills: currentResume.content.skills,
-            certifications: currentResume.content.certifications,
-            projects: currentResume.content.projects,
-            languages: currentResume.content.languages,
-            customSections: currentResume.content.customSections,
-            sectionOrder: currentResume.content.sectionOrder,
-            layout: currentResume.content.layout || resume.layout,
-          }),
-        },
-      };
-
-      await updateResume(updateData);
-      setSaveSuccess(true);
-
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSaveSuccess(false);
-      }, 3000);
-    } catch (err: any) {
-      const errorMessage = err.message || "Failed to save changes";
-      setSaveError(errorMessage);
-      console.error("Save failed:", err);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  /**
    * Collapse/expand icon
    */
   const CollapseIcon = () => (
@@ -471,12 +384,38 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
             </p>
           </div>
         </div>
-        <CollapseIcon />
+        
+        <div className="flex items-center gap-3">
+             {/* Autosave Status Indicator */}
+            {saveStatus === "saving" && (
+                <span className="text-xs text-gray-400 flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-1.5 animate-pulse"></div>
+                    Saving...
+                </span>
+            )}
+            {saveStatus === "saved" && (
+                <span className="text-xs text-green-600 flex items-center">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Saved
+                </span>
+            )}
+            {saveStatus === "error" && (
+                <span className="text-xs text-red-500 flex items-center">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Error saving
+                </span>
+            )}
+            <CollapseIcon />
+        </div>
       </div>
 
       {/* Form Content */}
       {!isCollapsed && (
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div className="p-6 space-y-6">
           {/* Basic Information */}
           <div className="space-y-4">
             <h4 className="text-md font-medium text-gray-900 border-b border-gray-100 pb-2">
@@ -661,32 +600,7 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
               </p>
             )}
           </div>
-
-          {/* Save Status Messages */}
-          {saveError && (
-            <div className="rounded-md bg-red-50 p-3 border border-red-200">
-              <p className="text-sm text-red-800">{saveError}</p>
-            </div>
-          )}
-          {saveSuccess && (
-            <div className="rounded-md bg-green-50 p-3 border border-green-200">
-              <p className="text-sm text-green-800">
-                Changes saved successfully!
-              </p>
-            </div>
-          )}
-
-          {/* Form Actions */}
-          <div className="flex justify-end pt-4 border-t border-gray-200">
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={hasCriticalErrors() || isSaving || backendIsSaving}
-            >
-              {isSaving || backendIsSaving ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
-        </form>
+        </div>
       )}
     </div>
   );

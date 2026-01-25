@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Textarea, Button } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
+import { useResumeBackend } from "../../contexts/ResumeBackendContext";
 
 /**
  * Summary Editor Component Props
@@ -91,9 +92,13 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
   className = "",
 }) => {
   const { resume, dispatch } = useResumeContext();
+  const { currentResume, updateResume } = useResumeBackend();
   const [showTips, setShowTips] = useState(false);
   const [showSamples, setShowSamples] = useState(false);
   const [showKeywords, setShowKeywords] = useState(false);
+  
+  // Autosave status state
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   // Find the summary section
   const summarySection = (resume.sections || []).find(
@@ -125,6 +130,61 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
+   * content mapper helper
+   */
+  const mapResumeToContent = (updatedSummary: string) => {
+      const content: any = {
+          personalInfo: resume.personalInfo,
+          sectionOrder: resume.sections.map(s => ({
+              id: s.id,
+              type: s.type,
+              title: s.title,
+              enabled: s.enabled,
+              order: s.order
+          })),
+          summary: updatedSummary,
+          // Map other sections from backend state if available to preserve them
+          experience: currentResume?.content?.experience || (resume.sections.find(s => s.type === 'experience')?.content as any)?.experiences || [],
+          education: currentResume?.content?.education || (resume.sections.find(s => s.type === 'education')?.content as any)?.education || [],
+          skills: currentResume?.content?.skills || (resume.sections.find(s => s.type === 'skills')?.content as any)?.skills || [],
+          certifications: currentResume?.content?.certifications || (resume.sections.find(s => s.type === 'certifications')?.content as any)?.certifications || [],
+          projects: currentResume?.content?.projects || (resume.sections.find(s => s.type === 'projects')?.content as any)?.projects || [],
+          languages: currentResume?.content?.languages || [],
+          customSections: currentResume?.content?.customSections || resume.sections
+              .filter(s => s.type === 'custom')
+              .map(s => ({
+                  id: s.id,
+                  title: s.title,
+                  content: (s.content as any)?.custom?.content || '',
+                  order: s.order
+              })),
+          layout: currentResume?.content?.layout || resume.layout,
+          additionalInfo: currentResume?.content?.additionalInfo || (resume.sections.find(s => s.type === 'additional-info')?.content as any)?.additionalInfo || []
+      };
+      return content;
+  };
+
+  /**
+   * Save to backend helper
+   */
+  const saveToBackend = async (updatedValue: string) => {
+    if (!currentResume) return;
+
+    try {
+      setSaveStatus("saving");
+      const content = mapResumeToContent(updatedValue);
+      await updateResume({ content });
+      setSaveStatus("saved");
+      
+      // Reset to idle after delay
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (err) {
+      console.error("Autosave failed:", err);
+      setSaveStatus("error");
+    }
+  };
+
+  /**
    * Debounced update function
    */
   const debouncedUpdate = useCallback(
@@ -132,8 +192,12 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
+      
+      setSaveStatus("saving");
+      
       debounceTimerRef.current = setTimeout(() => {
         if (summarySection) {
+          // 1. Update local context
           dispatch({
             type: "UPDATE_SECTION",
             payload: {
@@ -143,10 +207,13 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
               },
             },
           });
+          
+          // 2. Persist to backend
+          saveToBackend(value);
         }
-      }, 300);
+      }, 1000); // 1 second debounce for backend
     },
-    [dispatch, summarySection]
+    [dispatch, summarySection, resume, currentResume, updateResume]
   );
 
   // Cleanup debounce timer on unmount
@@ -187,6 +254,9 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
           },
         },
       });
+      
+      // Save to backend immediately for selection
+      saveToBackend(sample);
     }
     setShowSamples(false);
   };
@@ -215,6 +285,9 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
           },
         },
       });
+      
+      // Save to backend
+      saveToBackend(newText);
 
       // Restore cursor position
       setTimeout(() => {
@@ -242,11 +315,40 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
     <div className={className}>
       {/* Editor Content */}
       <div className="space-y-4">
+        {/* Header with Save Status */}
+        <div className="flex items-center justify-between mb-1">
+            <h4 className="text-sm font-medium text-gray-700">Professional Summary</h4>
+            <div className="flex items-center gap-3">
+                 {/* Autosave Status Indicator */}
+                {saveStatus === "saving" && (
+                    <span className="text-xs text-gray-400 flex items-center">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-1.5 animate-pulse"></div>
+                        Saving...
+                    </span>
+                )}
+                {saveStatus === "saved" && (
+                    <span className="text-xs text-green-600 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Saved
+                    </span>
+                )}
+                {saveStatus === "error" && (
+                    <span className="text-xs text-red-500 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Error saving
+                    </span>
+                )}
+            </div>
+        </div>
+
         {/* Main Editor */}
         <div className="space-y-4">
           <Textarea
             data-summary-editor
-            label="Professional Summary"
             value={localSummary}
             onChange={handleSummaryChange}
             placeholder="Write a compelling 3-5 sentence summary highlighting your experience, key skills, and career objectives..."
