@@ -175,6 +175,9 @@ const EditorPageContent: React.FC = () => {
                             case 'certifications':
                                 content = { certifications: currentResume.content.certifications || [] };
                                 break;
+                            case 'additional-info':
+                                content = { additionalInfo: currentResume.content.additionalInfo || [] };
+                                break;
                             case 'custom':
                                 const customSectionData = currentResume.content.customSections?.find(
                                     cs => cs.id === metadata.id
@@ -243,6 +246,12 @@ const EditorPageContent: React.FC = () => {
                                 content: { certifications: currentResume.content.certifications }
                             };
                         }
+                        if (section.type === 'additional-info' && currentResume.content.additionalInfo) {
+                            return {
+                                ...section,
+                                content: { additionalInfo: currentResume.content.additionalInfo }
+                            };
+                        }
                         return section;
                     });
                 }
@@ -282,6 +291,7 @@ const EditorPageContent: React.FC = () => {
         const skillsSection = resume.sections.find(s => s.type === 'skills');
         const projectsSection = resume.sections.find(s => s.type === 'projects');
         const certificationsSection = resume.sections.find(s => s.type === 'certifications');
+        const additionalInfoSection = resume.sections.find(s => s.type === 'additional-info');
 
         // Save section metadata (order, enabled status, etc.)
         const sectionOrder = resume.sections.map(section => ({
@@ -303,6 +313,7 @@ const EditorPageContent: React.FC = () => {
                 skills: (skillsSection?.content as any)?.skills || [],
                 projects: (projectsSection?.content as any)?.projects || [],
                 certifications: (certificationsSection?.content as any)?.certifications || [],
+                additionalInfo: (additionalInfoSection?.content as any)?.additionalInfo || [],
                 sectionOrder,
                 layout: resume.layout,
             },

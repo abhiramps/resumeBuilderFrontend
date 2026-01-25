@@ -9,6 +9,7 @@ import { ProjectsEditor } from './ProjectsEditor';
 import { SkillsEditor } from './SkillsEditor';
 import { EducationEditor } from './EducationEditor';
 import { CertificationsEditor } from './CertificationsEditor';
+import { AdditionalInfoEditor } from './AdditionalInfoEditor';
 import { CustomSectionEditor } from './CustomSectionEditor';
 import { ResumeSection } from '../../types/resume.types';
 
@@ -44,6 +45,8 @@ export const EditorSidebar: React.FC = () => {
                 return <EducationEditor />;
             case 'certifications':
                 return <CertificationsEditor />;
+            case 'additional-info':
+                return <AdditionalInfoEditor />;
             case 'custom':
                 return <CustomSectionEditor section={section} />;
             default:

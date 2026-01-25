@@ -7,6 +7,7 @@ import {
   Skill,
   Certification,
   Project,
+  AdditionalInfoItem,
 } from "../../types/resume.types";
 
 /**
@@ -610,6 +611,50 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
     /**
      * Render custom section
      */
+    const renderAdditionalInfo = (content: {
+      additionalInfo: AdditionalInfoItem[];
+    }) => {
+      if (!content.additionalInfo || content.additionalInfo.length === 0)
+        return null;
+
+      return (
+        <div>
+          {content.additionalInfo.map((item, index) => (
+            <div
+              key={item.id || index}
+              style={{
+                marginBottom: "12px",
+                pageBreakInside: "avoid",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: `${layout.fontSize.body}pt`,
+                  fontWeight: "bold",
+                  color: layout.colors?.text || "#000",
+                  margin: "0 0 4px 0",
+                  textDecoration: "underline",
+                }}
+              >
+                {item.title}
+              </h3>
+              <ul style={{ margin: "0 0 0 16px", padding: 0, listStyle: "disc" }}>
+                 {item.content.map((line, i) => (
+                    <li key={i} style={{
+                        fontSize: `${layout.fontSize.body}pt`,
+                        color: layout.colors?.text || "#000",
+                        marginBottom: "2px",
+                    }}>
+                        {line}
+                    </li>
+                 ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
     const renderCustom = (content: {
       custom: { title: string; content: string };
     }) => {
@@ -652,6 +697,10 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
           );
         case "projects":
           return renderProjects(section.content as { projects: Project[] });
+        case "additional-info":
+          return renderAdditionalInfo(
+            section.content as { additionalInfo: AdditionalInfoItem[] }
+          );
         case "custom":
           return renderCustom(
             section.content as { custom: { title: string; content: string } }
