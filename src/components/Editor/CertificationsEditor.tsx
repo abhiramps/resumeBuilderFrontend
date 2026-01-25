@@ -194,11 +194,6 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1 flex-shrink-0">
-                    {isExpiringSoon() && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            ⚠ Expiring Soon
-                        </span>
-                    )}
                     <button type="button" onClick={() => onMoveUp(certification.id)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded" title="Move up">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -224,6 +219,15 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
                     </button>
                 </div>
             </div>
+
+            {/* Expiring Soon Status Tag */}
+            {isExpiringSoon() && (
+                <div className="flex">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                        ⚠ Expiring Soon
+                    </span>
+                </div>
+            )}
 
             {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

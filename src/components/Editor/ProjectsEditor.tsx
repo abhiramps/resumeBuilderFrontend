@@ -529,7 +529,7 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                     )}
 
                     {/* Project Links */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                         <Input
                             label="Project URL (Optional)"
                             type="url"
@@ -559,7 +559,7 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                             <p className="text-xs text-red-600">{validationErrors.dateRange}</p>
                         )}
 
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                             <Select
                                 label="Start Month"
                                 options={MONTH_OPTIONS}

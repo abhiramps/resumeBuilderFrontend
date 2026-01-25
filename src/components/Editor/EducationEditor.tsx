@@ -388,7 +388,7 @@ const EducationEntry: React.FC<EducationEntryProps> = ({
                     </div>
 
                     {/* Institution and Location */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                         <Input
                             label="University/Institution"
                             value={localEducation.institution}
@@ -410,7 +410,7 @@ const EducationEntry: React.FC<EducationEntryProps> = ({
                     <div className="space-y-2">
                         <h5 className="text-xs font-medium text-gray-700">Study Period</h5>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3">
                             <div className="grid grid-cols-2 gap-2">
                                 <Select
                                     label="Start Month"

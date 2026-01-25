@@ -446,7 +446,7 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
             {isEditing && (
                 <div className="space-y-3 border-t border-gray-200 pt-3">
                     {/* Basic Information */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                         <Input
                             label="Job Title"
                             value={localExperience.jobTitle}
@@ -483,7 +483,7 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
                             <p className="text-xs text-red-600">{validationErrors.dateRange}</p>
                         )}
 
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                             <Select
                                 label="Start Month"
                                 options={MONTH_OPTIONS}
