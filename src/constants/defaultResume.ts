@@ -56,87 +56,10 @@ const defaultSections: ResumeSection[] = [
   },
   {
     id: generateId(),
-    type: "experience",
-    title: "Work Experience",
-    enabled: true,
-    order: 1,
-    content: {
-      experiences: [
-        {
-          id: generateId(),
-          jobTitle: "Senior Software Engineer",
-          company: "Tech Company Inc.",
-          location: "San Francisco, CA",
-          startDate: "2022-01",
-          endDate: "2024-12",
-          current: true,
-          description:
-            "Led development of microservices architecture and implemented CI/CD pipelines.",
-          achievements: [
-            "Improved system performance by 40% through optimization",
-            "Mentored 3 junior developers",
-            "Implemented automated testing reducing bugs by 60%",
-          ],
-        },
-        {
-          id: generateId(),
-          jobTitle: "Software Engineer",
-          company: "StartupXYZ",
-          location: "Austin, TX",
-          startDate: "2020-06",
-          endDate: "2021-12",
-          current: false,
-          description:
-            "Developed full-stack web applications using React, Node.js, and PostgreSQL.",
-          achievements: [
-            "Built customer-facing dashboard serving 10K+ users",
-            "Reduced page load time by 50%",
-            "Collaborated with design team on UX improvements",
-          ],
-        },
-      ],
-    },
-  },
-  {
-    id: generateId(),
-    type: "projects",
-    title: "Projects",
-    enabled: true,
-    order: 2,
-    content: {
-      projects: [
-        {
-          id: generateId(),
-          name: "E-commerce Platform",
-          description:
-            "Full-stack e-commerce solution with payment integration and inventory management.",
-          techStack: ["React", "Node.js", "PostgreSQL", "Stripe API"],
-          startDate: "2023-03",
-          endDate: "2023-08",
-          current: false,
-          url: "https://example-ecommerce.com",
-          githubUrl: "https://github.com/username/ecommerce-platform",
-        },
-        {
-          id: generateId(),
-          name: "Task Management App",
-          description:
-            "Collaborative task management tool with real-time updates and team collaboration features.",
-          techStack: ["Vue.js", "Express.js", "MongoDB", "Socket.io"],
-          startDate: "2022-09",
-          endDate: "2023-01",
-          current: false,
-          githubUrl: "https://github.com/username/task-manager",
-        },
-      ],
-    },
-  },
-  {
-    id: generateId(),
     type: "skills",
     title: "Technical Skills",
     enabled: true,
-    order: 3,
+    order: 2,
     content: {
       skills: [
         // Languages
@@ -236,10 +159,87 @@ const defaultSections: ResumeSection[] = [
   },
   {
     id: generateId(),
+    type: "experience",
+    title: "Work Experience",
+    enabled: true,
+    order: 3,
+    content: {
+      experiences: [
+        {
+          id: generateId(),
+          jobTitle: "Senior Software Engineer",
+          company: "Tech Company Inc.",
+          location: "San Francisco, CA",
+          startDate: "2022-01",
+          endDate: "2024-12",
+          current: true,
+          description:
+            "Led development of microservices architecture and implemented CI/CD pipelines.",
+          achievements: [
+            "Improved system performance by 40% through optimization",
+            "Mentored 3 junior developers",
+            "Implemented automated testing reducing bugs by 60%",
+          ],
+        },
+        {
+          id: generateId(),
+          jobTitle: "Software Engineer",
+          company: "StartupXYZ",
+          location: "Austin, TX",
+          startDate: "2020-06",
+          endDate: "2021-12",
+          current: false,
+          description:
+            "Developed full-stack web applications using React, Node.js, and PostgreSQL.",
+          achievements: [
+            "Built customer-facing dashboard serving 10K+ users",
+            "Reduced page load time by 50%",
+            "Collaborated with design team on UX improvements",
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: generateId(),
+    type: "projects",
+    title: "Projects",
+    enabled: true,
+    order: 4,
+    content: {
+      projects: [
+        {
+          id: generateId(),
+          name: "E-commerce Platform",
+          description:
+            "Full-stack e-commerce solution with payment integration and inventory management.",
+          techStack: ["React", "Node.js", "PostgreSQL", "Stripe API"],
+          startDate: "2023-03",
+          endDate: "2023-08",
+          current: false,
+          url: "https://example-ecommerce.com",
+          githubUrl: "https://github.com/username/ecommerce-platform",
+        },
+        {
+          id: generateId(),
+          name: "Task Management App",
+          description:
+            "Collaborative task management tool with real-time updates and team collaboration features.",
+          techStack: ["Vue.js", "Express.js", "MongoDB", "Socket.io"],
+          startDate: "2022-09",
+          endDate: "2023-01",
+          current: false,
+          githubUrl: "https://github.com/username/task-manager",
+        },
+      ],
+    },
+  },
+  {
+    id: generateId(),
     type: "education",
     title: "Education",
     enabled: true,
-    order: 4,
+    order: 5,
     content: {
       education: [
         {
@@ -265,7 +265,7 @@ const defaultSections: ResumeSection[] = [
     type: "certifications",
     title: "Certifications",
     enabled: true,
-    order: 5,
+    order: 6,
     content: {
       certifications: [
         {
@@ -293,7 +293,7 @@ const defaultSections: ResumeSection[] = [
     type: "additional-info",
     title: "Additional Information",
     enabled: true,
-    order: 6,
+    order: 7,
     content: {
       additionalInfo: [
         {

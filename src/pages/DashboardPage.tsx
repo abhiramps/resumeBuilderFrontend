@@ -12,7 +12,10 @@ import { Input } from '../components/UI/Input';
 import { ImportExportModal } from '../components/UI/ImportExportModal';
 import { SkeletonCardGrid } from '../components/UI/SkeletonCard';
 import { Plus, Search, FileText, Copy, Trash2, Share2, MoreVertical, Download, Upload, CheckSquare } from 'lucide-react';
-import type { ResumeResponse } from '../types/api.types';
+import { defaultSections } from '../constants/defaultResume';
+import type { ResumeResponse, ResumeContent } from '../types/api.types';
+import { TemplateThumbnail } from '../components/Templates/TemplateThumbnail';
+import { TemplateType } from '../types/resume.types';
 
 export const DashboardPage: React.FC = () => {
     const navigate = useNavigate();
@@ -67,10 +70,45 @@ export const DashboardPage: React.FC = () => {
 
     const handleCreateResume = async () => {
         try {
+            // Construct initial content with profile data and dummy sections
+            const initialContent: ResumeContent = {};
+
+            // Prefill personal info with complete dummy data
+            // Backend validation requires these to be non-empty and strict URIs
+            initialContent.personalInfo = {
+                fullName: 'John Doe',
+                email: 'john.doe@example.com',
+                phone: '(555) 123-4567',
+                location: 'New York, USA',
+                linkedin: 'https://linkedin.com/in/johndoe',
+                github: 'https://github.com/johndoe',
+                website: 'https://johndoe.com',
+                // Note: 'title' and 'portfolio' are excluded as they are not allowed in the creation schema
+            } as any;
+
+            // Map default sections to API content structure
+            defaultSections.forEach(section => {
+                if (section.type === 'summary' && 'summary' in section.content) {
+                    initialContent.summary = section.content.summary;
+                } else if (section.type === 'experience' && 'experiences' in section.content) {
+                    initialContent.experience = section.content.experiences;
+                } else if (section.type === 'education' && 'education' in section.content) {
+                    initialContent.education = section.content.education;
+                } else if (section.type === 'skills' && 'skills' in section.content) {
+                    initialContent.skills = section.content.skills;
+                } else if (section.type === 'projects' && 'projects' in section.content) {
+                    initialContent.projects = section.content.projects;
+                } else if (section.type === 'certifications' && 'certifications' in section.content) {
+                    initialContent.certifications = section.content.certifications;
+                } else if (section.type === 'additional-info' && 'additionalInfo' in section.content) {
+                    initialContent.additionalInfo = section.content.additionalInfo;
+                }
+            });
+
             const newResume = await createResume({
                 title: 'Untitled Resume',
                 templateId: 'professional',
-                content: {},
+                content: initialContent,
             });
             navigate(`/editor/${newResume.id}`);
         } catch (err) {
@@ -310,7 +348,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Resume Grid */}
                 {!isLoading && filteredResumes.length > 0 && viewMode === 'grid' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                         {filteredResumes.map((resume) => (
                             <ResumeCard
                                 key={resume.id}
@@ -332,8 +370,8 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Resume List */}
                 {!isLoading && filteredResumes.length > 0 && viewMode === 'list' && (
-                    <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-                        <ul className="divide-y divide-gray-200">
+                    <div className="bg-white/80 backdrop-blur-md shadow-sm rounded-xl border border-white/50 overflow-hidden">
+                        <ul className="divide-y divide-gray-100">
                             {filteredResumes.map((resume) => (
                                 <ResumeListItem
                                     key={resume.id}
@@ -397,17 +435,29 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
     isSelected,
     onToggleSelect,
 }) => {
+    // Helper to safely get template type
+    const getTemplateType = (id: string): TemplateType => {
+        const validTypes: TemplateType[] = ['classic', 'modern', 'minimal', 'professional', 'academic'];
+        return validTypes.includes(id as TemplateType) ? (id as TemplateType) : 'professional';
+    };
+
     return (
-        <div className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-6 relative ${bulkSelectMode && isSelected ? 'ring-2 ring-blue-600' : ''
-            }`}>
+        <div className={`
+            group relative flex flex-col
+            bg-white/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60
+            rounded-2xl border border-white/50 shadow-sm
+            hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-200/50 hover:bg-white/80
+            transition-all duration-300 ease-out
+            ${bulkSelectMode && isSelected ? 'ring-2 ring-blue-500 shadow-blue-500/20 bg-blue-50/50' : ''}
+        `}>
             {/* Checkbox for bulk select */}
             {bulkSelectMode && (
-                <div className="absolute top-4 left-4 z-10">
+                <div className="absolute top-3 left-3 z-20">
                     <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => onToggleSelect(resume.id)}
-                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 bg-white/80 border-gray-300 shadow-sm cursor-pointer"
                     />
                 </div>
             )}
@@ -415,62 +465,103 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
             {/* Menu Button */}
             {!bulkSelectMode && (
                 <button
-                    onClick={() => setActiveMenu(activeMenu === resume.id ? null : resume.id)}
-                    className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-md"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveMenu(activeMenu === resume.id ? null : resume.id)
+                    }}
+                    className={`
+                        absolute top-3 right-3 p-1.5 rounded-full z-10 transition-all duration-200
+                        ${activeMenu === resume.id
+                            ? 'bg-white shadow-md text-gray-900 opacity-100 scale-100'
+                            : 'bg-white/80 text-gray-600 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 hover:bg-white hover:text-blue-600 shadow-sm backdrop-blur-sm'
+                        }
+                    `}
                 >
-                    <MoreVertical className="w-5 h-5 text-gray-600" />
+                    <MoreVertical className="w-4 h-4" />
                 </button>
             )}
 
             {/* Dropdown Menu */}
             {activeMenu === resume.id && !bulkSelectMode && (
-                <div className="absolute top-12 right-4 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-10 min-w-[160px]">
+                <div className="absolute top-10 right-3 bg-white/90 backdrop-blur-xl rounded-xl shadow-2xl border border-white/50 py-1.5 z-30 min-w-[160px] animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/5">
                     <button
-                        onClick={() => onExport(resume)}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); onExport(resume); }}
+                        className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors"
                     >
-                        <Download className="w-4 h-4" />
+                        <Download className="w-3.5 h-3.5" />
                         Export
                     </button>
                     <button
-                        onClick={() => onShare(resume.id)}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); onShare(resume.id); }}
+                        className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors"
                     >
-                        <Share2 className="w-4 h-4" />
+                        <Share2 className="w-3.5 h-3.5" />
                         Share
                     </button>
                     <button
-                        onClick={() => onDuplicate(resume.id)}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); onDuplicate(resume.id); }}
+                        className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2 transition-colors"
                     >
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-3.5 h-3.5" />
                         Duplicate
                     </button>
+                    <div className="h-px bg-gray-100/50 my-1" />
                     <button
-                        onClick={() => onDelete(resume.id)}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        onClick={(e) => { e.stopPropagation(); onDelete(resume.id); }}
+                        className="w-full text-left px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         Delete
                     </button>
                 </div>
             )}
 
-            {/* Content */}
+            {/* Preview Section - Reduced Height / Smaller aspect */}
             <div
                 onClick={() => !bulkSelectMode && onEdit(resume.id)}
-                className={bulkSelectMode ? '' : 'cursor-pointer'}
+                className={`
+                    relative w-full aspect-[1/1.3] overflow-hidden rounded-t-2xl
+                    ${bulkSelectMode ? '' : 'cursor-pointer'}
+                `}
             >
-                <div className={`flex items-center gap-3 mb-4 ${bulkSelectMode ? 'ml-8' : ''}`}>
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                        <FileText className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">{resume.title}</h3>
-                        <p className="text-sm text-gray-500">
-                            Updated {new Date(resume.updatedAt).toLocaleDateString()}
-                        </p>
-                    </div>
+                {/* Background base for thumbnail */}
+                <div className="absolute inset-0 bg-gray-100/50 transition-colors group-hover:bg-gray-100/30"></div>
+                
+                {/* Thumbnail Wrapper with nicer padding/positioning */}
+                <div className="absolute inset-4 sm:inset-5 shadow-lg rounded-sm overflow-hidden bg-white transform transition-transform duration-500 will-change-transform group-hover:scale-[1.03] group-hover:-translate-y-1">
+                    <TemplateThumbnail
+                        templateType={getTemplateType(resume.templateId)}
+                        className="w-full h-full object-cover"
+                    />
+                     {/* Inner glass sheen over the resume preview */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/0 via-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                </div>
+
+                {/* Bottom fading gradient for smooth transition to footer */}
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white/60 to-transparent pointer-events-none" />
+            </div>
+
+            {/* Content Section - Compact Footer */}
+            <div
+                onClick={() => !bulkSelectMode && onEdit(resume.id)}
+                className={`
+                    px-4 pb-4 pt-2 flex flex-col gap-1
+                    ${bulkSelectMode ? '' : 'cursor-pointer'}
+                `}
+            >
+                <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-gray-800 truncate leading-tight group-hover:text-blue-600 transition-colors" title={resume.title}>
+                        {resume.title}
+                    </h3>
+                </div>
+                
+                <div className="flex items-center justify-between mt-1">
+                     <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400 bg-gray-100/80 px-1.5 py-0.5 rounded-md border border-gray-100/50">
+                        {getTemplateType(resume.templateId)}
+                    </span>
+                    <span className="text-[10px] text-gray-400 tabular-nums">
+                        {new Date(resume.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
                 </div>
             </div>
         </div>
