@@ -90,7 +90,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
     };
 
     const linkStyles: React.CSSProperties = {
-      color: "#0000EE",
+      // color: "#0000EE",
       textDecoration: "none",
     };
 
@@ -190,7 +190,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.experiences.length - 1 ? "16px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -292,7 +292,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.education.length - 1 ? "12px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -442,7 +442,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.certifications.length - 1 ? "12px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -529,7 +529,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.projects.length - 1 ? "16px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -624,7 +624,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
               key={item.id || index}
               style={{
                 marginBottom: "12px",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <h3
@@ -735,7 +735,7 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
           if (!content) return null;
 
           return (
-            <section key={section.id} style={{ pageBreakInside: "avoid" }}>
+            <section key={section.id} style={{ pageBreakInside: "auto" }}>
               <h2 style={sectionHeaderStyles}>{section.title}</h2>
               {content}
             </section>
