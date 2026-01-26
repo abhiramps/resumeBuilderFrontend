@@ -287,6 +287,138 @@ const TechStackManager: React.FC<TechStackManagerProps> = ({
 };
 
 /**
+ * Bullet Point Manager Props
+ */
+export interface BulletPointManagerProps {
+    bulletPoints: string[];
+    onUpdate: (bulletPoints: string[]) => void;
+    maxPoints?: number;
+}
+
+/**
+ * Bullet Point Manager Component
+ */
+const BulletPointManager: React.FC<BulletPointManagerProps> = ({
+    bulletPoints,
+    onUpdate,
+    maxPoints = 10,
+}) => {
+    const addBulletPoint = () => {
+        if (bulletPoints.length < maxPoints) {
+            onUpdate([...bulletPoints, ""]);
+        }
+    };
+
+    const updateBulletPoint = (index: number, value: string) => {
+        const updated = [...bulletPoints];
+        updated[index] = value;
+        onUpdate(updated);
+    };
+
+    const removeBulletPoint = (index: number) => {
+        const updated = bulletPoints.filter((_, i) => i !== index);
+        onUpdate(updated);
+    };
+
+    const moveBulletPoint = (index: number, direction: "up" | "down") => {
+        if (
+            (direction === "up" && index === 0) ||
+            (direction === "down" && index === bulletPoints.length - 1)
+        ) {
+            return;
+        }
+
+        const updated = [...bulletPoints];
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+        [updated[index], updated[targetIndex]] = [updated[targetIndex], updated[index]];
+        onUpdate(updated);
+    };
+
+    return (
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <h5 className="text-xs font-medium text-gray-700">Key Achievements</h5>
+                <button
+                    type="button"
+                    onClick={addBulletPoint}
+                    disabled={bulletPoints.length >= maxPoints}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Point
+                </button>
+            </div>
+
+            {bulletPoints.map((point, index) => (
+                <div key={index} className="flex items-start gap-1.5">
+                    <div className="flex flex-col gap-0.5 mt-2">
+                        <button
+                            type="button"
+                            onClick={() => moveBulletPoint(index, "up")}
+                            disabled={index === 0}
+                            className="p-0.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                            title="Move up"
+                        >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => moveBulletPoint(index, "down")}
+                            disabled={index === bulletPoints.length - 1}
+                            className="p-0.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                            title="Move down"
+                        >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div className="flex-1">
+                        <Textarea
+                            value={point}
+                            onChange={(e) => updateBulletPoint(index, e.target.value)}
+                            placeholder="Describe a key achievement or responsibility..."
+                            rows={2}
+                            maxLength={200}
+                            showCharCount
+                            className="text-xs"
+                        />
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => removeBulletPoint(index)}
+                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded mt-1"
+                        title="Remove bullet point"
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            ))}
+
+            {bulletPoints.length === 0 && (
+                <div className="text-center py-3 text-gray-500 text-xs border-2 border-dashed border-gray-200 rounded-lg">
+                    No achievements added yet. Click "Add Point" to add bullet points.
+                </div>
+            )}
+
+            {bulletPoints.length >= maxPoints && (
+                <p className="text-xs text-gray-500">
+                    Maximum {maxPoints} bullet points reached.
+                </p>
+            )}
+        </div>
+    );
+};
+
+/**
  * Individual Project Entry Component
  */
 const ProjectEntry: React.FC<ProjectEntryProps> = ({
@@ -578,6 +710,12 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                         <p className="text-xs text-red-600">{validationErrors.techStack}</p>
                     )}
 
+                    {/* Achievements */}
+                    <BulletPointManager
+                        bulletPoints={localProject.achievements || []}
+                        onUpdate={(achievements) => handleFieldUpdate("achievements", achievements)}
+                    />
+
                     {/* Project Links */}
                     <div className="grid grid-cols-1 gap-3">
                         <Input
@@ -667,6 +805,25 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                 <div className="space-y-2 border-t border-gray-200 pt-3">
                     {project.description && (
                         <p className="text-xs text-gray-600 leading-relaxed">{project.description}</p>
+                    )}
+
+                    {(project.achievements || []).length > 0 && (
+                        <div>
+                            <h5 className="text-xs font-medium text-gray-700 mb-1.5">Key Achievements:</h5>
+                            <ul className="space-y-1">
+                                {(project.achievements || []).slice(0, 3).map((achievement, index) => (
+                                    <li key={index} className="text-xs text-gray-600 flex items-start">
+                                        <span className="text-blue-600 mr-1.5 flex-shrink-0">•</span>
+                                        <span className="leading-relaxed">{achievement}</span>
+                                    </li>
+                                ))}
+                                {(project.achievements || []).length > 3 && (
+                                    <li className="text-xs text-gray-500 italic ml-3">
+                                        +{(project.achievements || []).length - 3} more achievements
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
                     )}
 
                     {(project.techStack || []).length > 0 && (

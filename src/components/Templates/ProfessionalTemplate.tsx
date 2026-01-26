@@ -1,7 +1,7 @@
-import React, { forwardRef, memo, useRef, useImperativeHandle } from "react";
+import React, { forwardRef, memo } from "react";
 import { TemplateBaseProps } from "./TemplateBase";
 import { templateHelpers } from "../../utils/templateHelpers";
-import { usePageBreaks } from "../../hooks/usePageBreaks";
+
 import {
   WorkExperience,
   Education,
@@ -31,14 +31,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
   (props, ref) => {
     const { resume, layout, className = "", printMode = false } = props;
 
-    // Create internal ref for usePageBreaks hook
-    const internalRef = useRef<HTMLDivElement>(null);
 
-    // Sync internal ref with forwarded ref
-    useImperativeHandle(ref, () => internalRef.current as HTMLDivElement);
-
-    // Apply pagination logic in print mode
-    usePageBreaks(internalRef, [resume, layout], printMode);
 
     const enabledSections = resume.sections
       .filter((section) => section.enabled)
@@ -92,6 +85,10 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
     const contactStyles: React.CSSProperties = {
       fontSize: `${(layout.fontSize?.body || 10) - 1}pt`,
       color: secondaryColor,
+      display: "flex",
+      justifyContent: "center",
+      flexWrap: "wrap",
+      gap: "12px",
       lineHeight: layout.lineHeight || 1.5,
     };
 
@@ -111,78 +108,56 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
     };
 
     const linkStyles: React.CSSProperties = {
-      color: "#0000EE",
+      // color: "#0000EE",
       textDecoration: "none",
     };
 
     const renderContactInfo = () => {
-      const contactParts: (string | JSX.Element)[] = [];
+      const contactItems: JSX.Element[] = [];
 
       if (resume.personalInfo?.email) {
-        contactParts.push(
+        contactItems.push(
           <a key="email" href={`mailto:${resume.personalInfo.email}`} style={linkStyles}>
             {resume.personalInfo.email}
           </a>
         );
       }
       if (resume.personalInfo?.phone) {
-        contactParts.push(resume.personalInfo.phone);
+        contactItems.push(
+          <span key="phone">{templateHelpers.phone.format(resume.personalInfo.phone)}</span>
+        );
       }
       if (resume.personalInfo?.location) {
-        contactParts.push(resume.personalInfo.location);
+        contactItems.push(<span key="location">{resume.personalInfo.location}</span>);
       }
-
-      const firstLine = contactParts.length > 0 ? (
-        <div>
-          {contactParts.map((part, index) => (
-            <React.Fragment key={index}>
-              {index > 0 && " | "}
-              {part}
-            </React.Fragment>
-          ))}
-        </div>
-      ) : null;
-
-      const linkParts: JSX.Element[] = [];
       if (resume.personalInfo?.linkedin) {
-        linkParts.push(
+        contactItems.push(
           <a key="linkedin" href={resume.personalInfo.linkedin} style={linkStyles}>
             {templateHelpers.url.formatForDisplay(resume.personalInfo.linkedin)}
           </a>
         );
       }
       if (resume.personalInfo?.github) {
-        linkParts.push(
+        contactItems.push(
           <a key="github" href={resume.personalInfo.github} style={linkStyles}>
             {templateHelpers.url.formatForDisplay(resume.personalInfo.github)}
           </a>
         );
       }
       if (resume.personalInfo?.portfolio) {
-        linkParts.push(
+        contactItems.push(
           <a key="portfolio" href={resume.personalInfo.portfolio} style={linkStyles}>
             {templateHelpers.url.formatForDisplay(resume.personalInfo.portfolio)}
           </a>
         );
       }
 
-      const secondLine = linkParts.length > 0 ? (
-        <div>
-          {linkParts.map((part, index) => (
-            <React.Fragment key={index}>
-              {index > 0 && " | "}
-              {part}
-            </React.Fragment>
-          ))}
-        </div>
-      ) : null;
-
-      return (
-        <>
-          {firstLine}
-          {secondLine}
-        </>
-      );
+      return contactItems.map((item, index) => (
+        <React.Fragment key={index}>
+          {index > 0 && <span> | </span>}
+          {item}
+        </React.Fragment>
+      ));
     };
 
     const renderSummary = (content: { summary: string }) => {
@@ -259,7 +234,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
               className="resume-item"
               style={{
                 marginBottom: "8px",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -318,18 +293,31 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
               {exp.achievements && exp.achievements.length > 0 && (
                 <ul
                   style={{
-                    marginLeft: "18px",
-                    marginTop: "3px",
+                    marginLeft: "20px",
+                    marginTop: "4px",
+                    padding: 0,
+                    listStyleType: "none",
                   }}
                 >
                   {exp.achievements.map((achievement, achIndex) => (
                     <li
                       key={achIndex}
                       style={{
-                        marginBottom: "2px",
+                        marginBottom: "3px",
                         lineHeight: layout.lineHeight || 1.3,
+                        position: "relative",
+                        paddingLeft: "15px",
                       }}
                     >
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          color: textColor,
+                        }}
+                      >
+                        •
+                      </span>
                       {achievement}
                     </li>
                   ))}
@@ -352,7 +340,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
               className="resume-item"
               style={{
                 marginBottom: "8px",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -409,6 +397,39 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
                   {project.description}
                 </p>
               )}
+              {project.achievements && project.achievements.length > 0 && (
+                <ul
+                  style={{
+                    marginLeft: "20px",
+                    marginTop: "4px",
+                    padding: 0,
+                    listStyleType: "none",
+                  }}
+                >
+                  {project.achievements.map((achievement, achIndex) => (
+                    <li
+                      key={achIndex}
+                      style={{
+                        marginBottom: "3px",
+                        lineHeight: layout.lineHeight || 1.3,
+                        position: "relative",
+                        paddingLeft: "15px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          color: textColor,
+                        }}
+                      >
+                        •
+                      </span>
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {project.url && (
                 <p
                   style={{
@@ -439,7 +460,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
               style={{
                 marginBottom:
                   index < content.education.length - 1 ? "8px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -518,7 +539,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
               className="resume-item"
               style={{
                 marginBottom: "3px",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <span
@@ -565,7 +586,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
               key={item.id || index}
               style={{
                 marginBottom: "12px",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div style={{ display: "flex", alignItems: "baseline" }}>
@@ -649,7 +670,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
 
     return (
       <div
-        ref={internalRef}
+        ref={ref}
         className={`professional-template resume-preview ${className}`}
         style={containerStyles}
       >

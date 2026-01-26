@@ -92,8 +92,8 @@
 
     /* Ensure proper page breaks */
     section {
-      break-inside: avoid;
-      page-break-inside: avoid;
+      break-inside: auto;
+      page-break-inside: auto;
     }
 
     /* Optimize text rendering for print */

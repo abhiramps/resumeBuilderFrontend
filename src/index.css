@@ -267,11 +267,7 @@
     break-after: avoid;
   }
 
-  p,
-  li {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
+
 
   /* Links */
   a {

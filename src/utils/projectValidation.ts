@@ -10,6 +10,7 @@ export interface ProjectValidationErrors {
   url?: string;
   githubUrl?: string;
   dateRange?: string;
+  achievements?: string;
 }
 
 /**
@@ -44,6 +45,12 @@ export const PROJECT_VALIDATION_RULES = {
     required: false,
     pattern: /^https:\/\/github\.com\/[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_\.]+\/?$/,
     errorMessage: "Please enter a valid GitHub repository URL (https://github.com/username/repository)",
+  },
+  achievements: {
+    maxItems: 10,
+    itemMaxLength: 200,
+    pattern: /^[a-zA-Z0-9\s\-.,()&/%$#@!?:;'"]+$/,
+    errorMessage: "Each achievement must be under 200 characters and ATS-friendly",
   },
 } as const;
 
@@ -167,6 +174,30 @@ export const validateTechStack = (techStack: string[]): string | undefined => {
 };
 
 /**
+ * Validate achievements array
+ */
+export const validateAchievements = (achievements: string[]): string | undefined => {
+  const rules = PROJECT_VALIDATION_RULES.achievements;
+
+  if (achievements.length > rules.maxItems) {
+    return `Maximum ${rules.maxItems} achievements allowed`;
+  }
+
+  for (const achievement of achievements) {
+    if (achievement.trim()) {
+      if (achievement.length > rules.itemMaxLength) {
+        return `Achievement is too long (max ${rules.itemMaxLength} characters)`;
+      }
+      if (!rules.pattern.test(achievement)) {
+        return `Achievement contains invalid characters`;
+      }
+    }
+  }
+
+  return undefined;
+};
+
+/**
  * Validate URL format
  */
 export const validateURL = (url: string, type: 'project' | 'github'): string | undefined => {
@@ -233,6 +264,10 @@ export const validateProject = (project: Project): ProjectValidationErrors => {
   const techStackError = validateTechStack(project.techStack || []);
   if (techStackError) errors.techStack = techStackError;
 
+  // Validate achievements
+  const achievementsError = validateAchievements(project.achievements || []);
+  if (achievementsError) errors.achievements = achievementsError;
+
   // Validate URLs
   const urlError = validateURL(project.url || "", "project");
   if (urlError) errors.url = urlError;
@@ -286,6 +321,12 @@ export const checkATSCompliance = (project: Project): {
   (project.techStack || []).forEach((tech) => {
     if (problematicChars.test(tech)) {
       issues.push(`Technology "${tech}" contains characters that may not be ATS-friendly`);
+    }
+  });
+
+  (project.achievements || []).forEach((achievement) => {
+    if (problematicChars.test(achievement)) {
+      issues.push("Achievement contains characters that may not be ATS-friendly");
     }
   });
 

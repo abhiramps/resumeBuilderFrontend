@@ -91,7 +91,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
     };
 
     const linkStyles: React.CSSProperties = {
-      color: "#0000EE",
+      // color: "#0000EE",
       textDecoration: "none",
     };
 
@@ -170,7 +170,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.experiences.length - 1 ? "10px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -257,7 +257,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.education.length - 1 ? "8px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -389,7 +389,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.certifications.length - 1 ? "8px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -442,7 +442,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                 marginBottom:
                   index < content.projects.length - 1 ? "10px" : "0",
-                pageBreakInside: "avoid",
+                pageBreakInside: "auto",
               }}
             >
               <div
@@ -492,6 +492,27 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                   {project.description}
                 </p>
               )}
+              {project.achievements && project.achievements.length > 0 && (
+                <ul
+                  style={{
+                    margin: "2px 0 0 18px",
+                    padding: 0,
+                    listStyleType: "disc",
+                  }}
+                >
+                  {project.achievements.map((achievement, achIndex) => (
+                    <li
+                      key={achIndex}
+                      style={{
+                        marginBottom: "1px",
+                        fontSize: `${layout.fontSize.body}pt`,
+                      }}
+                    >
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {project.url && (
                 <p
                   style={{
@@ -524,7 +545,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
               style={{
                  minWidth: "200px",
                  flex: 1,
-                 pageBreakInside: "avoid",
+                 pageBreakInside: "auto",
               }}
             >
               <h3
@@ -630,7 +651,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
           if (!content) return null;
 
           return (
-            <section key={section.id} style={{ pageBreakInside: "avoid" }}>
+            <section key={section.id} style={{ pageBreakInside: "auto" }}>
               <h2 style={sectionHeaderStyles}>{section.title}</h2>
               {content}
             </section>
