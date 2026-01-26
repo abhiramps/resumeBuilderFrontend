@@ -35,7 +35,6 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
         // LaTeX-inspired colors
         const primaryColor = layout.colors?.primary || "#000000";
         const textColor = layout.colors?.text || "#000000";
-        const linkColor = "#0000EE"; // Blue links like in LaTeX
 
         const containerStyles: React.CSSProperties = {
             fontFamily: layout.fontFamily || "Times New Roman, serif",
