@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Input, Button } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
 import { useResumeBackend } from "../../contexts/ResumeBackendContext";
@@ -58,7 +59,7 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
   );
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   // Autosave status state
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const lastSavedDataRef = useRef<string>(JSON.stringify(resume.personalInfo));
@@ -334,88 +335,55 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
   /**
    * Collapse/expand icon
    */
-  const CollapseIcon = () => (
-    <svg
-      className={`w-5 h-5 transition-transform duration-200 ${
-        isCollapsed ? "rotate-180" : ""
-      }`}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 9l-7 7-7-7"
-      />
-    </svg>
-  );
+
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 mb-4 ${className}`}>
       {/* Header */}
-      <div
-        className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Personal Information
-            </h3>
-            <p className="text-sm text-gray-500">
-              Your contact details and professional identity
-            </p>
-          </div>
-        </div>
-        
+      <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
+        {/* Title - Clickable to collapse/expand */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex-1 text-left font-semibold text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-2"
+        >
+          Personal Information
+          {isCollapsed ? (
+            <ChevronDown className="w-4 h-4 text-gray-500" />
+          ) : (
+            <ChevronUp className="w-4 h-4 text-gray-500" />
+          )}
+        </button>
+
         <div className="flex items-center gap-3">
-             {/* Autosave Status Indicator */}
-            {saveStatus === "saving" && (
-                <span className="text-xs text-gray-400 flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-1.5 animate-pulse"></div>
-                    Saving...
-                </span>
-            )}
-            {saveStatus === "saved" && (
-                <span className="text-xs text-green-600 flex items-center">
-                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Saved
-                </span>
-            )}
-            {saveStatus === "error" && (
-                <span className="text-xs text-red-500 flex items-center">
-                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Error saving
-                </span>
-            )}
-            <CollapseIcon />
+          {/* Autosave Status Indicator */}
+          {saveStatus === "saving" && (
+            <span className="text-xs text-gray-400 flex items-center">
+              <div className="w-2 h-2 bg-blue-500 rounded-full mr-1.5 animate-pulse"></div>
+              Saving...
+            </span>
+          )}
+          {saveStatus === "saved" && (
+            <span className="text-xs text-green-600 flex items-center">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Saved
+            </span>
+          )}
+          {saveStatus === "error" && (
+            <span className="text-xs text-red-500 flex items-center">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Error saving
+            </span>
+          )}
         </div>
       </div>
 
       {/* Form Content */}
       {!isCollapsed && (
-        <div className="p-6 space-y-6">
+        <div className="p-4 space-y-6">
           {/* Basic Information */}
           <div className="space-y-4">
             <h4 className="text-md font-medium text-gray-900 border-b border-gray-100 pb-2">
