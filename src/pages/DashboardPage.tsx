@@ -12,7 +12,8 @@ import { Input } from '../components/UI/Input';
 import { ImportExportModal } from '../components/UI/ImportExportModal';
 import { SkeletonCardGrid } from '../components/UI/SkeletonCard';
 import { Plus, Search, FileText, Copy, Trash2, Share2, MoreVertical, Download, Upload, CheckSquare } from 'lucide-react';
-import type { ResumeResponse } from '../types/api.types';
+import { defaultSections } from '../constants/defaultResume';
+import type { ResumeResponse, ResumeContent } from '../types/api.types';
 import { TemplateThumbnail } from '../components/Templates/TemplateThumbnail';
 import { TemplateType } from '../types/resume.types';
 
@@ -69,10 +70,45 @@ export const DashboardPage: React.FC = () => {
 
     const handleCreateResume = async () => {
         try {
+            // Construct initial content with profile data and dummy sections
+            const initialContent: ResumeContent = {};
+
+            // Prefill personal info with complete dummy data
+            // Backend validation requires these to be non-empty and strict URIs
+            initialContent.personalInfo = {
+                fullName: 'John Doe',
+                email: 'john.doe@example.com',
+                phone: '(555) 123-4567',
+                location: 'New York, USA',
+                linkedin: 'https://linkedin.com/in/johndoe',
+                github: 'https://github.com/johndoe',
+                website: 'https://johndoe.com',
+                // Note: 'title' and 'portfolio' are excluded as they are not allowed in the creation schema
+            } as any;
+
+            // Map default sections to API content structure
+            defaultSections.forEach(section => {
+                if (section.type === 'summary' && 'summary' in section.content) {
+                    initialContent.summary = section.content.summary;
+                } else if (section.type === 'experience' && 'experiences' in section.content) {
+                    initialContent.experience = section.content.experiences;
+                } else if (section.type === 'education' && 'education' in section.content) {
+                    initialContent.education = section.content.education;
+                } else if (section.type === 'skills' && 'skills' in section.content) {
+                    initialContent.skills = section.content.skills;
+                } else if (section.type === 'projects' && 'projects' in section.content) {
+                    initialContent.projects = section.content.projects;
+                } else if (section.type === 'certifications' && 'certifications' in section.content) {
+                    initialContent.certifications = section.content.certifications;
+                } else if (section.type === 'additional-info' && 'additionalInfo' in section.content) {
+                    initialContent.additionalInfo = section.content.additionalInfo;
+                }
+            });
+
             const newResume = await createResume({
                 title: 'Untitled Resume',
                 templateId: 'professional',
-                content: {},
+                content: initialContent,
             });
             navigate(`/editor/${newResume.id}`);
         } catch (err) {
