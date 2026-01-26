@@ -49,6 +49,7 @@ export interface Project {
   current: boolean;
   url?: string;
   githubUrl?: string;
+  achievements?: string[];
 }
 
 // Alias for backend API compatibility

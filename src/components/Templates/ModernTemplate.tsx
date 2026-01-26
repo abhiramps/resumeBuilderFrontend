@@ -618,6 +618,39 @@ export const ModernTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                   {project.description}
                 </p>
               )}
+              {project.achievements && project.achievements.length > 0 && (
+                <ul
+                  style={{
+                    margin: "6px 0 0 20px",
+                    padding: 0,
+                    listStyleType: "none",
+                  }}
+                >
+                  {project.achievements.map((achievement, achIndex) => (
+                    <li
+                      key={achIndex}
+                      style={{
+                        marginBottom: "4px",
+                        fontSize: `${layout.fontSize.body}pt`,
+                        paddingLeft: "12px",
+                        position: "relative",
+                      }}
+                    >
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          color: accentColor,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        ▸
+                      </span>
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {project.url && (
                 <p
                   style={{

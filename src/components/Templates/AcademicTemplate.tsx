@@ -404,6 +404,28 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                                     {project.name || "Project Name"}.
                                 </strong>{" "}
                                 {project.description && <span>{project.description}</span>}
+                                {project.achievements && project.achievements.length > 0 && (
+                                    <ul
+                                        style={{
+                                            margin: "2px 0 0 18px",
+                                            padding: 0,
+                                            listStyleType: "circle",
+                                        }}
+                                    >
+                                        {project.achievements.map((achievement, achIndex) => (
+                                            <li
+                                                key={achIndex}
+                                                style={{
+                                                    marginBottom: "1px",
+                                                    fontSize: `${layout.fontSize.body}pt`,
+                                                    lineHeight: layout.lineHeight,
+                                                }}
+                                            >
+                                                {achievement}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                                 {project.url && (
                                     <span>
                                         {" "}(

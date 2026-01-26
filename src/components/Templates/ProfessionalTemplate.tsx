@@ -397,6 +397,39 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
                   {project.description}
                 </p>
               )}
+              {project.achievements && project.achievements.length > 0 && (
+                <ul
+                  style={{
+                    marginLeft: "20px",
+                    marginTop: "4px",
+                    padding: 0,
+                    listStyleType: "none",
+                  }}
+                >
+                  {project.achievements.map((achievement, achIndex) => (
+                    <li
+                      key={achIndex}
+                      style={{
+                        marginBottom: "3px",
+                        lineHeight: layout.lineHeight || 1.3,
+                        position: "relative",
+                        paddingLeft: "15px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          color: textColor,
+                        }}
+                      >
+                        •
+                      </span>
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {project.url && (
                 <p
                   style={{

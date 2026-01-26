@@ -590,6 +590,27 @@ const ClassicTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
                   {project.description}
                 </p>
               )}
+              {project.achievements && project.achievements.length > 0 && (
+                <ul
+                  style={{
+                    margin: "4px 0 0 20px",
+                    padding: 0,
+                    listStyleType: "disc",
+                  }}
+                >
+                  {project.achievements.map((achievement, achIndex) => (
+                    <li
+                      key={achIndex}
+                      style={{
+                        marginBottom: "2px",
+                        fontSize: `${layout.fontSize.body}pt`,
+                      }}
+                    >
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {project.url && (
                 <p
                   style={{
