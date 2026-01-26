@@ -35,7 +35,6 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
         // LaTeX-inspired colors
         const primaryColor = layout.colors?.primary || "#000000";
         const textColor = layout.colors?.text || "#000000";
-        const linkColor = "#0000EE"; // Blue links like in LaTeX
 
         const containerStyles: React.CSSProperties = {
             fontFamily: layout.fontFamily || "Times New Roman, serif",
@@ -75,7 +74,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
         };
 
         const linkStyles: React.CSSProperties = {
-            color: linkColor,
+            // color: linkColor,
             textDecoration: "none",
         };
 
@@ -185,7 +184,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                             key={edu.id || index}
                             style={{
                                 marginBottom: index < content.education.length - 1 ? "10px" : "0",
-                                pageBreakInside: "avoid",
+                                pageBreakInside: "auto",
                             }}
                         >
                             <div
@@ -306,7 +305,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                             key={exp.id || index}
                             style={{
                                 marginBottom: index < content.experiences.length - 1 ? "12px" : "0",
-                                pageBreakInside: "avoid",
+                                pageBreakInside: "auto",
                             }}
                         >
                             <div
@@ -395,7 +394,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                                 key={project.id || index}
                                 style={{
                                     marginBottom: index < content.projects.length - 1 ? "6px" : "0",
-                                    pageBreakInside: "avoid",
+                                    pageBreakInside: "auto",
                                     fontSize: `${layout.fontSize.body}pt`,
                                     lineHeight: layout.lineHeight,
                                 }}
@@ -404,6 +403,28 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                                     {project.name || "Project Name"}.
                                 </strong>{" "}
                                 {project.description && <span>{project.description}</span>}
+                                {project.achievements && project.achievements.length > 0 && (
+                                    <ul
+                                        style={{
+                                            margin: "2px 0 0 18px",
+                                            padding: 0,
+                                            listStyleType: "circle",
+                                        }}
+                                    >
+                                        {project.achievements.map((achievement, achIndex) => (
+                                            <li
+                                                key={achIndex}
+                                                style={{
+                                                    marginBottom: "1px",
+                                                    fontSize: `${layout.fontSize.body}pt`,
+                                                    lineHeight: layout.lineHeight,
+                                                }}
+                                            >
+                                                {achievement}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                                 {project.url && (
                                     <span>
                                         {" "}(
@@ -430,7 +451,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                             key={cert.id || index}
                             style={{
                                 marginBottom: index < content.certifications.length - 1 ? "8px" : "0",
-                                pageBreakInside: "avoid",
+                                pageBreakInside: "auto",
                             }}
                         >
                             <div
@@ -477,7 +498,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                             key={item.id || index}
                             style={{
                                 marginBottom: "12px",
-                                pageBreakInside: "avoid",
+                                pageBreakInside: "auto",
                             }}
                         >
                             <h3
@@ -581,7 +602,7 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                     if (!content) return null;
 
                     return (
-                        <section key={section.id} style={{ pageBreakInside: "avoid" }}>
+                        <section key={section.id} style={{ pageBreakInside: "auto" }}>
                             <h2 style={sectionHeaderStyles}>{section.title}</h2>
                             {content}
                         </section>
