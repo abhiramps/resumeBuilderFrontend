@@ -26,7 +26,6 @@ interface AuthContextType extends AuthState {
   isEmailVerified: boolean;
   pendingVerificationEmail: string | null;
   resendVerificationEmail: (email: string) => Promise<void>;
-  checkEmailVerification: (email: string) => Promise<boolean>;
   setPendingVerification: (email: string) => void;
   clearPendingVerification: () => void;
 }
@@ -235,30 +234,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   /**
-   * Check email verification status
-   */
-  const checkEmailVerification = useCallback(
-    async (email: string): Promise<boolean> => {
-      try {
-        const response = await fetch(
-          `${
-            API_CONFIG.BASE_URL
-          }/verification/status?email=${encodeURIComponent(email)}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          return data.verified || false;
-        }
-        return false;
-      } catch (error) {
-        console.error("Failed to check verification status:", error);
-        return false;
-      }
-    },
-    []
-  );
-
-  /**
    * Set pending verification email
    */
   const setPendingVerification = useCallback((email: string) => {
@@ -306,7 +281,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isEmailVerified,
     pendingVerificationEmail,
     resendVerificationEmail,
-    checkEmailVerification,
     setPendingVerification,
     clearPendingVerification,
   };

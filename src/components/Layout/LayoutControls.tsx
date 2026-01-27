@@ -188,10 +188,17 @@ export const LayoutControls: React.FC = () => {
   const lastLayoutRef = useRef(resume.layout);
   useEffect(() => {
     if (JSON.stringify(lastLayoutRef.current) !== JSON.stringify(resume.layout)) {
-      debouncedSave(resume.layout);
+      // Check if the new layout matches the backend (avoid auto-save on initial sync)
+      const isSyncedWithBackend = currentResume?.content?.layout && 
+          JSON.stringify(resume.layout) === JSON.stringify(currentResume.content.layout);
+
+      if (!isSyncedWithBackend) {
+          debouncedSave(resume.layout);
+      }
+      
       lastLayoutRef.current = resume.layout;
     }
-  }, [resume.layout, debouncedSave]);
+  }, [resume.layout, debouncedSave, currentResume]);
 
   // Cleanup on unmount
   useEffect(() => {
