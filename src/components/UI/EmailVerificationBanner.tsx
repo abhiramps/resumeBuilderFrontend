@@ -79,9 +79,9 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
         return () => clearInterval(pollInterval);
     }, [checkVerificationStatus, isPolling]);
 
-    // Start polling when component mounts
+    // Start polling when component mounts - DISABLED as per request to remove unwanted network calls
     useEffect(() => {
-        setIsPolling(true);
+        // setIsPolling(true);
         return () => setIsPolling(false);
     }, []);
 

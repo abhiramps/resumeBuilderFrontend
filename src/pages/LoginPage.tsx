@@ -8,20 +8,17 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/UI/Button';
 import { Input } from '../components/UI/Input';
-import { EmailVerificationBanner } from '../components/UI/EmailVerificationBanner';
 import { SEO } from '../components/common/SEO';
 
 export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { login, loginWithOAuth, isLoading, error, clearError, checkEmailVerification, setPendingVerification, clearPendingVerification } = useAuth();
+    const { login, loginWithOAuth, isLoading, error, clearError } = useAuth();
 
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [showVerificationBanner, setShowVerificationBanner] = useState(false);
-    const [unverifiedEmail, setUnverifiedEmail] = useState<string>('');
 
     const handleChange = (field: keyof typeof formData) => (
         e: React.ChangeEvent<HTMLInputElement>
@@ -39,29 +36,6 @@ export const LoginPage: React.FC = () => {
             });
         }
         clearError();
-    };
-
-    // Handle verification completion
-    const handleVerificationComplete = () => {
-        clearPendingVerification();
-        setShowVerificationBanner(false);
-        setUnverifiedEmail('');
-        navigate('/dashboard');
-    };
-
-    // Handle change email - redirect to signup
-    const handleChangeEmail = () => {
-        clearPendingVerification();
-        setShowVerificationBanner(false);
-        setUnverifiedEmail('');
-        navigate('/signup');
-    };
-
-    // Handle banner dismiss - allow retry
-    const handleDismissBanner = () => {
-        clearPendingVerification();
-        setShowVerificationBanner(false);
-        setUnverifiedEmail('');
     };
 
     const validate = (): boolean => {
@@ -88,28 +62,8 @@ export const LoginPage: React.FC = () => {
 
         try {
             await login(formData.email, formData.password);
-
-            // After successful login, check if email is verified
-            const isVerified = await checkEmailVerification(formData.email);
-
-            if (!isVerified) {
-                // Block access and show verification banner
-                setUnverifiedEmail(formData.email);
-                setPendingVerification(formData.email);
-                setShowVerificationBanner(true);
-                // Don't navigate to dashboard
-                return;
-            }
-
             navigate('/dashboard');
         } catch (err) {
-            // Check if this is an unverified email error
-            if (err instanceof Error && err.message.includes('Email not confirmed')) {
-                setUnverifiedEmail(formData.email);
-                setPendingVerification(formData.email);
-                setShowVerificationBanner(true);
-                return;
-            }
             // Other errors are handled by AuthContext
         }
     };
@@ -136,18 +90,6 @@ export const LoginPage: React.FC = () => {
                         </Link>
                     </p>
                 </div>
-
-                {/* Verification Banner for Unverified Users */}
-                {showVerificationBanner && unverifiedEmail && (
-                    <EmailVerificationBanner
-                        email={unverifiedEmail}
-                        onVerificationComplete={handleVerificationComplete}
-                        onChangeEmail={handleChangeEmail}
-                        onDismiss={handleDismissBanner}
-                        allowDismiss={true}
-                        className="mb-6"
-                    />
-                )}
 
                 {/* Form */}
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

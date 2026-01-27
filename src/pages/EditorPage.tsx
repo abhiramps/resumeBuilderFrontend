@@ -15,6 +15,7 @@ import { Button } from '../components/UI/Button';
 import { SaveStatusIndicator } from '../components/UI/SaveStatusIndicator';
 import { TemplateSelector } from '../components/UI/TemplateSelector';
 
+import { TemplateType } from '../types/resume.types';
 import { usePDFExportContext } from '../contexts/PDFExportContext';
 import { usePDFExport } from '../hooks/usePDFExport';
 import { useReactToPrint } from 'react-to-print';
@@ -267,6 +268,9 @@ const EditorPageContent: React.FC = () => {
                         return section;
                     });
                 }
+
+                // Update the last template ref to prevent auto-save on initial load
+                lastTemplateRef.current = (currentResume.templateId || resume.template) as TemplateType;
 
                 dispatch({
                     type: 'SET_RESUME',
