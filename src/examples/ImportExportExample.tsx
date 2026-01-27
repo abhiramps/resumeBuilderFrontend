@@ -16,6 +16,7 @@ const mockResume: ResumeResponse = {
     title: 'Software Engineer Resume',
     description: 'My professional resume',
     templateId: 'modern',
+    sector: 'general',
     content: {
         personalInfo: {
             fullName: 'John Doe',

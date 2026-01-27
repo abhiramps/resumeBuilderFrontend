@@ -11,9 +11,9 @@ import {
     filterSkillSuggestions,
     generateId,
     parseSkillsInput,
-    getPopularSkillsForCategory,
-    CATEGORY_TEMPLATES
+    getPopularSkillsForCategory
 } from "../../utils/skillsValidation";
+import { getSectorConfig } from "../../config/sectors";
 
 // Helper to convert frontend Resume state to backend ResumeContent
 const mapResumeToContent = (resume: Resume): any => {
@@ -602,8 +602,8 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
     className = "",
 }) => {
     const { resume, dispatch } = useResumeContext();
+    const sectorConfig = getSectorConfig(resume.sector);
     const [editingCategoryIndex, setEditingCategoryIndex] = useState<number | null>(null);
-    const [showTemplates, setShowTemplates] = useState(false);
 
     // Find the skills section
     const skillsSection = (resume.sections || []).find(
@@ -863,45 +863,29 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
     /**
      * Apply category template
      */
-    const applyTemplate = (templateId: string) => {
-        const template = CATEGORY_TEMPLATES[templateId as keyof typeof CATEGORY_TEMPLATES];
-        if (template) {
-            const newCategories = template.categories.map(cat => {
-                return {
-                    categoryName: cat.categoryName,
-                    skills: cat.skills.map(skillName => ({
-                        id: generateId(),
-                        name: skillName,
-                        category: cat.categoryName,
-                        level: "intermediate" as const,
-                    })),
-                };
-            });
+    /**
+     * Load templates from sector config
+     */
+    const loadSectorTemplates = () => {
+        const defaultSkills = sectorConfig.defaultSkills || []; // Safely access defaultSkills
+        
+        // Map sector config to SkillCategory format
+        const templates: SkillCategory[] = defaultSkills.map((ds) => ({
+            categoryName: ds.category,
+            skills: ds.skills.map(name => ({
+                id: generateId(),
+                name,
+                category: ds.category,
+                level: "intermediate"
+            }))
+        }));
 
-            // Merge with existing categories
-            const mergedCategories = [...skillCategories];
-            newCategories.forEach(newCat => {
-                const existingIndex = mergedCategories.findIndex(
-                    existing => existing.categoryName.toLowerCase() === newCat.categoryName.toLowerCase()
-                );
-
-                if (existingIndex >= 0) {
-                    // Merge skills into existing category
-                    const existingSkillNames = mergedCategories[existingIndex].skills.map(s => s.name.toLowerCase());
-                    const newSkills = newCat.skills
-                        .filter(skill => !existingSkillNames.includes(skill.name.toLowerCase()))
-                        .map(skill => ({ ...skill, category: newCat.categoryName })); // Ensure category name matches
-                    mergedCategories[existingIndex].skills.push(...newSkills);
-                } else {
-                    // Add new category
-                    mergedCategories.push(newCat);
-                }
-            });
-
-            updateSkillCategories(mergedCategories);
-            saveToBackend(mergedCategories);
-            setShowTemplates(false);
-        }
+        // Replace existing categories or merge?
+        // Let's replace if empty, otherwise maybe prompt?
+        // For now, let's just set them, assuming user clicked "Load Suggestions" on empty state or explicit action.
+        setSkillCategories(templates);
+        updateSkillCategories(templates);
+        saveToBackend(templates);
     };
 
 
@@ -920,15 +904,20 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
                 {/* Header Section */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">
-                            {skillCategories.length} {skillCategories.length === 1 ? "category" : "categories"}, {totalSkills} skills
-                        </p>
-                        <button
-                            onClick={() => setShowTemplates(!showTemplates)}
-                            className="px-2 py-1 text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded"
-                        >
-                            Templates
-                        </button>
+                        <div className="flex flex-col">
+                            <h3 className="text-sm font-medium text-gray-700">{sectorConfig.labels.skills}</h3>
+                            <p className="text-xs text-gray-500">
+                                {skillCategories.length} {skillCategories.length === 1 ? "category" : "categories"}, {totalSkills} skills
+                            </p>
+                        </div>
+                        {skillCategories.length === 0 && (
+                             <button
+                                onClick={loadSectorTemplates}
+                                className="px-2 py-1 text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded"
+                            >
+                                Load Suggestions
+                            </button>
+                        )}
                     </div>
 
                     <div className="flex items-center justify-between gap-2">
@@ -957,43 +946,7 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
 
                 {/* Skills Content */}
                 <div className="space-y-3">
-                    {/* Templates */}
-                    {showTemplates && (
-                        <div className="bg-blue-50 rounded-lg p-4 space-y-3">
-                            <h4 className="text-sm font-semibold text-blue-900">Category Templates</h4>
-                            <p className="text-xs text-blue-700">
-                                Choose a template to quickly set up skill categories for your role. Templates will merge with existing skills.
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {Object.entries(CATEGORY_TEMPLATES).map(([id, template]) => (
-                                    <div key={id} className="bg-white rounded p-3 border border-blue-200">
-                                        <h5 className="font-medium text-sm text-gray-900">{template.name}</h5>
-                                        <p className="text-xs text-gray-600 mb-2">{template.description}</p>
-                                        <div className="text-xs text-gray-500 mb-2">
-                                            Categories: {template.categories.map(cat => cat.categoryName).join(", ")}
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => applyTemplate(id)}
-                                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
-                                        >
-                                            Apply Template
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowTemplates(false)}
-                                className="text-blue-600"
-                            >
-                                Close Templates
-                            </Button>
-                        </div>
-                    )}
-
+                    
                     {/* Skill Categories */}
                     {skillCategories.length === 0 ? (
                         <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
@@ -1012,14 +965,14 @@ export const SkillsEditor: React.FC<SkillsEditorProps> = ({
                             </svg>
                             <h4 className="text-sm font-medium text-gray-900 mb-1">No skill categories added</h4>
                             <p className="text-xs text-gray-500 mb-3">
-                                Organize your technical skills into categories to showcase your expertise effectively.
+                                Organize your {sectorConfig.labels.skills.toLowerCase()} into categories to showcase your expertise effectively.
                             </p>
                             <div className="flex justify-center gap-2">
                                 <button
-                                    onClick={() => setShowTemplates(true)}
+                                    onClick={loadSectorTemplates}
                                     className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md"
                                 >
-                                    Use Template
+                                    Use {sectorConfig.name} Suggestions
                                 </button>
                                 <button
                                     onClick={addCategory}

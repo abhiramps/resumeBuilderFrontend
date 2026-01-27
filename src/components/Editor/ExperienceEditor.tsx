@@ -3,6 +3,8 @@ import { Button, Input, Select, Textarea } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
 import { useResumeBackend } from "../../contexts/ResumeBackendContext";
 import { WorkExperience, Resume } from "../../types/resume.types";
+import { getSectorConfig } from "../../config/sectors";
+import { SectorLabels } from "../../types/sector.types";
 import {
     validateExperience,
     hasValidationErrors,
@@ -71,7 +73,7 @@ export interface ExperienceEditorProps {
  */
 export interface ExperienceEntryProps {
     experience: WorkExperience;
-
+    labels: SectorLabels;
     isEditing: boolean;
     onUpdate: (id: string, updates: Partial<WorkExperience>) => void;
     onDelete: (id: string) => void;
@@ -250,7 +252,7 @@ const BulletPointManager: React.FC<BulletPointManagerProps> = ({
  */
 const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
     experience,
-
+    labels,
     isEditing,
     onUpdate,
     onDelete,
@@ -498,7 +500,7 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
                     {/* Basic Information */}
                     <div className="grid grid-cols-1 gap-3">
                         <Input
-                            label="Job Title"
+                            label={labels.jobTitle || "Job Title"}
                             value={localExperience.jobTitle}
                             onChange={(e) => handleFieldUpdate("jobTitle", e.target.value)}
                             error={validationErrors.jobTitle}
@@ -507,7 +509,7 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
                             className="text-sm"
                         />
                         <Input
-                            label="Company"
+                            label={labels.company || "Company"}
                             value={localExperience.company}
                             onChange={(e) => handleFieldUpdate("company", e.target.value)}
                             error={validationErrors.company}
@@ -670,6 +672,9 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     const { resume, dispatch } = useResumeContext();
     const { updateResume } = useResumeBackend();
     const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+
+    // Get sector config for dynamic labels
+    const sectorConfig = getSectorConfig(resume.sector);
 
     // Find the experience section
     const experienceSection = (resume.sections || []).find(
@@ -917,6 +922,7 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
                         <ExperienceEntry
                             key={experience.id}
                             experience={experience}
+                            labels={sectorConfig.labels}
                             isEditing={editingEntryId === experience.id}
                             onUpdate={updateExperience}
                             onDelete={deleteExperience}

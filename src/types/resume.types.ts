@@ -21,6 +21,11 @@ export interface PersonalInfo {
 }
 
 /**
+ * Sector definition
+ */
+export type Sector = 'it' | 'finance' | 'medical' | 'marketing' | 'sales' | 'legal' | 'general';
+
+/**
  * Work experience item with job details, responsibilities, and achievements
  * @interface WorkExperience
  */
@@ -43,6 +48,12 @@ export interface Project {
   id: string;
   name: string;
   description: string;
+  /**
+   * Generalized tags for technologies, tools, or key attributes
+   * Replaces the IT-specific 'techStack'
+   */
+  tags?: string[];
+  /** @deprecated use tags instead - kept for backward compatibility */
   techStack?: string[];
   startDate: string;
   endDate?: string;
@@ -195,6 +206,7 @@ export interface Resume {
   sections: ResumeSection[];
   layout: LayoutSettings;
   template: TemplateType;
+  sector?: Sector; // Optional for backward compatibility, defaults to 'it' or 'general'
   createdAt: string;
   updatedAt: string;
 }

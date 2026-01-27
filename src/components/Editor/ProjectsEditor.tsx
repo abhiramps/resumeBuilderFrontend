@@ -11,6 +11,7 @@ import {
     TECH_STACK_SUGGESTIONS,
     filterTechStackSuggestions
 } from "../../utils/projectValidation";
+import { getSectorConfig } from "../../config/sectors";
 
 // Helper to convert frontend Resume state to backend ResumeContent
 const mapResumeToContent = (resume: Resume): any => {
@@ -89,6 +90,7 @@ export interface TechStackManagerProps {
     techStack: string[];
     onUpdate: (techStack: string[]) => void;
     maxTags?: number;
+    label?: string;
 }
 
 /**
@@ -130,6 +132,7 @@ const TechStackManager: React.FC<TechStackManagerProps> = ({
     techStack,
     onUpdate,
     maxTags = 15,
+    label = "Tech Stack",
 }) => {
     const [inputValue, setInputValue] = useState("");
     const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -176,7 +179,7 @@ const TechStackManager: React.FC<TechStackManagerProps> = ({
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between">
-                <h5 className="text-xs font-medium text-gray-700">Tech Stack</h5>
+                <h5 className="text-xs font-medium text-gray-700">{label}</h5>
                 <span className="text-xs text-gray-500">
                     {techStack.length}/{maxTags} technologies
                 </span>
@@ -217,7 +220,7 @@ const TechStackManager: React.FC<TechStackManagerProps> = ({
                             // Delay hiding suggestions to allow clicking
                             setTimeout(() => setShowSuggestions(false), 200);
                         }}
-                        placeholder={techStack.length === 0 ? "Add technologies (e.g., React, Node.js)" : "Add more..."}
+                        placeholder={techStack.length === 0 ? `Add ${label.toLowerCase()} (e.g., React, Node.js)` : "Add more..."}
                         className="flex-1 min-w-[100px] outline-none bg-transparent text-xs"
                     />
                 )}
@@ -279,7 +282,7 @@ const TechStackManager: React.FC<TechStackManagerProps> = ({
 
             {techStack.length >= maxTags && (
                 <p className="text-xs text-orange-600">
-                    Maximum {maxTags} technologies reached. Remove some to add more.
+                    Maximum {maxTags} items reached. Remove some to add more.
                 </p>
             )}
         </div>
@@ -433,6 +436,8 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
 }) => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [validationErrors, setValidationErrors] = useState<ProjectValidationErrors>({});
+    const { resume } = useResumeContext();
+    const sectorConfig = getSectorConfig(resume.sector);
 
     // Local state for immediate UI updates
     const [localProject, setLocalProject] = useState(project);
@@ -556,10 +561,10 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                             {project.name || "New Project"}
                         </h4>
                         <p className="text-xs text-gray-500 truncate">
-                            {(project.techStack || []).length > 0 && (
+                            {(project.tags || project.techStack || []).length > 0 && (
                                 <>
-                                    {(project.techStack || []).slice(0, 3).join(", ")}
-                                    {(project.techStack || []).length > 3 && ` +${(project.techStack || []).length - 3} more`}
+                                    {(project.tags || project.techStack || []).slice(0, 3).join(", ")}
+                                    {(project.tags || project.techStack || []).length > 3 && ` +${(project.tags || project.techStack || []).length - 3} more`}
                                 </>
                             )}
                         </p>
@@ -679,7 +684,7 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                     {/* Basic Information */}
                     <div className="space-y-3">
                         <Input
-                            label="Project Name"
+                            label={sectorConfig.labels.project.slice(0, -1) + " Name"} // e.g. "Project Name" or "Deal Name"
                             value={localProject.name}
                             onChange={(e) => handleFieldUpdate("name", e.target.value)}
                             error={validationErrors.name}
@@ -689,7 +694,7 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                         />
 
                         <Textarea
-                            label="Project Description"
+                            label={`${sectorConfig.labels.project.slice(0, -1)} Description`}
                             value={localProject.description}
                             onChange={(e) => handleFieldUpdate("description", e.target.value)}
                             error={validationErrors.description}
@@ -701,10 +706,16 @@ const ProjectEntry: React.FC<ProjectEntryProps> = ({
                         />
                     </div>
 
-                    {/* Tech Stack */}
+                    {/* Generic Tags / Tech Stack */}
                     <TechStackManager
-                        techStack={localProject.techStack || []}
-                        onUpdate={(techStack) => handleFieldUpdate("techStack", techStack)}
+                        techStack={localProject.tags || localProject.techStack || []}
+                        onUpdate={(tags) => {
+                            handleFieldUpdate("tags", tags);
+                             // Maintain backward compatibility
+                            handleFieldUpdate("techStack", tags);
+                        }}
+                        label={sectorConfig.labels.projectTags}
+                        maxTags={sectorConfig.validation.projectTags.maxItems}
                     />
                     {validationErrors.techStack && (
                         <p className="text-xs text-red-600">{validationErrors.techStack}</p>

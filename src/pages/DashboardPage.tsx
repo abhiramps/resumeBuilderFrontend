@@ -16,6 +16,20 @@ import { defaultSections } from '../constants/defaultResume';
 import type { ResumeResponse, ResumeContent } from '../types/api.types';
 import { TemplateThumbnail } from '../components/Templates/TemplateThumbnail';
 import { TemplateType } from '../types/resume.types';
+import { Sector } from '../types/sector.types';
+
+// Mock SECTORS if not exported (check sector.types.ts content again if needed)
+// Based on previous edits, we defined the Sector type but maybe not a list constant. 
+// We should define a helper list or add it to types.
+const AVAILABLE_SECTORS: { id: Sector; label: string }[] = [
+    { id: 'general', label: 'General / Other' },
+    { id: 'it', label: 'Information Technology (IT)' },
+    { id: 'finance', label: 'Finance & Banking' },
+    { id: 'medical', label: 'Medical & Healthcare' },
+    { id: 'marketing', label: 'Marketing' },
+    { id: 'sales', label: 'Sales' },
+    { id: 'legal', label: 'Legal' },
+];
 
 export const DashboardPage: React.FC = () => {
     const navigate = useNavigate();
@@ -37,6 +51,12 @@ export const DashboardPage: React.FC = () => {
     const [selectedResume, setSelectedResume] = useState<ResumeResponse | null>(null);
     const [bulkSelectMode, setBulkSelectMode] = useState(false);
     const [selectedResumes, setSelectedResumes] = useState<Set<string>>(new Set());
+
+    // Create Modal State
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newResumeTitle, setNewResumeTitle] = useState('');
+    const [selectedSector, setSelectedSector] = useState<Sector>('general');
+    const [isCreating, setIsCreating] = useState(false);
 
     // Load resumes on mount - only once
     useEffect(() => {
@@ -68,13 +88,21 @@ export const DashboardPage: React.FC = () => {
         loadResumes();
     };
 
-    const handleCreateResume = async () => {
+    const handleCreateResumeClick = () => {
+        setNewResumeTitle('');
+        setSelectedSector('general');
+        setShowCreateModal(true);
+    };
+
+    const handleConfirmCreate = async () => {
+        if (!newResumeTitle.trim()) return;
+        
+        setIsCreating(true);
         try {
-            // Construct initial content with profile data and dummy sections
+            // Construct initial content
             const initialContent: ResumeContent = {};
 
-            // Prefill personal info with complete dummy data
-            // Backend validation requires these to be non-empty and strict URIs
+            // Prefill personal info
             initialContent.personalInfo = {
                 fullName: 'John Doe',
                 email: 'john.doe@example.com',
@@ -83,12 +111,11 @@ export const DashboardPage: React.FC = () => {
                 linkedin: 'https://linkedin.com/in/johndoe',
                 github: 'https://github.com/johndoe',
                 website: 'https://johndoe.com',
-                // Note: 'title' and 'portfolio' are excluded as they are not allowed in the creation schema
             } as any;
 
-            // Map default sections to API content structure
+            // Map default sections
             defaultSections.forEach(section => {
-                if (section.type === 'summary' && 'summary' in section.content) {
+                 if (section.type === 'summary' && 'summary' in section.content) {
                     initialContent.summary = section.content.summary;
                 } else if (section.type === 'experience' && 'experiences' in section.content) {
                     initialContent.experience = section.content.experiences;
@@ -106,13 +133,17 @@ export const DashboardPage: React.FC = () => {
             });
 
             const newResume = await createResume({
-                title: 'Untitled Resume',
+                title: newResumeTitle,
                 templateId: 'professional',
+                sector: selectedSector,
                 content: initialContent,
             });
+            setShowCreateModal(false);
             navigate(`/editor/${newResume.id}`);
         } catch (err) {
             console.error('Failed to create resume:', err);
+        } finally {
+            setIsCreating(false);
         }
     };
 
@@ -233,7 +264,7 @@ export const DashboardPage: React.FC = () => {
                         </form>
 
                         {/* Create Button - Always visible */}
-                        <Button variant="primary" onClick={handleCreateResume} className="w-full sm:w-auto whitespace-nowrap">
+                        <Button variant="primary" onClick={handleCreateResumeClick} className="w-full sm:w-auto whitespace-nowrap">
                             <Plus className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                             <span className="hidden sm:inline">New Resume</span>
                             <span className="sm:hidden">New</span>
@@ -336,7 +367,7 @@ export const DashboardPage: React.FC = () => {
                             <div className="mt-6">
                                 <Button 
                                     variant="primary" 
-                                    onClick={handleCreateResume}
+                                    onClick={handleCreateResumeClick}
                                     leftIcon={<Plus className="w-5 h-5" />}
                                 >
                                     <span>Create your first resume</span>
@@ -403,6 +434,69 @@ export const DashboardPage: React.FC = () => {
                 mode={selectedResumes.size > 0 ? 'bulk' : 'single'}
                 onImportSuccess={handleImportSuccess}
             />
+
+            {/* Create Resume Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl animate-in zoom-in-95 duration-200">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">Create New Resume</h2>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Resume Title</label>
+                                <Input
+                                    value={newResumeTitle}
+                                    onChange={(e) => setNewResumeTitle(e.target.value)}
+                                    placeholder="e.g., Software Engineer Resume"
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Target Sector</label>
+                                <p className="text-xs text-gray-500 mb-2">Select the industry to get tailored templates and suggestions.</p>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {AVAILABLE_SECTORS.map((sector) => (
+                                        <label
+                                            key={sector.id}
+                                            className={`
+                                                flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all
+                                                ${selectedSector === sector.id 
+                                                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500' 
+                                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}
+                                            `}
+                                        >
+                                            <span className="text-sm font-medium text-gray-900">{sector.label}</span>
+                                            <input
+                                                type="radio"
+                                                name="sector"
+                                                value={sector.id}
+                                                checked={selectedSector === sector.id}
+                                                onChange={(e) => setSelectedSector(e.target.value as Sector)}
+                                                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                            />
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-6">
+                            <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+                                Cancel
+                            </Button>
+                            <Button 
+                                variant="primary" 
+                                onClick={handleConfirmCreate}
+                                disabled={!newResumeTitle.trim() || isCreating}
+                                loading={isCreating}
+                            >
+                                Create Resume
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

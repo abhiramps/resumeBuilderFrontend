@@ -1,6 +1,7 @@
 import React, { forwardRef, memo } from "react";
 import { TemplateBaseProps } from "./TemplateBase";
 import { templateHelpers } from "../../utils/templateHelpers";
+import { getSectorConfig } from "../../config/sectors";
 
 import {
   WorkExperience,
@@ -31,7 +32,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
   (props, ref) => {
     const { resume, layout, className = "", printMode = false } = props;
 
-
+    const sectorConfig = getSectorConfig(resume.sector);
 
     const enabledSections = resume.sections
       .filter((section) => section.enabled)
@@ -180,15 +181,8 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
 
       // Helper function to get category display name
       const getCategoryDisplayName = (categoryKey: string): string => {
-        const defaultNames: Record<string, string> = {
-          languages: "Programming Languages",
-          frameworks: "Frameworks & Libraries",
-          databases: "Databases",
-          tools: "Tools & Software",
-          cloud: "Cloud & DevOps",
-          other: "Other"
-        };
-        return defaultNames[categoryKey] || categoryKey;
+         // Allow any category name
+        return categoryKey || "Other";
       };
 
       // Group skills by their custom category name
@@ -252,7 +246,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
                       fontSize: `${(layout.fontSize?.body || 10) + 0.5}pt`,
                     }}
                   >
-                    {exp.jobTitle || "Job Title"}
+                    {exp.jobTitle || sectorConfig.labels.jobTitle || "Job Title"}
                   </div>
                   <div
                     style={{
@@ -261,7 +255,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
                       marginBottom: "2px",
                     }}
                   >
-                    {exp.company || "Company Name"}
+                    {exp.company || sectorConfig.labels.company || "Company Name"}
                     {exp.location && `, ${exp.location}`}
                   </div>
                 </div>
@@ -358,9 +352,9 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
                       fontSize: `${(layout.fontSize?.body || 10) + 0.5}pt`,
                     }}
                   >
-                    {project.name || "Project Name"}
+                    {project.name || "Title"}
                   </div>
-                  {project.techStack && project.techStack.length > 0 && (
+                  {((project.tags || []).length > 0 || (project.techStack || []).length > 0) && (
                     <div
                       style={{
                         fontStyle: "italic",
@@ -368,7 +362,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
                         marginBottom: "2px",
                       }}
                     >
-                      {project.techStack.join(", ")}
+                      {(project.tags && project.tags.length > 0 ? project.tags : (project.techStack || [])).join(", ")}
                     </div>
                   )}
                 </div>

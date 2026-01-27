@@ -3,6 +3,10 @@
  * Matches backend API response format
  */
 
+import { Sector } from './sector.types';
+
+// import { TemplateType } from './resume.types';
+
 export interface ApiResponse<T> {
     data: T;
     message?: string;
@@ -94,6 +98,7 @@ export interface CreateResumeRequest {
     description?: string;
     templateId: string;
     content?: ResumeContent;
+    sector?: Sector;
 }
 
 export interface UpdateResumeRequest {
@@ -102,6 +107,7 @@ export interface UpdateResumeRequest {
     templateId?: string;
     content?: ResumeContent;
     status?: 'draft' | 'published';
+    sector?: Sector;
 }
 
 export interface ResumeListQuery {
@@ -111,6 +117,31 @@ export interface ResumeListQuery {
     search?: string;
     sortBy?: 'createdAt' | 'updatedAt' | 'title';
     sortOrder?: 'asc' | 'desc';
+}
+
+// ... (skipping to ResumeResponse)
+
+export interface ResumeResponse {
+    id: string;
+    userId: string;
+    title: string;
+    description?: string;
+    templateId: string;
+    sector: Sector;
+    content: ResumeContent;
+    status: 'draft' | 'published';
+    isPublic: boolean;
+    publicSlug?: string;
+    viewCount: number;
+    exportCount: number;
+    lastExportedAt?: string;
+    version: number;
+    isCurrentVersion: boolean;
+    atsScore?: number;
+    atsIssues?: any[];
+    lastAtsCheckAt?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface ShareResumeRequest {
@@ -272,28 +303,7 @@ export interface AdditionalInfoItem {
     content: string[];
 }
 
-// Resume response from backend
-export interface ResumeResponse {
-    id: string;
-    userId: string;
-    title: string;
-    description?: string;
-    templateId: string;
-    content: ResumeContent;
-    status: 'draft' | 'published';
-    isPublic: boolean;
-    publicSlug?: string;
-    viewCount: number;
-    exportCount: number;
-    lastExportedAt?: string;
-    version: number;
-    isCurrentVersion: boolean;
-    atsScore?: number;
-    atsIssues?: any[];
-    lastAtsCheckAt?: string;
-    createdAt: string;
-    updatedAt: string;
-}
+
 
 // Export types
 export interface ExportResumeRequest {
