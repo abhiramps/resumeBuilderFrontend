@@ -432,9 +432,9 @@ const EditorPageContent: React.FC = () => {
             />
 
             {/* Header */}
-            <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 print:hidden">
-                <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-                    <Button variant="ghost" onClick={handleBack} className="flex-shrink-0">
+            <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-2 flex items-center justify-between gap-1 sm:gap-2 print:hidden sticky top-0 z-30">
+                <div className="flex items-center gap-1 sm:gap-4 min-w-0 flex-1">
+                    <Button variant="ghost" onClick={handleBack} className="p-1.5 sm:p-2 flex-shrink-0">
                         <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                     </Button>
                     <div className="min-w-0 flex-1">
@@ -450,14 +450,14 @@ const EditorPageContent: React.FC = () => {
                             />
                         ) : (
                             <div
-                                className="flex items-center gap-2 cursor-pointer group min-w-0"
+                                className="flex items-center gap-1.5 cursor-pointer group min-w-0"
                                 onClick={handleTitleClick}
                                 title="Click to edit title"
                             >
                                 <h1 className="text-sm sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
                                     {editedTitle || currentResume.title}
                                 </h1>
-                                <Edit2 className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
+                                <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
                             </div>
                         )}
                         <SaveStatusIndicator isSaving={isSaving} />
@@ -468,28 +468,40 @@ const EditorPageContent: React.FC = () => {
                     <Button
                         variant="secondary"
                         onClick={() => setShowTemplateSelector(!showTemplateSelector)}
-                        className="flex"
+                        className="p-1.5 sm:px-4 sm:py-2"
                         data-tutorial="template-selector"
+                        title="Change Template"
                     >
-                        <span className="inline">Template</span>
+                        <Eye className="w-4 h-4 sm:hidden" />
+                        <span className="hidden sm:inline">Template</span>
                     </Button>
 
                     <Button
                         variant="secondary"
                         onClick={toggleRightSidebar}
-                        className="hidden lg:flex"
+                        className="hidden lg:flex p-1.5 sm:px-4 sm:py-2"
                         title="Toggle Layout Controls"
                         data-tutorial="layout-controls"
                     >
                         <Settings className="w-5 h-5" />
                     </Button>
 
-                    <Button variant="secondary" onClick={handleVersions} className="hidden md:flex">
+                    <Button 
+                        variant="secondary" 
+                        onClick={handleVersions} 
+                        className="p-1.5 sm:px-4 sm:py-2 hidden sm:flex"
+                        title="Version History"
+                    >
                         <History className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                         <span className="hidden lg:inline">Versions</span>
                     </Button>
 
-                    <Button variant="secondary" onClick={handleShare} className="hidden md:flex">
+                    <Button 
+                        variant="secondary" 
+                        onClick={handleShare} 
+                        className="p-1.5 sm:px-4 sm:py-2 hidden sm:flex"
+                        title="Share Resume"
+                    >
                         <Share2 className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                         <span className="hidden lg:inline">Share</span>
                     </Button>
@@ -498,13 +510,11 @@ const EditorPageContent: React.FC = () => {
                         variant="primary"
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="flex-shrink-0"
+                        className="p-1.5 sm:px-4 sm:py-2 flex-shrink-0"
+                        title="Save Changes"
                     >
                         {isSaving ? (
-                            <>
-                                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white sm:mr-2"></div>
-                                <span className="hidden sm:inline">Saving...</span>
-                            </>
+                            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                         ) : (
                             <>
                                 <Save className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
@@ -518,19 +528,17 @@ const EditorPageContent: React.FC = () => {
                             variant="secondary"
                             onClick={() => setShowExportMenu(!showExportMenu)}
                             disabled={isExporting}
-                            className="flex-shrink-0"
+                            className="p-1.5 sm:px-4 sm:py-2 flex-shrink-0"
                             data-tutorial="export-button"
+                            title="Export PDF"
                         >
                             {isExporting ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white sm:mr-2"></div>
-                                    <span className="hidden sm:inline">Exporting...</span>
-                                </>
+                                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-blue-600"></div>
                             ) : (
                                 <>
                                     <Download className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-                                    <span className="hidden sm:inline">Export PDF</span>
-                                    <ChevronDown className="w-4 h-4 ml-1" />
+                                    <span className="hidden sm:inline">Export</span>
+                                    <ChevronDown className="w-3 h-3 ml-0.5" />
                                 </>
                             )}
                         </Button>
@@ -585,8 +593,8 @@ const EditorPageContent: React.FC = () => {
                     </div>
                     <div className="lg:hidden">
                         {activeView === 'preview' && (
-                            <div className="p-4 print:p-0">
-                                <PreviewContainer showZoomControls={false} showPrintMode={false} />
+                            <div className="p-2 sm:p-4 print:p-0">
+                                <PreviewContainer showZoomControls={true} showPrintMode={true} />
                             </div>
                         )}
                     </div>

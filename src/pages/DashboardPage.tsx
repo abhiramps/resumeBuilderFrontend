@@ -11,7 +11,7 @@ import { Button } from '../components/UI/Button';
 import { Input } from '../components/UI/Input';
 import { ImportExportModal } from '../components/UI/ImportExportModal';
 import { SkeletonCardGrid } from '../components/UI/SkeletonCard';
-import { Plus, Search, FileText, Copy, Trash2, Share2, MoreVertical, Download, Upload, CheckSquare } from 'lucide-react';
+import { Plus, Search, FileText, Copy, Trash2, Share2, MoreVertical, Download, Upload, CheckSquare, User, LogOut } from 'lucide-react';
 import { defaultSections } from '../constants/defaultResume';
 import type { ResumeResponse, ResumeContent } from '../types/api.types';
 import { TemplateThumbnail } from '../components/Templates/TemplateThumbnail';
@@ -191,21 +191,31 @@ export const DashboardPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <header className="bg-white shadow-sm sticky top-0 z-40">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                    <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0 flex-1">
-                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Resumes</h1>
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">My Resumes</h1>
                             <p className="text-xs sm:text-sm text-gray-600 truncate">Welcome back, {user?.fullName || user?.email}</p>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                            <Button variant="secondary" onClick={() => navigate('/profile')} className="flex-1 sm:flex-initial text-sm">
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="secondary"
+                                onClick={() => navigate('/profile')}
+                                className="p-2 sm:px-4 sm:py-2"
+                                title="Profile"
+                            >
+                                <User className="w-5 h-5 sm:mr-2" />
                                 <span className="hidden sm:inline">Profile</span>
-                                <span className="sm:hidden">Profile</span>
                             </Button>
-                            <Button variant="secondary" onClick={logout} className="flex-1 sm:flex-initial text-sm">
+                            <Button
+                                variant="secondary"
+                                onClick={logout}
+                                className="p-2 sm:px-4 sm:py-2"
+                                title="Sign out"
+                            >
+                                <LogOut className="w-5 h-5 sm:mr-2" />
                                 <span className="hidden sm:inline">Sign out</span>
-                                <span className="sm:hidden">Sign out</span>
                             </Button>
                         </div>
                     </div>
@@ -348,7 +358,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Resume Grid */}
                 {!isLoading && filteredResumes.length > 0 && viewMode === 'grid' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                         {filteredResumes.map((resume) => (
                             <ResumeCard
                                 key={resume.id}
@@ -381,6 +391,8 @@ export const DashboardPage: React.FC = () => {
                                     onDelete={handleDeleteResume}
                                     onShare={handleShareResume}
                                     onExport={handleExportResume}
+                                    activeMenu={activeMenu}
+                                    setActiveMenu={setActiveMenu}
                                     bulkSelectMode={bulkSelectMode}
                                     isSelected={selectedResumes.has(resume.id)}
                                     onToggleSelect={handleToggleSelect}
@@ -528,7 +540,7 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
                 <div className="absolute inset-0 bg-gray-100/50 transition-colors group-hover:bg-gray-100/30"></div>
                 
                 {/* Thumbnail Wrapper with nicer padding/positioning */}
-                <div className="absolute inset-4 sm:inset-5 shadow-lg rounded-sm overflow-hidden bg-white transform transition-transform duration-500 will-change-transform group-hover:scale-[1.03] group-hover:-translate-y-1">
+                <div className="absolute inset-2 sm:inset-4 shadow-lg rounded-sm overflow-hidden bg-white transform transition-transform duration-500 will-change-transform group-hover:scale-[1.03] group-hover:-translate-y-1">
                     <TemplateThumbnail
                         templateType={getTemplateType(resume.templateId)}
                         className="w-full h-full object-cover"
@@ -538,28 +550,28 @@ const ResumeCard: React.FC<ResumeCardProps> = ({
                 </div>
 
                 {/* Bottom fading gradient for smooth transition to footer */}
-                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white/60 to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/60 to-transparent pointer-events-none" />
             </div>
 
             {/* Content Section - Compact Footer */}
             <div
                 onClick={() => !bulkSelectMode && onEdit(resume.id)}
                 className={`
-                    px-4 pb-4 pt-2 flex flex-col gap-1
+                    px-2.5 sm:px-4 pb-2.5 sm:pb-4 pt-1 sm:pt-2 flex flex-col gap-0.5 sm:gap-1
                     ${bulkSelectMode ? '' : 'cursor-pointer'}
                 `}
             >
-                <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-gray-800 truncate leading-tight group-hover:text-blue-600 transition-colors" title={resume.title}>
+                <div className="flex items-start justify-between gap-1 sm:gap-2">
+                    <h3 className="text-[12px] sm:text-sm font-semibold text-gray-800 truncate leading-tight group-hover:text-blue-600 transition-colors" title={resume.title}>
                         {resume.title}
                     </h3>
                 </div>
                 
-                <div className="flex items-center justify-between mt-1">
-                     <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400 bg-gray-100/80 px-1.5 py-0.5 rounded-md border border-gray-100/50">
+                <div className="flex items-center justify-between mt-0.5 sm:mt-1">
+                     <span className="text-[8px] sm:text-[10px] font-medium uppercase tracking-wider text-gray-400 bg-gray-100/80 px-1 sm:px-1.5 py-0.5 rounded border border-gray-100/50">
                         {getTemplateType(resume.templateId)}
                     </span>
-                    <span className="text-[10px] text-gray-400 tabular-nums">
+                    <span className="text-[8px] sm:text-[10px] text-gray-400 tabular-nums">
                         {new Date(resume.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </span>
                 </div>
@@ -576,6 +588,8 @@ interface ResumeListItemProps {
     onDelete: (id: string) => void;
     onShare: (id: string) => void;
     onExport: (resume: ResumeResponse) => void;
+    activeMenu: string | null;
+    setActiveMenu: (id: string | null) => void;
     bulkSelectMode: boolean;
     isSelected: boolean;
     onToggleSelect: (id: string) => void;
@@ -588,15 +602,17 @@ const ResumeListItem: React.FC<ResumeListItemProps> = ({
     onDelete,
     onShare,
     onExport,
+    activeMenu,
+    setActiveMenu,
     bulkSelectMode,
     isSelected,
     onToggleSelect,
 }) => {
     return (
-        <li className={`px-6 py-4 hover:bg-gray-50 ${bulkSelectMode && isSelected ? 'bg-blue-50' : ''
+        <li className={`px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors ${bulkSelectMode && isSelected ? 'bg-blue-50' : ''
             }`}>
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                     {bulkSelectMode && (
                         <input
                             type="checkbox"
@@ -606,32 +622,91 @@ const ResumeListItem: React.FC<ResumeListItemProps> = ({
                         />
                     )}
                     <div
-                        className={`flex items-center gap-4 flex-1 min-w-0 ${bulkSelectMode ? '' : 'cursor-pointer'}`}
+                        className={`flex items-center gap-3 sm:gap-4 flex-1 min-w-0 ${bulkSelectMode ? '' : 'cursor-pointer'}`}
                         onClick={() => !bulkSelectMode && onEdit(resume.id)}
                     >
-                        <FileText className="w-8 h-8 text-blue-600 flex-shrink-0" />
+                        <div className="flex-shrink-0 w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+                             <FileText className="w-5 h-5" />
+                        </div>
                         <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-medium text-gray-900 truncate">{resume.title}</h3>
-                            <p className="text-sm text-gray-500">
-                                Updated {new Date(resume.updatedAt).toLocaleDateString()}
-                            </p>
+                            <h3 className="text-sm sm:text-base font-medium text-gray-900 truncate">{resume.title}</h3>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-xs text-gray-500">
+                                    {new Date(resume.updatedAt).toLocaleDateString()}
+                                </span>
+                                <span className="hidden sm:inline-block w-1 h-1 bg-gray-300 rounded-full"></span>
+                                <span className="hidden sm:inline-block text-xs text-gray-400 capitalize">
+                                    {resume.templateId}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
+                {/* Desktop Actions */}
                 {!bulkSelectMode && (
-                    <div className="flex items-center gap-2">
-                        <Button variant="secondary" size="sm" onClick={() => onExport(resume)}>
-                            <Download className="w-4 h-4" />
+                    <div className="hidden sm:flex items-center gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => onExport(resume)} title="Export">
+                            <Download className="w-4 h-4 text-gray-500" />
                         </Button>
-                        <Button variant="secondary" size="sm" onClick={() => onShare(resume.id)}>
-                            <Share2 className="w-4 h-4" />
+                        <Button variant="ghost" size="sm" onClick={() => onShare(resume.id)} title="Share">
+                            <Share2 className="w-4 h-4 text-gray-500" />
                         </Button>
-                        <Button variant="secondary" size="sm" onClick={() => onDuplicate(resume.id)}>
-                            <Copy className="w-4 h-4" />
+                        <Button variant="ghost" size="sm" onClick={() => onDuplicate(resume.id)} title="Duplicate">
+                            <Copy className="w-4 h-4 text-gray-500" />
                         </Button>
-                        <Button variant="secondary" size="sm" onClick={() => onDelete(resume.id)}>
-                            <Trash2 className="w-4 h-4 text-red-600" />
+                        <Button variant="ghost" size="sm" onClick={() => onDelete(resume.id)} title="Delete">
+                            <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
+                    </div>
+                )}
+
+                {/* Mobile Menu Action */}
+                {!bulkSelectMode && (
+                    <div className="relative sm:hidden">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMenu(activeMenu === resume.id ? null : resume.id);
+                            }}
+                            className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                        >
+                            <MoreVertical className="w-5 h-5" />
+                        </button>
+                        
+                        {/* Mobile Dropdown */}
+                        {activeMenu === resume.id && (
+                            <div className="absolute top-10 right-0 bg-white shadow-xl ring-1 ring-black/5 rounded-lg w-48 py-1 z-50">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onExport(resume); }}
+                                    className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Export PDF
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onShare(resume.id); }}
+                                    className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"
+                                >
+                                    <Share2 className="w-4 h-4" />
+                                    Share Link
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onDuplicate(resume.id); }}
+                                    className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"
+                                >
+                                    <Copy className="w-4 h-4" />
+                                    Duplicate
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onDelete(resume.id); }}
+                                    className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete Resume
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
