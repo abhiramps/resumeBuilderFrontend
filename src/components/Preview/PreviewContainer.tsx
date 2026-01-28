@@ -34,7 +34,14 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
   const { previewRef, zoom, setZoom, printMode, setPrintMode } = usePDFExportContext();
 
   // Zoom levels
-  const zoomLevels = [50, 75, 100, 125, 150, 200];
+  const zoomLevels = [25, 50, 75, 100, 125, 150, 200];
+
+  // Set default zoom on mobile
+  React.useEffect(() => {
+    if (window.innerWidth < 768 && zoom === 100) {
+      setZoom(50);
+    }
+  }, []);
 
   /**
    * Handle zoom change
@@ -67,7 +74,7 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
    * Reset zoom to 100%
    */
   const resetZoom = () => {
-    setZoom(100);
+    setZoom(window.innerWidth < 768 ? 50 : 100);
   };
 
   /**
@@ -88,17 +95,17 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
     <div className={`preview-container ${className}`}>
       {/* Controls Bar */}
       {(showZoomControls || showPrintMode) && (
-        <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm print:hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 p-2 sm:p-3 bg-white rounded-lg border border-gray-200 shadow-sm print:hidden">
           {/* Zoom Controls */}
           {showZoomControls && (
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">Zoom:</span>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <span className="hidden sm:inline text-sm font-medium text-gray-700">Zoom:</span>
 
               {/* Zoom Out Button */}
               <button
                 onClick={zoomOut}
                 disabled={zoom <= zoomLevels[0]}
-                className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Zoom Out"
               >
                 <svg
@@ -120,7 +127,7 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
               <select
                 value={zoom}
                 onChange={(e) => handleZoomChange(Number(e.target.value))}
-                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
                 {zoomLevels.map((level) => (
                   <option key={level} value={level}>
@@ -133,7 +140,7 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
               <button
                 onClick={zoomIn}
                 disabled={zoom >= zoomLevels[zoomLevels.length - 1]}
-                className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Zoom In"
               >
                 <svg
@@ -154,10 +161,10 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
               {/* Reset Zoom Button */}
               <button
                 onClick={resetZoom}
-                className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
+                className="px-1.5 sm:px-2 py-1 text-[10px] sm:text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
                 title="Reset Zoom"
               >
-                Reset
+                Fit
               </button>
             </div>
           )}
@@ -165,16 +172,17 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
           {/* Print Mode Toggle */}
           {showPrintMode && (
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-gray-700">
-                Print Mode:
+              <span className="text-xs sm:text-sm font-medium text-gray-700">
+                <span className="hidden sm:inline">Print Mode</span>
+                <span className="sm:hidden">Print</span>
               </span>
               <button
                 onClick={togglePrintMode}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${printMode ? "bg-blue-600" : "bg-gray-200"
+                className={`relative inline-flex h-5 w-9 sm:h-6 sm:w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${printMode ? "bg-blue-600" : "bg-gray-200"
                   }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${printMode ? "translate-x-6" : "translate-x-1"
+                  className={`inline-block h-3 w-3 sm:h-4 sm:w-4 transform rounded-full bg-white transition-transform ${printMode ? "translate-x-5 sm:translate-x-6" : "translate-x-1"
                     }`}
                 />
               </button>
@@ -184,7 +192,7 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
       )}
 
       {/* Preview Area */}
-      <div className="preview-area bg-gray-100 rounded-lg p-6 overflow-auto">
+      <div className="preview-area bg-gray-100 rounded-lg p-2 sm:p-6 overflow-auto custom-scrollbar shadow-inner min-h-[400px]">
         <div
           className="preview-wrapper flex justify-center"
           style={{ minHeight: "600px" }}
