@@ -18,6 +18,10 @@ export interface ResumePreviewProps {
   className?: string;
   /** Whether to show print-specific styling */
   printMode?: boolean;
+  /** Additional inline styles */
+  style?: React.CSSProperties;
+  /** Whether to hide the header */
+  hideHeader?: boolean;
 }
 
 /**
@@ -35,7 +39,7 @@ export interface ResumePreviewProps {
  */
 const ResumePreviewComponent = forwardRef<HTMLDivElement, ResumePreviewProps>(
   (props, ref) => {
-    const { resume, className = "", printMode = false } = props;
+    const { resume, className = "", printMode = false, style, hideHeader = false } = props;
 
     // Safety check: ensure resume has required properties
     if (!resume || !resume.layout) {
@@ -52,6 +56,8 @@ const ResumePreviewComponent = forwardRef<HTMLDivElement, ResumePreviewProps>(
       layout: resume.layout,
       printMode,
       className,
+      style,
+      hideHeader,
     };
 
     switch (resume.template) {

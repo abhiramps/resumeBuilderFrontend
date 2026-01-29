@@ -589,12 +589,12 @@ const EditorPageContent: React.FC = () => {
                 {/* Center Panel (Desktop and Mobile Preview) */}
                 <div className="flex-1 overflow-y-auto bg-gray-100 lg:p-6 print:overflow-visible print:bg-white print:p-0">
                     <div className="hidden lg:block">
-                        <PreviewContainer showZoomControls={true} showPrintMode={true} />
+                        <PreviewContainer showZoomControls={true} />
                     </div>
                     <div className="lg:hidden">
                         {activeView === 'preview' && (
                             <div className="p-2 sm:p-4 print:p-0">
-                                <PreviewContainer showZoomControls={true} showPrintMode={true} />
+                                <PreviewContainer showZoomControls={true} />
                             </div>
                         )}
                     </div>

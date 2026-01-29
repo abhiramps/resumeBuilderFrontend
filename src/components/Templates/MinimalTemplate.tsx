@@ -27,7 +27,7 @@ import {
  */
 export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
   (props, ref) => {
-    const { resume, layout, className = "", printMode = false } = props;
+    const { resume, layout, className = "", printMode = false, style, hideHeader = false } = props;
     const enabledSections = resume.sections
       .filter((section) => section.enabled)
       .sort((a, b) => a.order - b.order);
@@ -51,6 +51,7 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
         ? 0
         : `${layout.pageMargins.top}in ${layout.pageMargins.right}in ${layout.pageMargins.bottom}in ${layout.pageMargins.left}in`,
       boxShadow: printMode ? "none" : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+      ...style,
     };
 
     const headerStyles: React.CSSProperties = {
@@ -634,24 +635,26 @@ export const MinimalTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
         className={`minimal-template resume-preview ${className}`}
         style={containerStyles}
       >
-        <header style={headerStyles}>
-          <div>
-            <h1 style={nameStyles}>
-              {resume.personalInfo?.fullName || "Your Name"}
-            </h1>
-            {resume.personalInfo?.title && (
-              <span style={titleStyles}>{resume.personalInfo.title}</span>
-            )}
-          </div>
-          <div style={contactStyles}>{renderContactInfo()}</div>
-        </header>
+        {!hideHeader && (
+          <header style={headerStyles}>
+            <div>
+              <h1 style={nameStyles}>
+                {resume.personalInfo?.fullName || "Your Name"}
+              </h1>
+              {resume.personalInfo?.title && (
+                <span style={titleStyles}>{resume.personalInfo.title}</span>
+              )}
+            </div>
+            <div style={contactStyles}>{renderContactInfo()}</div>
+          </header>
+        )}
 
         {enabledSections.map((section) => {
           const content = renderSectionContent(section);
           if (!content) return null;
 
           return (
-            <section key={section.id} style={{ pageBreakInside: "auto" }}>
+            <section key={section.id} data-section-id={section.id} style={{ pageBreakInside: "auto" }}>
               <h2 style={sectionHeaderStyles}>{section.title}</h2>
               {content}
             </section>

@@ -29,7 +29,7 @@ import {
  */
 const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBaseProps>(
   (props, ref) => {
-    const { resume, layout, className = "", printMode = false } = props;
+    const { resume, layout, className = "", printMode = false, style, hideHeader = false } = props;
 
 
 
@@ -58,6 +58,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
         ? 0
         : `${layout.pageMargins.top}in ${layout.pageMargins.right}in ${layout.pageMargins.bottom}in ${layout.pageMargins.left}in`,
       boxShadow: printMode ? "none" : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+      ...style,
     };
 
     const headerStyles: React.CSSProperties = {
@@ -675,19 +676,21 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
         style={containerStyles}
       >
         {/* Header Section */}
-        <header style={headerStyles}>
-          <h1 style={nameStyles}>
-            {resume.personalInfo?.fullName?.toUpperCase() || "YOUR NAME"}
-          </h1>
+        {!hideHeader && (
+          <header style={headerStyles}>
+            <h1 style={nameStyles}>
+              {resume.personalInfo?.fullName?.toUpperCase() || "YOUR NAME"}
+            </h1>
 
-          {resume.personalInfo?.title && (
-            <div style={roleStyles}>
-              {resume.personalInfo.title.toUpperCase()}
-            </div>
-          )}
+            {resume.personalInfo?.title && (
+              <div style={roleStyles}>
+                {resume.personalInfo.title.toUpperCase()}
+              </div>
+            )}
 
-          <div style={contactStyles}>{renderContactInfo()}</div>
-        </header>
+            <div style={contactStyles}>{renderContactInfo()}</div>
+          </header>
+        )}
 
         {/* Resume Sections */}
         {enabledSections.map((section) => {
@@ -695,7 +698,7 @@ const ProfessionalTemplateComponent = forwardRef<HTMLDivElement, TemplateBasePro
           if (!content) return null;
 
           return (
-            <section key={section.id} style={sectionStyles}>
+            <section key={section.id} data-section-id={section.id} style={sectionStyles}>
               <h2 style={sectionTitleStyles}>{section.title}</h2>
               {content}
             </section>

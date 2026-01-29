@@ -1,271 +1,250 @@
-import React from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import { ResumePreview } from "./ResumePreview";
 import { useResumeContext } from "../../contexts/ResumeContext";
 import { usePDFExportContext } from "../../contexts/PDFExportContext";
+import { Resume } from "../../types/resume.types";
 
-/**
- * Preview Container Component Props
- */
 export interface PreviewContainerProps {
-  /** Additional CSS classes */
   className?: string;
-  /** Whether to show zoom controls */
   showZoomControls?: boolean;
-  /** Whether to show print mode toggle */
-  showPrintMode?: boolean;
 }
 
-/**
- * Preview Container Component
- *
- * Wrapper component that provides:
- * - Centered preview with paper shadow effect
- * - Zoom controls for better viewing
- * - Print mode toggle
- * - Responsive scaling
- * - Scrollable container
- */
 export const PreviewContainer: React.FC<PreviewContainerProps> = ({
   className = "",
   showZoomControls = true,
-  showPrintMode = true,
 }) => {
   const { resume } = useResumeContext();
-  const { previewRef, zoom, setZoom, printMode, setPrintMode } = usePDFExportContext();
+  const { previewRef, zoom, setZoom } = usePDFExportContext();
+  
+  // State for the grouped section IDs
+  const [paginatedSectionIds, setPaginatedSections] = useState<string[][]>([[]]);
+  
+  // Ref for the hidden "Ghost" measurement container
+  const ghostRef = useRef<HTMLDivElement>(null);
+  
+  // Ref for the visible scrollable area (for centering)
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Zoom levels
+  // Zoom controls
   const zoomLevels = [25, 50, 75, 100, 125, 150, 200];
 
-  // Set default zoom on mobile
+  // Constants for A4/Letter dimensions at 96 DPI
+  const PAGE_HEIGHT_PX = 1056; // 11in @ 96dpi
+  const PAGE_WIDTH_PX = 816;   // 8.5in @ 96dpi
+
   React.useEffect(() => {
     if (window.innerWidth < 768 && zoom === 100) {
-      setZoom(50);
+      // Auto-fit on load for mobile
+      const availableWidth = window.innerWidth - 32;
+      const fitZoom = Math.floor((availableWidth / PAGE_WIDTH_PX) * 100);
+      setZoom(Math.min(fitZoom, 100));
     }
   }, []);
 
-  /**
-   * Handle zoom change
-   */
-  const handleZoomChange = (newZoom: number) => {
-    setZoom(newZoom);
-  };
+  // ----------------------------------------------------------------------
+  // SCROLL CENTERING EFFECT
+  // ----------------------------------------------------------------------
+  useLayoutEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-  /**
-   * Zoom in
-   */
+    const centerContent = () => {
+      // If content is wider than viewport, center it
+      if (container.scrollWidth > container.clientWidth) {
+        const centerX = (container.scrollWidth - container.clientWidth) / 2;
+        container.scrollLeft = centerX;
+      }
+    };
+
+    // Center immediately on render/update
+    centerContent();
+
+    // Re-center on resize
+    window.addEventListener('resize', centerContent);
+    return () => window.removeEventListener('resize', centerContent);
+  }, [zoom, paginatedSectionIds]); // Re-run when layout changes
+
+  const handleZoomChange = (newZoom: number) => setZoom(newZoom);
   const zoomIn = () => {
-    const currentIndex = zoomLevels.indexOf(zoom);
-    if (currentIndex < zoomLevels.length - 1) {
-      setZoom(zoomLevels[currentIndex + 1]);
-    }
+    const idx = zoomLevels.indexOf(zoom);
+    if (idx < zoomLevels.length - 1) setZoom(zoomLevels[idx + 1]);
   };
-
-  /**
-   * Zoom out
-   */
   const zoomOut = () => {
-    const currentIndex = zoomLevels.indexOf(zoom);
-    if (currentIndex > 0) {
-      setZoom(zoomLevels[currentIndex - 1]);
+    const idx = zoomLevels.indexOf(zoom);
+    if (idx > 0) setZoom(zoomLevels[idx - 1]);
+  };
+  const resetZoom = () => {
+    if (window.innerWidth < 768) {
+      const availableWidth = window.innerWidth - 32;
+      const fitZoom = Math.floor((availableWidth / PAGE_WIDTH_PX) * 100);
+      setZoom(Math.min(fitZoom, 100));
+    } else {
+      setZoom(100);
     }
   };
 
-  /**
-   * Reset zoom to 100%
-   */
-  const resetZoom = () => {
-    setZoom(window.innerWidth < 768 ? 50 : 100);
+  // Margins
+  const topMargin = (resume.layout.pageMargins.top || 0.75) * 96;
+  const bottomMargin = (resume.layout.pageMargins.bottom || 0.75) * 96;
+  const rightMargin = (resume.layout.pageMargins.right || 0.75) * 96;
+  const leftMargin = (resume.layout.pageMargins.left || 0.75) * 96;
+
+  // The usable vertical space for content *inside* the padding
+  const CONTENT_HEIGHT = PAGE_HEIGHT_PX - topMargin - bottomMargin - 2;
+
+  // ----------------------------------------------------------------------
+  // BIN PACKING ALGORITHM
+  // ----------------------------------------------------------------------
+  useLayoutEffect(() => {
+    const templateNode = ghostRef.current;
+    if (!templateNode) return;
+
+    const children = Array.from(templateNode.children) as HTMLElement[];
+    const pages: string[][] = [];
+    let currentPageSections: string[] = [];
+    let currentHeight = 0;
+
+    let headerNode = children.find(c => c.tagName === 'HEADER');
+    if (headerNode) {
+        const style = window.getComputedStyle(headerNode);
+        currentHeight += headerNode.offsetHeight + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+    }
+
+    children.forEach((child) => {
+      const sectionId = child.getAttribute('data-section-id');
+      if (sectionId) {
+        const style = window.getComputedStyle(child);
+        const sectionHeight = child.offsetHeight + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+
+        if (currentHeight + sectionHeight <= CONTENT_HEIGHT) {
+          currentPageSections.push(sectionId);
+          currentHeight += sectionHeight;
+        } else {
+          pages.push(currentPageSections);
+          currentPageSections = [sectionId];
+          currentHeight = sectionHeight; 
+        }
+      }
+    });
+
+    if (currentPageSections.length > 0) {
+      pages.push(currentPageSections);
+    }
+
+    if (pages.length === 0) pages.push([]);
+    setPaginatedSections(pages);
+
+  }, [resume, zoom]);
+
+  const getPageResume = (pageSectionIds: string[]): Resume => {
+    return {
+      ...resume,
+      sections: resume.sections.filter(s => pageSectionIds.includes(s.id))
+    };
   };
 
-  /**
-   * Toggle print mode
-   */
-  const togglePrintMode = () => {
-    setPrintMode(!printMode);
-  };
-
-  const containerStyles: React.CSSProperties = {
+  const stackStyles: React.CSSProperties = {
     transform: `scale(${zoom / 100})`,
     transformOrigin: "top center",
     transition: "transform 0.2s ease-in-out",
-    // Don't apply transform during printing
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "40px",
+    paddingBottom: "100px",
+    marginTop: "20px",
+    width: `${PAGE_WIDTH_PX}px`,
+    marginLeft: "auto",
+    marginRight: "auto",
   };
 
   return (
-    <div className={`preview-container ${className}`}>
+    <div className={`preview-container flex flex-col h-full ${className}`}>
       {/* Controls Bar */}
-      {(showZoomControls || showPrintMode) && (
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 p-2 sm:p-3 bg-white rounded-lg border border-gray-200 shadow-sm print:hidden">
-          {/* Zoom Controls */}
-          {showZoomControls && (
+      {showZoomControls && (
+        <div className="flex items-center justify-between gap-3 mb-4 p-2 sm:p-3 bg-white rounded-lg border border-gray-200 shadow-sm print:hidden flex-shrink-0">
+          <div className="flex items-center space-x-1 sm:space-x-2 w-full justify-between sm:justify-start">
             <div className="flex items-center space-x-1 sm:space-x-2">
               <span className="hidden sm:inline text-sm font-medium text-gray-700">Zoom:</span>
-
-              {/* Zoom Out Button */}
-              <button
-                onClick={zoomOut}
-                disabled={zoom <= zoomLevels[0]}
-                className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Zoom Out"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 12H4"
-                  />
-                </svg>
+              <button onClick={zoomOut} disabled={zoom <= zoomLevels[0]} className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
               </button>
-
-              {/* Zoom Level Selector */}
-              <select
-                value={zoom}
-                onChange={(e) => handleZoomChange(Number(e.target.value))}
-                className="px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                {zoomLevels.map((level) => (
-                  <option key={level} value={level}>
-                    {level}%
-                  </option>
-                ))}
+              <select value={zoom} onChange={(e) => handleZoomChange(Number(e.target.value))} className="px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded bg-white">
+                {zoomLevels.map((level) => (<option key={level} value={level}>{level}%</option>))}
               </select>
-
-              {/* Zoom In Button */}
-              <button
-                onClick={zoomIn}
-                disabled={zoom >= zoomLevels[zoomLevels.length - 1]}
-                className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Zoom In"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </button>
-
-              {/* Reset Zoom Button */}
-              <button
-                onClick={resetZoom}
-                className="px-1.5 sm:px-2 py-1 text-[10px] sm:text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
-                title="Reset Zoom"
-              >
-                Fit
+              <button onClick={zoomIn} disabled={zoom >= zoomLevels[zoomLevels.length - 1]} className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               </button>
             </div>
-          )}
-
-          {/* Print Mode Toggle */}
-          {showPrintMode && (
-            <div className="flex items-center space-x-2">
-              <span className="text-xs sm:text-sm font-medium text-gray-700">
-                <span className="hidden sm:inline">Print Mode</span>
-                <span className="sm:hidden">Print</span>
-              </span>
-              <button
-                onClick={togglePrintMode}
-                className={`relative inline-flex h-5 w-9 sm:h-6 sm:w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${printMode ? "bg-blue-600" : "bg-gray-200"
-                  }`}
-              >
-                <span
-                  className={`inline-block h-3 w-3 sm:h-4 sm:w-4 transform rounded-full bg-white transition-transform ${printMode ? "translate-x-5 sm:translate-x-6" : "translate-x-1"
-                    }`}
-                />
-              </button>
-            </div>
-          )}
+            <button onClick={resetZoom} className="px-1.5 sm:px-2 py-1 text-[10px] sm:text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded">Fit</button>
+          </div>
         </div>
       )}
 
-      {/* Preview Area */}
-      <div className="preview-area bg-gray-100 rounded-lg p-2 sm:p-6 overflow-auto custom-scrollbar shadow-inner min-h-[400px]">
-        <div
-          className="preview-wrapper flex justify-center"
-          style={{ minHeight: "600px" }}
-        >
-          {/* Wrapper with zoom */}
-          <div style={containerStyles}>
-            {printMode ? (
+      {/* GHOST MEASURER */}
+      <div className="fixed -left-[9999px] top-0 overflow-visible" style={{ width: `${PAGE_WIDTH_PX}px` }}>
+        <ResumePreview
+          ref={ghostRef}
+          resume={resume}
+          printMode={true}
+          style={{ 
+             padding: `${topMargin}px ${rightMargin}px ${bottomMargin}px ${leftMargin}px`,
+             minHeight: `${PAGE_HEIGHT_PX}px`
+          }}
+        />
+        <div ref={previewRef} className="print-export-container">
+             <ResumePreview
+                resume={resume}
+                printMode={true}
+                style={{ 
+                    padding: `${topMargin}px ${rightMargin}px ${bottomMargin}px ${leftMargin}px`,
+                    minHeight: `${PAGE_HEIGHT_PX}px`
+                }}
+             />
+        </div>
+      </div>
+
+      {/* VISIBLE PREVIEW */}
+      <div 
+        ref={scrollContainerRef}
+        className="preview-area flex-1 bg-[#e5e7eb] overflow-auto custom-scrollbar shadow-inner p-4 sm:p-8"
+      >
+        <div className="preview-wrapper w-full">
+          <div style={stackStyles}>
+            {paginatedSectionIds.map((pageSectionIds, index) => {
+              const isFirstPage = index === 0;
+              const pageResume = getPageResume(pageSectionIds);
+
+              return (
                 <div
-                  className="print-mode-simulation"
+                  key={index}
+                  className="bg-white shadow-[0_0_15px_rgba(0,0,0,0.1)] relative flex-shrink-0"
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "20px",
-                    width: "100%",
+                    width: `${PAGE_WIDTH_PX}px`,
+                    height: `${PAGE_HEIGHT_PX}px`,
+                    padding: `${topMargin}px ${rightMargin}px ${bottomMargin}px ${leftMargin}px`,
+                    boxSizing: 'border-box',
+                    overflow: 'hidden'
                   }}
                 >
-                  {/* Wrapper adds visual page margins and page break simulation */}
-                  <div
-                    style={{
-                      width: "8.5in",
-                      minHeight: "11in",
-                      /* 
-                         Simulate separate pages using a repeating gradient background.
-                         Page Height: 11in (approx 1056px at 96 DPI)
-                         Gap: 40px
-                      */
-                      backgroundImage: `repeating-linear-gradient(
-                        to bottom,
-                        #ffffff,
-                        #ffffff 1056px,
-                        #d1d5db 1056px,
-                        #d1d5db 1096px
-                      )`,
-                      position: "relative",
-                      /* Padding matching the layout */
-                      padding: `${resume.layout.pageMargins.top}in ${resume.layout.pageMargins.right}in ${resume.layout.pageMargins.bottom}in ${resume.layout.pageMargins.left}in`,
-                    }}
-                  >
-                   
-                    <ResumePreview
-                      ref={previewRef}
-                      resume={resume}
-                      printMode={printMode}
-                      className=""
-                    />
-
-                  </div>
-                  
-                  <div className="text-gray-400 text-xs mt-2">
-                    * Lines indicate approximate 11" page breaks
+                  <ResumePreview
+                    resume={pageResume}
+                    printMode={true}
+                    hideHeader={!isFirstPage}
+                    style={{ padding: 0, boxShadow: 'none', minHeight: 'auto' }}
+                  />
+                  <div className="absolute bottom-4 right-6 text-[10px] font-medium text-gray-400 pointer-events-none select-none">
+                    Page {index + 1} of {paginatedSectionIds.length}
                   </div>
                 </div>
-            ) : (
-              /* Normal Mode: Single continuous view */
-              <ResumePreview
-                ref={previewRef}
-                resume={resume}
-                printMode={printMode}
-                className="shadow-lg"
-              />
-            )}
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Preview Info */}
-      <div className="mt-4 text-center text-sm text-gray-500 no-print print:hidden">
-        <p>
-          Preview shows how your resume will appear when printed or exported as
-          PDF.
-          {printMode && " Print mode shows exact dimensions and styling."}
-        </p>
+      <div className="py-2 text-center text-[10px] text-gray-400 no-print uppercase tracking-widest">
+        * A4 Preview *
       </div>
     </div>
   );

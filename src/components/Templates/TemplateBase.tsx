@@ -13,6 +13,10 @@ export interface TemplateBaseProps {
   className?: string;
   /** Whether to render in print mode */
   printMode?: boolean;
+  /** Additional inline styles */
+  style?: React.CSSProperties;
+  /** Whether to hide the header (for subsequent pages) */
+  hideHeader?: boolean;
 }
 
 /**
