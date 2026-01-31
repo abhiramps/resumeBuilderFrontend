@@ -63,13 +63,13 @@ export const DraggableSection: React.FC<DraggableSectionProps> = ({
                 {/* Section Title - Clickable to collapse/expand */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="flex-1 text-left font-semibold text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-2 ml-1"
+                    className="flex-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hover:text-blue-600 transition-colors flex items-center gap-2 ml-1"
                 >
                     {section.title}
                     {isCollapsed ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                        <ChevronDown className="w-3 h-3 text-gray-400" />
                     ) : (
-                        <ChevronUp className="w-4 h-4 text-gray-500" />
+                        <ChevronUp className="w-3 h-3 text-gray-400" />
                     )}
                 </button>
 

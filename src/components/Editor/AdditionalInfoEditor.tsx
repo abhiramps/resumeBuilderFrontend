@@ -59,7 +59,7 @@ const SortableItem: FC<{ item: any; onUpdate: any; onDelete: any }> = ({ item, o
             placeholder="e.g. Languages, Volunteering"
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
               Details (One per line)
             </label>
             <textarea
@@ -283,8 +283,8 @@ export const AdditionalInfoEditor: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
         <div>
-            <h3 className="text-lg font-medium text-gray-900">Additional Information</h3>
-            <p className="text-sm text-gray-500">Add extra sections like Languages, Interests, or Volunteer work</p>
+            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1.5 mb-1">Additional Information</h3>
+            <p className="text-[10px] text-gray-500 italic">Languages, Interests, or Volunteer work</p>
         </div>
         <div className="flex items-center gap-4">
             {/* Autosave Status Indicator */}

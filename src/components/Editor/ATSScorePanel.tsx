@@ -62,8 +62,8 @@ export const ATSScorePanel: React.FC<ATSScorePanelProps> = ({
                                 <AlertCircle className={`w-6 h-6 ${getScoreColor(score)}`} />
                             )}
                             <div>
-                                <h3 className="font-semibold text-gray-900">ATS Score</h3>
-                                <p className="text-sm text-gray-600">{getScoreLabel(score)}</p>
+                                <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">ATS Score</h3>
+                                <p className="text-[10px] text-gray-500 uppercase font-medium">{getScoreLabel(score)}</p>
                             </div>
                         </div>
                     </div>
