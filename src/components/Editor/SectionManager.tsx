@@ -148,14 +148,14 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ className = "" }
     return (
         <div className={`bg-white rounded-lg border border-gray-200 ${className}`}>
             <div className="p-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center mb-1">
+                    <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                     </svg>
                     Manage Sections
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                    Toggle visibility and reorder sections by dragging
+                <p className="text-[10px] text-gray-500 italic">
+                    Toggle visibility and reorder sections
                 </p>
             </div>
 

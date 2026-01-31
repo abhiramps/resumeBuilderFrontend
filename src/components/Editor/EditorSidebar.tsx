@@ -99,9 +99,9 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
                 {/* Sortable Sections */}
                 <div>
-                    <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 px-1 flex items-center justify-between">
+                    <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 sm:mb-3 px-1 flex items-center justify-between">
                         <span>Resume Sections</span>
-                        <span className="text-xs font-normal text-gray-400">{resume.sections.length} sections</span>
+                        <span className="font-medium">{resume.sections.length} sections</span>
                     </h3>
                     <SortableSectionList
                         sections={resume.sections}

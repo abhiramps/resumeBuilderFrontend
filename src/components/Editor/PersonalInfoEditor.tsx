@@ -344,13 +344,13 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
         {/* Title - Clickable to collapse/expand */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="flex-1 text-left font-semibold text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-2"
+          className="flex-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hover:text-blue-600 transition-colors flex items-center gap-2"
         >
           Personal Information
           {isCollapsed ? (
-            <ChevronDown className="w-4 h-4 text-gray-500" />
+            <ChevronDown className="w-3 h-3 text-gray-400" />
           ) : (
-            <ChevronUp className="w-4 h-4 text-gray-500" />
+            <ChevronUp className="w-3 h-3 text-gray-400" />
           )}
         </button>
 
@@ -444,7 +444,7 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
 
           {/* Social Links */}
           <div className="space-y-4">
-            <h4 className="text-md font-medium text-gray-900 border-b border-gray-100 pb-2">
+            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1.5">
               Social Links
             </h4>
 
@@ -483,8 +483,8 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
 
           {/* Custom Links */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h4 className="text-md font-medium text-gray-900 border-b border-gray-100 pb-2">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-1.5">
+              <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                 Additional Links
               </h4>
               <Button
