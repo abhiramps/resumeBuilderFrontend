@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (err: any) {
       const errorMessage =
-        err.message || err.response?.data?.error?.message || "Login failed. Please try again.";
+        err.message || "Login failed. Please try again.";
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -150,7 +150,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (err: any) {
         const errorMessage =
           err.message ||
-          err.response?.data?.error?.message ||
           "Signup failed. Please try again.";
         setError(errorMessage);
         throw new Error(errorMessage);
@@ -189,7 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setError(null);
     } catch (err: any) {
       const errorMessage =
-        err.message || err.response?.data?.error?.message || "Failed to refresh session.";
+        err.message || "Failed to refresh session.";
       setError(errorMessage);
       // If refresh fails, logout
       await logout();
@@ -254,7 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const { url } = await authService.signInWithOAuth(provider);
             window.location.href = url;
         } catch (err: any) {
-            const errorMessage = err.message || err.response?.data?.error?.message || 'OAuth login failed. Please try again.';
+            const errorMessage = err.message || 'OAuth login failed. Please try again.';
             setError(errorMessage);
             throw new Error(errorMessage);
         } finally {
