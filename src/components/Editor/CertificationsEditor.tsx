@@ -234,7 +234,7 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-gray-900 truncate">
+                        <h4 className="text-xs font-bold text-gray-800 truncate">
                             {certification.name || "New Certification"}
                         </h4>
                         <p className="text-xs text-gray-500 truncate">
@@ -308,7 +308,7 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
                     <Input label="Issuing Organization" value={localCertification.issuer} onChange={(e) => handleFieldUpdate("issuer", e.target.value)} required placeholder="e.g., Amazon Web Services" className="text-sm" />
 
                     <div className="space-y-2">
-                        <h5 className="text-xs font-medium text-gray-700">Issue Date</h5>
+                        <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1">Issue Date</h5>
                         <div className="grid grid-cols-2 gap-2">
                             <Select label="Month" options={MONTH_OPTIONS} value={issueDate.month} onChange={(value) => handleDateUpdate("issueDate", value, issueDate.year)} placeholder="Month" className="text-sm" />
                             <Select label="Year" options={YEAR_OPTIONS} value={issueDate.year} onChange={(value) => handleDateUpdate("issueDate", issueDate.month, value)} placeholder="Year" className="text-sm" />
@@ -316,8 +316,8 @@ const CertificationEntry: React.FC<CertificationEntryProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <h5 className="text-xs font-medium text-gray-700">Expiration Date</h5>
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-1">
+                            <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Expiration Date</h5>
                             <label className="flex items-center gap-2">
                                 <input type="checkbox" checked={doesNotExpire} onChange={(e) => handleDoesNotExpireToggle(e.target.checked)} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                 <span className="text-xs text-gray-700">Does not expire</span>

@@ -210,8 +210,8 @@ const SkillTagInput: React.FC<SkillTagInputProps> = ({
 
     return (
         <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <h5 className="text-xs font-medium text-gray-700">Skills</h5>
+            <div className="flex items-center justify-between border-b border-gray-100 pb-1">
+                <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Skills</h5>
                 <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500">
                         {skills.length}/{maxSkills} skills
@@ -431,7 +431,7 @@ const SkillCategoryComponent: React.FC<SkillCategoryComponentProps> = ({
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-gray-900 truncate">
+                        <h4 className="text-xs font-bold text-gray-800 truncate">
                             {category.categoryName || "New Category"}
                         </h4>
                         <p className="text-xs text-gray-500">

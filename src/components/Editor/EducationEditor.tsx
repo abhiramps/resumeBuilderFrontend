@@ -168,8 +168,8 @@ const CourseworkManager: React.FC<CourseworkManagerProps> = ({
 
     return (
         <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <h5 className="text-xs font-medium text-gray-700">Relevant Coursework (Optional)</h5>
+            <div className="flex items-center justify-between border-b border-gray-100 pb-1">
+                <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Relevant Coursework (Optional)</h5>
                 <span className="text-xs text-gray-500">
                     {coursework.length}/{maxCourses}
                 </span>
@@ -336,7 +336,7 @@ const EducationEntry: React.FC<EducationEntryProps> = ({
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-gray-900 truncate">
+                        <h4 className="text-xs font-bold text-gray-800 truncate">
                             {education.degree || "New Education"}
                         </h4>
                         <p className="text-xs text-gray-500 truncate">
@@ -467,7 +467,7 @@ const EducationEntry: React.FC<EducationEntryProps> = ({
 
                     {/* Date Range */}
                     <div className="space-y-2">
-                        <h5 className="text-xs font-medium text-gray-700">Study Period</h5>
+                        <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1">Study Period</h5>
 
                         <div className="grid grid-cols-1 gap-3">
                             <div className="grid grid-cols-2 gap-2">

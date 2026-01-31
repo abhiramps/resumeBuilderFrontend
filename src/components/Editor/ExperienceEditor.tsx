@@ -163,8 +163,8 @@ const BulletPointManager: React.FC<BulletPointManagerProps> = ({
 
     return (
         <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <h5 className="text-xs font-medium text-gray-700">Responsibilities & Achievements</h5>
+            <div className="flex items-center justify-between border-b border-gray-100 pb-1.5">
+                <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Responsibilities & Achievements</h5>
                 <button
                     type="button"
                     onClick={addBulletPoint}
@@ -376,7 +376,7 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-gray-900 truncate">
+                        <h4 className="text-xs font-bold text-gray-800 truncate">
                             {experience.jobTitle || "New Experience"}
                         </h4>
                         <p className="text-xs text-gray-500 truncate">
@@ -528,7 +528,7 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
 
                     {/* Date Range */}
                     <div className="space-y-2">
-                        <h5 className="text-xs font-medium text-gray-700">Employment Period</h5>
+                        <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1">Employment Period</h5>
                         {validationErrors.dateRange && (
                             <p className="text-xs text-red-600">{validationErrors.dateRange}</p>
                         )}

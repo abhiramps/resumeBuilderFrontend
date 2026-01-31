@@ -317,7 +317,7 @@ export const SummaryEditor: React.FC<SummaryEditorProps> = ({
       <div className="space-y-4">
         {/* Header with Save Status */}
         <div className="flex items-center justify-between mb-1">
-            <h4 className="text-sm font-medium text-gray-700">Professional Summary</h4>
+            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Professional Summary</h4>
             <div className="flex items-center gap-3">
                  {/* Autosave Status Indicator */}
                 {saveStatus === "saving" && (

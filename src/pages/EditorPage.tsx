@@ -349,9 +349,9 @@ const EditorPageContent: React.FC = () => {
             <QuickStartTutorial resumeId={id} isNewResume={isNewResume} />
 
             {/* Header */}
-            <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-2 flex items-center justify-between gap-1 sm:gap-2 print:hidden sticky top-0 z-30 shadow-sm">
+            <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-1 sm:gap-2 print:hidden sticky top-0 z-30 shadow-sm">
                 <div className="flex items-center gap-1 sm:gap-4 min-w-0 flex-1">
-                    <Button variant="ghost" onClick={handleBack} className="p-1.5 sm:p-2 flex-shrink-0">
+                    <Button variant="ghost" size="sm" onClick={handleBack} className="p-1 sm:p-2 flex-shrink-0 active:scale-95 transition-transform">
                         <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                     </Button>
                     <div className="min-w-0 flex-1">
@@ -363,14 +363,14 @@ const EditorPageContent: React.FC = () => {
                                 onBlur={handleTitleBlur}
                                 onKeyDown={handleTitleKeyDown}
                                 autoFocus
-                                className="text-sm sm:text-lg font-semibold text-gray-900 border-b-2 border-blue-600 focus:outline-none bg-transparent px-1 w-full"
+                                className="text-xs sm:text-base font-semibold text-gray-900 border-b-2 border-blue-600 focus:outline-none bg-transparent px-1 w-full"
                             />
                         ) : (
                             <div className="flex items-center gap-1.5 cursor-pointer group min-w-0" onClick={handleTitleClick}>
-                                <h1 className="text-sm sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                                <h1 className="text-xs sm:text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
                                     {editedTitle || currentResume.title}
                                 </h1>
-                                <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
+                                <Edit2 className="w-2.5 h-2.5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
                             </div>
                         )}
                         <SaveStatusIndicator isSaving={isSaving} />
@@ -381,40 +381,42 @@ const EditorPageContent: React.FC = () => {
                      {/* Template Selector Toggle */}
                     <Button
                         variant="secondary"
+                        size="sm"
                         onClick={() => setShowTemplateSelector(!showTemplateSelector)}
-                        className={`p-1.5 sm:px-4 sm:py-2 ${showTemplateSelector ? 'bg-blue-50 text-blue-600 border-blue-200' : ''}`}
+                        className={`p-1.5 sm:px-4 sm:py-2 active:scale-95 transition-all ${showTemplateSelector ? 'bg-blue-50 text-blue-600 border-blue-200' : ''}`}
                         title="Change Template"
                     >
-                        <Layout className="w-4 h-4 sm:mr-2" />
+                        <Layout className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-2" />
                         <span className="hidden sm:inline">Template</span>
                     </Button>
 
                     {/* Desktop Right Sidebar Toggle */}
                     <Button
                         variant="secondary"
+                        size="sm"
                         onClick={() => setShowRightSidebar(!showRightSidebar)}
-                        className="hidden lg:flex p-1.5 sm:px-4 sm:py-2"
+                        className="hidden lg:flex p-1.5 sm:px-4 sm:py-2 active:scale-95 transition-transform"
                         title={showRightSidebar ? "Hide Settings" : "Show Settings"}
                     >
                         {showRightSidebar ? <PanelRightClose className="w-5 h-5" /> : <PanelRight className="w-5 h-5" />}
                     </Button>
 
-                    <Button variant="secondary" onClick={handleVersions} className="p-1.5 sm:px-4 sm:py-2 hidden sm:flex" title="History">
+                    <Button variant="secondary" size="sm" onClick={handleVersions} className="p-1.5 sm:px-4 sm:py-2 hidden sm:flex active:scale-95 transition-transform" title="History">
                         <History className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                         <span className="hidden lg:inline">Versions</span>
                     </Button>
 
-                    <Button variant="secondary" onClick={handleShare} className="p-1.5 sm:px-4 sm:py-2 hidden sm:flex" title="Share">
+                    <Button variant="secondary" size="sm" onClick={handleShare} className="p-1.5 sm:px-4 sm:py-2 hidden sm:flex active:scale-95 transition-transform" title="Share">
                         <Share2 className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                         <span className="hidden lg:inline">Share</span>
                     </Button>
 
-                    <Button variant="primary" onClick={handleSave} disabled={isSaving} className="p-1.5 sm:px-4 sm:py-2 flex-shrink-0">
+                    <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving} className="p-1.5 sm:px-4 sm:py-2 flex-shrink-0 active:scale-95 transition-transform">
                         {isSaving ? (
-                            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
+                            <div className="animate-spin rounded-full h-3.5 w-3.5 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                         ) : (
                             <>
-                                <Save className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                                <Save className="w-3.5 h-3.5 sm:w-5 sm:h-5 sm:mr-2" />
                                 <span className="hidden sm:inline">Save</span>
                             </>
                         )}
@@ -423,15 +425,16 @@ const EditorPageContent: React.FC = () => {
                     <div className="relative" ref={exportMenuRef}>
                         <Button
                             variant="secondary"
+                            size="sm"
                             onClick={() => setShowExportMenu(!showExportMenu)}
                             disabled={isExporting}
-                            className="p-1.5 sm:px-4 sm:py-2 flex-shrink-0"
+                            className="p-1.5 sm:px-4 sm:py-2 flex-shrink-0 active:scale-95 transition-transform"
                         >
                             {isExporting ? (
-                                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-blue-600"></div>
+                                <div className="animate-spin rounded-full h-3.5 w-3.5 sm:h-5 sm:w-5 border-b-2 border-blue-600"></div>
                             ) : (
                                 <>
-                                    <Download className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                                    <Download className="w-3.5 h-3.5 sm:w-5 sm:h-5 sm:mr-2" />
                                     <span className="hidden sm:inline">Export</span>
                                     <ChevronDown className="w-3 h-3 ml-0.5" />
                                 </>
@@ -509,31 +512,31 @@ const EditorPageContent: React.FC = () => {
                 </BottomSheet>
 
                 {/* Mobile Bottom Navigation */}
-                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 flex items-center justify-around z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] print:hidden safe-area-bottom">
-                    <Button
-                        variant="ghost"
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-1.5 flex items-center justify-around z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] print:hidden safe-area-bottom">
+                    <button
                         onClick={() => setActiveSheet('edit')}
-                        className={`flex flex-col items-center gap-1 h-auto py-2 ${activeSheet === 'edit' ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                        className={`flex flex-col items-center gap-1 flex-1 py-1 transition-all relative ${activeSheet === 'edit' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}
                     >
-                        <Edit2 className="w-5 h-5" />
-                        <span className="text-[10px] font-medium">Edit</span>
-                    </Button>
-                    <Button
-                        variant="ghost"
+                        {activeSheet === 'edit' && <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-b-full" />}
+                        <Edit2 className="w-4.5 h-4.5" />
+                        <span className="text-[9px] font-bold uppercase tracking-tight">Edit</span>
+                    </button>
+                    <button
                         onClick={() => setActiveSheet(null)}
-                        className={`flex flex-col items-center gap-1 h-auto py-2 ${activeSheet === null ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                        className={`flex flex-col items-center gap-1 flex-1 py-1 transition-all relative ${activeSheet === null ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}
                     >
-                        <Eye className="w-5 h-5" />
-                        <span className="text-[10px] font-medium">Preview</span>
-                    </Button>
-                    <Button
-                        variant="ghost"
+                        {activeSheet === null && <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-b-full" />}
+                        <Eye className="w-4.5 h-4.5" />
+                        <span className="text-[9px] font-bold uppercase tracking-tight">Preview</span>
+                    </button>
+                    <button
                         onClick={() => setActiveSheet('settings')}
-                        className={`flex flex-col items-center gap-1 h-auto py-2 ${activeSheet === 'settings' ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                        className={`flex flex-col items-center gap-1 flex-1 py-1 transition-all relative ${activeSheet === 'settings' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}
                     >
-                        <Settings className="w-5 h-5" />
-                        <span className="text-[10px] font-medium">Settings</span>
-                    </Button>
+                        {activeSheet === 'settings' && <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-b-full" />}
+                        <Settings className="w-4.5 h-4.5" />
+                        <span className="text-[9px] font-bold uppercase tracking-tight">Settings</span>
+                    </button>
                 </div>
             </div>
         </div>
