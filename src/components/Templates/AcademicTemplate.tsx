@@ -27,7 +27,7 @@ import {
  */
 export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
     (props, ref) => {
-        const { resume, layout, className = "", printMode = false } = props;
+        const { resume, layout, className = "", printMode = false, hideHeader = false } = props;
         const enabledSections = resume.sections
             .filter((section) => section.enabled)
             .sort((a, b) => a.order - b.order);
@@ -590,20 +590,22 @@ export const AcademicTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
                 className={`academic-template resume-preview ${className}`}
                 style={containerStyles}
             >
-                <header style={headerStyles}>
-                    <h1 style={nameStyles}>
-                        {resume.personalInfo?.fullName || "FIRSTNAME LASTNAME"}
-                    </h1>
-                    {renderContactInfo()}
-                </header>
+                {!hideHeader && (
+                    <header style={headerStyles}>
+                        <h1 style={nameStyles}>
+                            {resume.personalInfo?.fullName || "FIRSTNAME LASTNAME"}
+                        </h1>
+                        {renderContactInfo()}
+                    </header>
+                )}
 
                 {enabledSections.map((section) => {
                     const content = renderSectionContent(section);
                     if (!content) return null;
 
                     return (
-                        <section key={section.id} style={{ pageBreakInside: "auto" }}>
-                            <h2 style={sectionHeaderStyles}>{section.title}</h2>
+                        <section key={section.id} data-section-id={section.id} style={{ pageBreakInside: "auto" }}>
+                            {!section.hideTitle && <h2 style={sectionHeaderStyles}>{section.title}</h2>}
                             {content}
                         </section>
                     );

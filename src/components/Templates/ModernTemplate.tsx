@@ -27,7 +27,7 @@ import {
  */
 export const ModernTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
   (props, ref) => {
-    const { resume, layout, className = "", printMode = false } = props;
+    const { resume, layout, className = "", printMode = false, hideHeader = false } = props;
 
     const enabledSections = resume.sections
       .filter((section) => section.enabled)
@@ -773,25 +773,31 @@ export const ModernTemplate = forwardRef<HTMLDivElement, TemplateBaseProps>(
         className={`modern-template resume-preview ${className}`}
         style={containerStyles}
       >
-        <header style={headerStyles}>
-          <h1 style={nameStyles}>
-            {resume.personalInfo?.fullName || "Your Name"}
-          </h1>
+        {!hideHeader && (
+          <header style={headerStyles}>
+            <h1 style={nameStyles}>
+              {resume.personalInfo?.fullName || "Your Name"}
+            </h1>
 
-          {resume.personalInfo?.title && (
-            <p style={titleStyles}>{resume.personalInfo.title}</p>
-          )}
+            {resume.personalInfo?.title && (
+              <p style={titleStyles}>{resume.personalInfo.title}</p>
+            )}
 
-          <div style={contactStyles}>{renderContactInfo()}</div>
-        </header>
+            <div style={contactStyles}>{renderContactInfo()}</div>
+          </header>
+        )}
 
         {enabledSections.map((section) => {
           const content = renderSectionContent(section);
           if (!content) return null;
 
           return (
-            <section key={section.id} style={{ pageBreakInside: "auto" }}>
-              <h2 style={sectionHeaderStyles}>{section.title}</h2>
+            <section
+              key={section.id}
+              data-section-id={section.id}
+              style={{ pageBreakInside: "auto" }}
+            >
+              {!section.hideTitle && <h2 style={sectionHeaderStyles}>{section.title}</h2>}
               {content}
             </section>
           );

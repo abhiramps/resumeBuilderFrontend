@@ -73,8 +73,8 @@ const EditorPageContent: React.FC = () => {
     // Client-side print logic
     const pageStyle = `
         @page {
-            size: letter;
-            margin: ${resume.layout.pageMargins.top}in ${resume.layout.pageMargins.right}in ${resume.layout.pageMargins.bottom}in ${resume.layout.pageMargins.left}in;
+            size: A4 portrait;
+            margin: 0;
         }
         @media print {
             html, body {
@@ -549,13 +549,14 @@ const EditorPageContent: React.FC = () => {
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     onClick={() => handleExportOption('server')}
                                 >
-                                    Server Export (Beta)
+                                    Server Export (Stable)
                                 </button>
                                 <button
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    onClick={() => handleExportOption('client')}
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                    disabled
+                                    title="Client export is currently disabled"
                                 >
-                                    Client Export (Stable)
+                                    Client Export (Disabled)
                                 </button>
                             </div>
                         )}
