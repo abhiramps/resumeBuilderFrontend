@@ -3,6 +3,7 @@ import { ResumePreview } from "./ResumePreview";
 import { useResumeContext } from "../../contexts/ResumeContext";
 import { usePDFExportContext } from "../../contexts/PDFExportContext";
 import { useResumePagination } from "../../hooks/useResumePagination";
+import { ZoomIn, ZoomOut, Maximize } from "lucide-react";
 
 /**
  * Preview Container Component Props
@@ -88,80 +89,61 @@ export const PreviewContainer: React.FC<PreviewContainerProps> = ({
     <div className={`preview-container ${className}`}>
       {/* Controls Bar */}
       {showZoomControls && (
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 p-2 sm:p-3 bg-white rounded-lg border border-gray-200 shadow-sm print:hidden">
+        <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 p-2 sm:p-3 bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm print:hidden transition-all">
           {/* Zoom Controls */}
-          <div className="flex items-center space-x-1 sm:space-x-2">
-            <span className="hidden sm:inline text-sm font-medium text-gray-700">Zoom:</span>
+          <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto justify-between sm:justify-start">
+            <div className="flex items-center gap-2">
+                <span className="hidden sm:inline text-sm font-medium text-gray-700">Zoom:</span>
 
-            {/* Zoom Out Button */}
-            <button
-              onClick={zoomOut}
-              disabled={zoom <= zoomLevels[0]}
-              className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Zoom Out"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M20 12H4"
-                />
-              </svg>
-            </button>
+                {/* Zoom Out Button */}
+                <button
+                onClick={zoomOut}
+                disabled={zoom <= zoomLevels[0]}
+                className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Zoom Out"
+                >
+                <ZoomOut className="w-4 h-4 text-gray-600" />
+                </button>
 
-            {/* Zoom Level Selector */}
-            <select
-              value={zoom}
-              onChange={(e) => handleZoomChange(Number(e.target.value))}
-              className="px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              {zoomLevels.map((level) => (
-                <option key={level} value={level}>
-                  {level}%
-                </option>
-              ))}
-            </select>
+                {/* Zoom Level Selector */}
+                <select
+                value={zoom}
+                onChange={(e) => handleZoomChange(Number(e.target.value))}
+                className="px-1 sm:px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[60px]"
+                >
+                {zoomLevels.map((level) => (
+                    <option key={level} value={level}>
+                    {level}%
+                    </option>
+                ))}
+                </select>
 
-            {/* Zoom In Button */}
-            <button
-              onClick={zoomIn}
-              disabled={zoom >= zoomLevels[zoomLevels.length - 1]}
-              className="p-1.5 sm:p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Zoom In"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </button>
+                {/* Zoom In Button */}
+                <button
+                onClick={zoomIn}
+                disabled={zoom >= zoomLevels[zoomLevels.length - 1]}
+                className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Zoom In"
+                >
+                <ZoomIn className="w-4 h-4 text-gray-600" />
+                </button>
+            </div>
 
-            {/* Reset Zoom Button */}
-            <button
-              onClick={resetZoom}
-              className="px-1.5 sm:px-2 py-1 text-[10px] sm:text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded"
-              title="Reset Zoom"
-            >
-              Fit
-            </button>
-            
-            {isCalculating && (
-                 <span className="ml-2 text-xs text-gray-400 animate-pulse">Calculating layout...</span>
-            )}
+            <div className="flex items-center gap-2">
+                {/* Reset Zoom Button */}
+                <button
+                onClick={resetZoom}
+                className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                title="Fit to Screen"
+                >
+                <Maximize className="w-3 h-3" />
+                <span>Fit</span>
+                </button>
+                
+                {isCalculating && (
+                    <span className="hidden sm:inline text-xs text-gray-400 animate-pulse">Calculating...</span>
+                )}
+            </div>
           </div>
         </div>
       )}

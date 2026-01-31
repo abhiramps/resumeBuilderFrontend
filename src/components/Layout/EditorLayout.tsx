@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ResumeProvider } from "../../contexts/ResumeContext";
 import { PDFExportProvider } from "../../contexts/PDFExportContext";
 import Header from "./Header";
@@ -41,6 +42,8 @@ export const EditorLayout: React.FC<EditorLayoutProps> = ({
   children,
   className = "",
 }) => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   return (
     <ResumeProvider>
       <PDFExportProvider>
@@ -50,10 +53,26 @@ export const EditorLayout: React.FC<EditorLayoutProps> = ({
 
           {/* Main Content Area - Three Panel Layout */}
           <div className="flex-1 flex overflow-hidden">
-            {/* Left Sidebar - Section Editors (320px fixed) */}
-            <div className="hidden lg:block w-[320px] bg-gray-50 border-r border-gray-200 flex-shrink-0">
-              <div className="h-full overflow-y-auto">
-                <Sidebar />
+            {/* Left Sidebar - Section Editors (Dynamic width) */}
+            <div 
+              className={`hidden lg:flex flex-col bg-gray-50 border-r border-gray-200 flex-shrink-0 transition-all duration-300 ease-in-out relative ${
+                isSidebarCollapsed ? "w-[60px]" : "w-[320px]"
+              }`}
+            >
+              {/* Toggle Button */}
+              <button
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="absolute -right-3 top-3 bg-white border border-gray-200 rounded-full p-1 shadow-md z-50 hover:bg-gray-50 transition-colors text-gray-500 hover:text-primary"
+                title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              >
+                {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+              </button>
+
+              <div className="h-full overflow-hidden">
+                <Sidebar 
+                  isCollapsed={isSidebarCollapsed} 
+                  onExpand={() => setIsSidebarCollapsed(false)} 
+                />
               </div>
             </div>
 
@@ -155,7 +174,7 @@ export const MobileEditorLayout: React.FC<EditorLayoutProps> = ({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="h-full overflow-y-auto">
-                    <Sidebar />
+                    <Sidebar isCollapsed={false} />
                   </div>
                 </div>
               </div>
