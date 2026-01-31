@@ -13,6 +13,8 @@ export interface TemplateBaseProps {
   className?: string;
   /** Whether to render in print mode */
   printMode?: boolean;
+  /** Whether to hide the header (personal info) - useful for subsequent pages */
+  hideHeader?: boolean;
 }
 
 /**

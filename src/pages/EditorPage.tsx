@@ -73,8 +73,8 @@ const EditorPageContent: React.FC = () => {
     // Client-side print logic
     const pageStyle = `
         @page {
-            size: letter;
-            margin: ${resume.layout.pageMargins.top}in ${resume.layout.pageMargins.right}in ${resume.layout.pageMargins.bottom}in ${resume.layout.pageMargins.left}in;
+            size: A4 portrait;
+            margin: 0;
         }
         @media print {
             html, body {

@@ -18,6 +18,8 @@ export interface ResumePreviewProps {
   className?: string;
   /** Whether to show print-specific styling */
   printMode?: boolean;
+  /** Whether to hide the header */
+  hideHeader?: boolean;
 }
 
 /**
@@ -35,7 +37,7 @@ export interface ResumePreviewProps {
  */
 const ResumePreviewComponent = forwardRef<HTMLDivElement, ResumePreviewProps>(
   (props, ref) => {
-    const { resume, className = "", printMode = false } = props;
+    const { resume, className = "", printMode = false, hideHeader = false } = props;
 
     // Safety check: ensure resume has required properties
     if (!resume || !resume.layout) {
@@ -52,6 +54,7 @@ const ResumePreviewComponent = forwardRef<HTMLDivElement, ResumePreviewProps>(
       layout: resume.layout,
       printMode,
       className,
+      hideHeader,
     };
 
     switch (resume.template) {

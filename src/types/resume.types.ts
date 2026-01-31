@@ -141,6 +141,8 @@ export interface ResumeSection {
   title: string;
   enabled: boolean;
   order: number;
+  /** Optional: Hide the section title (used for pagination split) */
+  hideTitle?: boolean;
   content:
   | { summary: string }
   | { experiences: WorkExperience[] }
