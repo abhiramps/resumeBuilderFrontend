@@ -1,15 +1,43 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { 
+  ChevronDown, 
+  ChevronRight, 
+  User, 
+  FileText, 
+  Briefcase, 
+  FolderGit2, 
+  Cpu, 
+  GraduationCap, 
+  Award, 
+  Layers, 
+  Wand2 
+} from "lucide-react";
 import { useResume } from "../../contexts/ResumeContext";
 import { SummaryEditor, ExperienceEditor, ProjectsEditor, SkillsEditor, EducationEditor, CertificationsEditor, SectionManager, KeywordOptimizer } from "../Editor";
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isCollapsed: boolean;
+  onExpand?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onExpand }) => {
   const { resume, dispatch } = useResume();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(["sectionManager", "personalInfo", "keywordOptimizer"])
   );
 
   const toggleSection = (sectionId: string) => {
+    if (isCollapsed && onExpand) {
+      onExpand();
+      // If expanding from collapsed state, ensure the clicked section opens
+      setExpandedSections((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(sectionId);
+        return newSet;
+      });
+      return;
+    }
+
     setExpandedSections((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(sectionId)) {
@@ -24,31 +52,40 @@ const Sidebar: React.FC = () => {
   const isSectionExpanded = (sectionId: string) => expandedSections.has(sectionId);
 
   return (
-    <div className="h-full flex flex-col overflow-y-auto custom-scrollbar">
+    <div className={`h-full flex flex-col overflow-y-auto custom-scrollbar transition-all duration-300 ${isCollapsed ? "items-center" : ""}`}>
       {/* Keyword Optimizer - Collapsible */}
-      <div className="border-b border-gray-200">
-        <div className="px-4 py-4">
-          <KeywordOptimizer />
-        </div>
+      <div className="border-b border-gray-200 w-full">
+        {isCollapsed ? (
+          <div className="p-4 flex justify-center cursor-pointer hover:bg-gray-100" onClick={onExpand} title="Keyword Optimizer">
+            <Wand2 className="w-5 h-5 text-primary" />
+          </div>
+        ) : (
+          <div className="px-4 py-4">
+            <KeywordOptimizer />
+          </div>
+        )}
       </div>
 
       {/* Section Manager - Collapsible */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 w-full">
         <button
           onClick={() => toggleSection("sectionManager")}
-          className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+          title={isCollapsed ? "Section Manager" : ""}
         >
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center">
-            <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
-            Section Manager
-          </h3>
-          {isSectionExpanded("sectionManager") ? (
-            <ChevronDown className="w-4 h-4 text-gray-500" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-gray-500" />
+          <div className="flex items-center">
+            <Layers className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+            {!isCollapsed && <h3 className="text-sm font-semibold text-gray-900">Section Manager</h3>}
+          </div>
+          {!isCollapsed && (
+            isSectionExpanded("sectionManager") ? (
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-gray-500" />
+            )
           )}
         </button>
-        {isSectionExpanded("sectionManager") && (
+        {!isCollapsed && isSectionExpanded("sectionManager") && (
           <div className="px-4 pb-4 bg-gray-50/50">
             <SectionManager />
           </div>
@@ -56,24 +93,27 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* Section Editors */}
-      <div className="flex-1">
+      <div className="flex-1 w-full">
         {/* Personal Information Editor - Collapsible */}
         <div className="border-b border-gray-200">
           <button
             onClick={() => toggleSection("personalInfo")}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+            className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+            title={isCollapsed ? "Personal Information" : ""}
           >
-            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-              Personal Information
-            </h4>
-            {isSectionExpanded("personalInfo") ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center">
+              <User className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+              {!isCollapsed && <h4 className="text-sm font-semibold text-gray-900">Personal Information</h4>}
+            </div>
+            {!isCollapsed && (
+              isSectionExpanded("personalInfo") ? (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              )
             )}
           </button>
-          {isSectionExpanded("personalInfo") && (
+          {!isCollapsed && isSectionExpanded("personalInfo") && (
             <div className="px-4 pb-4 space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-2">
@@ -172,19 +212,22 @@ const Sidebar: React.FC = () => {
         <div className="border-b border-gray-200">
           <button
             onClick={() => toggleSection("summary")}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+            className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+            title={isCollapsed ? "Professional Summary" : ""}
           >
-            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-              Professional Summary
-            </h4>
-            {isSectionExpanded("summary") ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center">
+              <FileText className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+              {!isCollapsed && <h4 className="text-sm font-semibold text-gray-900">Professional Summary</h4>}
+            </div>
+            {!isCollapsed && (
+              isSectionExpanded("summary") ? (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              )
             )}
           </button>
-          {isSectionExpanded("summary") && (
+          {!isCollapsed && isSectionExpanded("summary") && (
             <div className="px-4 pb-4">
               <SummaryEditor />
             </div>
@@ -195,19 +238,22 @@ const Sidebar: React.FC = () => {
         <div className="border-b border-gray-200">
           <button
             onClick={() => toggleSection("experience")}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+            className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+            title={isCollapsed ? "Work Experience" : ""}
           >
-            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-              Work Experience
-            </h4>
-            {isSectionExpanded("experience") ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center">
+              <Briefcase className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+              {!isCollapsed && <h4 className="text-sm font-semibold text-gray-900">Work Experience</h4>}
+            </div>
+            {!isCollapsed && (
+              isSectionExpanded("experience") ? (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              )
             )}
           </button>
-          {isSectionExpanded("experience") && (
+          {!isCollapsed && isSectionExpanded("experience") && (
             <div className="px-4 pb-4">
               <ExperienceEditor />
             </div>
@@ -218,19 +264,22 @@ const Sidebar: React.FC = () => {
         <div className="border-b border-gray-200">
           <button
             onClick={() => toggleSection("projects")}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+            className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+            title={isCollapsed ? "Projects" : ""}
           >
-            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-              Projects
-            </h4>
-            {isSectionExpanded("projects") ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center">
+              <FolderGit2 className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+              {!isCollapsed && <h4 className="text-sm font-semibold text-gray-900">Projects</h4>}
+            </div>
+            {!isCollapsed && (
+              isSectionExpanded("projects") ? (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              )
             )}
           </button>
-          {isSectionExpanded("projects") && (
+          {!isCollapsed && isSectionExpanded("projects") && (
             <div className="px-4 pb-4">
               <ProjectsEditor />
             </div>
@@ -241,19 +290,22 @@ const Sidebar: React.FC = () => {
         <div className="border-b border-gray-200">
           <button
             onClick={() => toggleSection("skills")}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+            className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+            title={isCollapsed ? "Technical Skills" : ""}
           >
-            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-              Technical Skills
-            </h4>
-            {isSectionExpanded("skills") ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center">
+              <Cpu className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+              {!isCollapsed && <h4 className="text-sm font-semibold text-gray-900">Technical Skills</h4>}
+            </div>
+            {!isCollapsed && (
+              isSectionExpanded("skills") ? (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              )
             )}
           </button>
-          {isSectionExpanded("skills") && (
+          {!isCollapsed && isSectionExpanded("skills") && (
             <div className="px-4 pb-4">
               <SkillsEditor />
             </div>
@@ -264,19 +316,22 @@ const Sidebar: React.FC = () => {
         <div className="border-b border-gray-200">
           <button
             onClick={() => toggleSection("education")}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+            className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+            title={isCollapsed ? "Education" : ""}
           >
-            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-              Education
-            </h4>
-            {isSectionExpanded("education") ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center">
+              <GraduationCap className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+              {!isCollapsed && <h4 className="text-sm font-semibold text-gray-900">Education</h4>}
+            </div>
+            {!isCollapsed && (
+              isSectionExpanded("education") ? (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              )
             )}
           </button>
-          {isSectionExpanded("education") && (
+          {!isCollapsed && isSectionExpanded("education") && (
             <div className="px-4 pb-4">
               <EducationEditor />
             </div>
@@ -287,19 +342,22 @@ const Sidebar: React.FC = () => {
         <div className="border-b border-gray-200">
           <button
             onClick={() => toggleSection("certifications")}
-            className="w-full p-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+            className={`w-full p-4 flex items-center ${isCollapsed ? "justify-center" : "justify-between"} hover:bg-gray-100 transition-colors`}
+            title={isCollapsed ? "Certifications" : ""}
           >
-            <h4 className="text-sm font-semibold text-gray-900 flex items-center">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></div>
-              Certifications
-            </h4>
-            {isSectionExpanded("certifications") ? (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center">
+              <Award className={`w-5 h-5 ${isCollapsed ? "text-gray-600" : "text-primary mr-3"}`} />
+              {!isCollapsed && <h4 className="text-sm font-semibold text-gray-900">Certifications</h4>}
+            </div>
+            {!isCollapsed && (
+              isSectionExpanded("certifications") ? (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-500" />
+              )
             )}
           </button>
-          {isSectionExpanded("certifications") && (
+          {!isCollapsed && isSectionExpanded("certifications") && (
             <div className="px-4 pb-4">
               <CertificationsEditor />
             </div>
