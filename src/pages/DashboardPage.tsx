@@ -288,7 +288,13 @@ export const DashboardPage: React.FC = () => {
                         )}
 
                         {/* Import Button */}
-                        <Button variant="secondary" onClick={handleImportResume} className="text-xs sm:text-sm">
+                        <Button 
+                            variant="secondary" 
+                            onClick={handleImportResume} 
+                            className="text-xs sm:text-sm"
+                            disabled={true}
+                            title="Import is currently disabled"
+                        >
                             <Upload className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                             <span className="hidden sm:inline">Import</span>
                         </Button>
