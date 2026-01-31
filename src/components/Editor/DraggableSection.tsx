@@ -49,7 +49,7 @@ export const DraggableSection: React.FC<DraggableSectionProps> = ({
                 <button
                     {...attributes}
                     {...listeners}
-                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded transition-colors"
+                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded transition-colors touch-none"
                     aria-label="Drag to reorder section"
                 >
                     <GripVertical className="w-5 h-5 text-gray-400" />
