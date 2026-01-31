@@ -181,8 +181,8 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
               className="fixed inset-0 flex items-center justify-center p-4"
               style={{ zIndex: 9999, pointerEvents: "none" }}
             >
-              <div className="pointer-events-auto">
-                <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+              <div className="pointer-events-auto w-full flex justify-center">
+                <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden">
                   {/* Header */}
                   <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
                     <div>
@@ -202,8 +202,8 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                   </div>
 
                   {/* Templates Grid */}
-                  <div className="p-6 overflow-y-auto flex-1">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-3 sm:p-6 overflow-y-auto flex-1 bg-gray-50/50">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                       {Object.values(TEMPLATE_INFO).map((template) => {
                         const isSelected = selectedTemplate === template.id;
                         const isCurrent = currentTemplate === template.id;
@@ -212,80 +212,90 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                           <div
                             key={template.id}
                             onClick={() => handleTemplateSelect(template.id)}
-                            className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${isSelected
-                                ? "border-blue-500 bg-blue-50"
+                            className={`relative border rounded-xl p-2 sm:p-3 cursor-pointer transition-all duration-200 group hover:shadow-md ${
+                              isSelected
+                                ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500"
                                 : isCurrent
-                                  ? "border-green-500 bg-green-50"
-                                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                              }`}
+                                ? "border-green-500 bg-green-50/50 ring-1 ring-green-500"
+                                : "border-gray-200 bg-white hover:border-blue-300 hover:bg-gray-50"
+                            }`}
                           >
                             {/* Current Badge */}
                             {isCurrent && (
-                              <div className="absolute top-2 right-2 px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded">
-                                Current
+                              <div className="absolute top-1 right-1 sm:top-2 sm:right-2 px-1 sm:px-1.5 py-0.5 bg-green-500 text-white text-[8px] sm:text-[10px] uppercase tracking-wider font-bold rounded shadow-sm z-10">
+                                <span className="hidden sm:inline">Current</span>
+                                <span className="sm:hidden">Active</span>
                               </div>
                             )}
 
                             {/* Selected Indicator */}
                             {isSelected && (
-                              <div className="absolute top-2 right-2 p-1 bg-blue-500 rounded-full">
-                                <Check className="h-4 w-4 text-white" />
+                              <div className="absolute top-1 right-1 sm:top-2 sm:right-2 p-0.5 sm:p-1 bg-blue-500 rounded-full shadow-sm z-10">
+                                <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                               </div>
                             )}
 
                             {/* Template Preview */}
-                            <div className="h-40 rounded-lg mb-3 overflow-hidden border-2 border-gray-200 bg-white shadow-sm">
+                            <div className="h-24 sm:h-32 rounded-lg mb-2 sm:mb-3 overflow-hidden border border-gray-200 bg-white shadow-sm relative group-hover:shadow-inner transition-shadow">
                               <TemplateThumbnail
                                 templateType={template.id}
-                                className="w-full h-full"
+                                className="w-full h-full transform transition-transform duration-500 group-hover:scale-105"
                               />
                             </div>
 
                             {/* Template Info */}
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <h3 className="font-bold text-gray-900">
+                            <div className="space-y-1 sm:space-y-2">
+                              <div className="flex items-center justify-between gap-1">
+                                <h3 className="font-bold text-gray-900 text-[11px] sm:text-sm truncate">
                                   {template.name}
                                 </h3>
-                                <div className="flex items-center space-x-1">
-                                  <span className="text-xs font-semibold text-gray-600">
-                                    ATS:
+                                <div className="flex items-center space-x-0.5 sm:space-x-1 bg-white px-1 py-0.5 rounded border border-gray-100 flex-shrink-0">
+                                  <span className="text-[8px] sm:text-[10px] font-semibold text-gray-500">
+                                    ATS
                                   </span>
                                   <span
-                                    className={`text-xs font-bold ${template.atsScore >= 95
+                                    className={`text-[8px] sm:text-[10px] font-bold ${
+                                      template.atsScore >= 95
                                         ? "text-green-600"
                                         : template.atsScore >= 90
-                                          ? "text-blue-600"
-                                          : "text-yellow-600"
-                                      }`}
+                                        ? "text-blue-600"
+                                        : "text-yellow-600"
+                                    }`}
                                   >
-                                    {template.atsScore}/100
+                                    {template.atsScore}
                                   </span>
                                 </div>
                               </div>
 
-                              <p className="text-sm text-gray-600">
+                              <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-1 sm:line-clamp-2 min-h-[1.2em] sm:min-h-[2.5em]">
                                 {template.description}
                               </p>
 
-                              <div className="pt-2 border-t border-gray-200">
-                                <p className="text-xs font-semibold text-gray-700 mb-1">
-                                  Best For:
-                                </p>
-                                <p className="text-xs text-gray-600">
-                                  {template.bestFor}
-                                </p>
-                              </div>
-
-                              <div className="flex flex-wrap gap-1">
-                                {template.features.map((feature, index) => (
-                                  <span
-                                    key={index}
-                                    className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
-                                  >
-                                    {feature}
+                              <div className="pt-1.5 sm:pt-2 border-t border-gray-100">
+                                <div className="flex items-baseline gap-1 mb-1 sm:mb-1.5">
+                                  <span className="hidden sm:inline text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
+                                    Best For
                                   </span>
-                                ))}
+                                  <span className="text-[9px] sm:text-xs text-gray-700 line-clamp-1">
+                                    {template.bestFor}
+                                  </span>
+                                </div>
+                                
+                                <div className="hidden sm:flex flex-wrap gap-1">
+                                  {template.features.slice(0, 3).map((feature, index) => (
+                                    <span
+                                      key={index}
+                                      className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded border border-gray-200"
+                                    >
+                                      {feature}
+                                    </span>
+                                  ))}
+                                  {template.features.length > 3 && (
+                                    <span className="px-1.5 py-0.5 text-gray-400 text-[10px]">
+                                      +{template.features.length - 3}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
