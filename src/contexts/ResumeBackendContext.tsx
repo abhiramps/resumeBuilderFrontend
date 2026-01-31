@@ -54,7 +54,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
             const resume = await resumeService.getResume(id);
             setCurrentResume(resume);
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error?.message || 'Failed to load resume';
+            const errorMessage = err.message || 'Failed to load resume';
             setError(errorMessage);
             throw new Error(errorMessage);
         } finally {
@@ -74,7 +74,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
             const updated = await resumeService.updateResume(currentResume.id, data);
             setCurrentResume(updated);
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error?.message || 'Failed to save resume';
+            const errorMessage = err.message || 'Failed to save resume';
             setError(errorMessage);
             console.error('Save failed:', err);
             throw new Error(errorMessage);
@@ -95,7 +95,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
             setResumes((prev) => [resume, ...prev]);
             return resume;
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error?.message || 'Failed to create resume';
+            const errorMessage = err.message || 'Failed to create resume';
             setError(errorMessage);
             throw new Error(errorMessage);
         } finally {
@@ -120,7 +120,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
             // Remove from list
             setResumes((prev) => prev.filter((r) => r.id !== id));
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error?.message || 'Failed to delete resume';
+            const errorMessage = err.message || 'Failed to delete resume';
             setError(errorMessage);
             throw new Error(errorMessage);
         } finally {
@@ -139,7 +139,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
             setResumes((prev) => [duplicated, ...prev]);
             return duplicated;
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error?.message || 'Failed to duplicate resume';
+            const errorMessage = err.message || 'Failed to duplicate resume';
             setError(errorMessage);
             throw new Error(errorMessage);
         } finally {
@@ -158,7 +158,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
             setResumes(response.data);
             setPagination(response.pagination);
         } catch (err: any) {
-            const errorMessage = err.response?.data?.error?.message || 'Failed to load resumes';
+            const errorMessage = err.message || 'Failed to load resumes';
             setError(errorMessage);
             throw new Error(errorMessage);
         } finally {
