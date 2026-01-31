@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Eye, EyeOff, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { ResumeSection } from '../../types/resume.types';
+import { SectionIcon } from './SectionIcon';
 
 interface DraggableSectionProps {
     section: ResumeSection;
@@ -40,10 +41,10 @@ export const DraggableSection: React.FC<DraggableSectionProps> = ({
             ref={setNodeRef}
             style={style}
             className={`bg-white rounded-lg border ${isDragging ? 'border-blue-500 shadow-lg' : 'border-gray-200'
-                } mb-4`}
+                } mb-4 transition-all duration-200 ease-in-out`}
         >
             {/* Section Header with Drag Handle */}
-            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
+            <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-lg group">
                 {/* Drag Handle */}
                 <button
                     {...attributes}
@@ -54,10 +55,15 @@ export const DraggableSection: React.FC<DraggableSectionProps> = ({
                     <GripVertical className="w-5 h-5 text-gray-400" />
                 </button>
 
+                {/* Section Icon */}
+                <div className="text-gray-500">
+                    <SectionIcon type={section.type} className="w-5 h-5" />
+                </div>
+
                 {/* Section Title - Clickable to collapse/expand */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="flex-1 text-left font-semibold text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-2"
+                    className="flex-1 text-left font-semibold text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-2 ml-1"
                 >
                     {section.title}
                     {isCollapsed ? (
