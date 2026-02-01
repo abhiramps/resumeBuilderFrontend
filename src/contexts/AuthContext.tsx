@@ -135,15 +135,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           fullName,
         });
 
-        // If email verification is required, don't set user state or store tokens
-        // Instead, set pending verification email so the UI can show the verification banner
-        if (response.requiresEmailVerification || !response.session) {
-          setPendingVerification(email);
-          // Don't set user state - this prevents redirect to dashboard
-          return;
-        }
+        // DEFERRED VERIFICATION:
+        // We now allow login immediately. 
+        // Verification status is tracked via user.isEmailVerified
 
-        // Only set user state if we have a valid session and email is verified
         if (response.user && response.session) {
           setUser(response.user);
         }
@@ -209,7 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setError(null);
       const response = await fetch(
-        `${API_CONFIG.BASE_URL}/verification/resend`,
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.RESEND_VERIFICATION}`,
         {
           method: "POST",
           headers: {
@@ -264,7 +259,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   /**
    * Check if email is verified
    */
-  const isEmailVerified = !!(user?.email_confirmed_at || user?.confirmed_at);
+  const isEmailVerified = !!(
+      user?.email_confirmed_at || 
+      user?.confirmed_at || 
+      user?.isEmailVerified === true
+  );
 
   const value: AuthContextType = {
     user,

@@ -19,6 +19,8 @@ export const API_CONFIG = {
             GITHUB: '/auth/oauth/github',
             CALLBACK: '/auth/oauth/callback',
             RESET_PASSWORD: '/auth/reset-password',
+            VERIFY: '/auth/verify',
+            RESEND_VERIFICATION: '/auth/verification/resend',
         },
 
         // User

@@ -21,6 +21,7 @@ export interface User {
     avatarUrl?: string;
     email_confirmed_at?: string | null;
     confirmed_at?: string | null;
+    isEmailVerified?: boolean; // From backend profile
 }
 
 /**
