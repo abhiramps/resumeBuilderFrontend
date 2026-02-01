@@ -203,7 +203,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
 
                   {/* Templates Grid */}
                   <div className="p-3 sm:p-6 overflow-y-auto flex-1 bg-gray-50/50">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                       {Object.values(TEMPLATE_INFO).map((template) => {
                         const isSelected = selectedTemplate === template.id;
                         const isCurrent = currentTemplate === template.id;

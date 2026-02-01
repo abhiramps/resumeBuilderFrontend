@@ -70,7 +70,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
             {/* Sheet */}
             <div 
-                className={`bg-white rounded-t-2xl shadow-xl w-full max-h-[85vh] flex flex-col z-10 ${
+                className={`bg-white rounded-t-2xl shadow-xl w-full max-h-[92vh] flex flex-col z-10 ${
                     isAnimatingOut 
                         ? 'translate-y-full transition-transform duration-300 ease-in' 
                         : 'animate-slide-up'
@@ -95,7 +95,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
                 {/* Content */}
                 <div 
-                    className="overflow-y-auto flex-1 p-4 pb-safe-area"
+                    className="flex-1 pb-safe-area min-h-0"
                 >
                     {children}
                 </div>

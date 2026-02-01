@@ -380,6 +380,7 @@ const EditorPageContent: React.FC = () => {
                 <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                      {/* Template Selector Toggle */}
                     <Button
+                        data-tutorial="template-selector"
                         variant="secondary"
                         size="sm"
                         onClick={() => setShowTemplateSelector(!showTemplateSelector)}
@@ -424,6 +425,7 @@ const EditorPageContent: React.FC = () => {
 
                     <div className="relative" ref={exportMenuRef}>
                         <Button
+                            data-tutorial="export-button"
                             variant="secondary"
                             size="sm"
                             onClick={() => setShowExportMenu(!showExportMenu)}
@@ -462,7 +464,7 @@ const EditorPageContent: React.FC = () => {
             )}
 
             {showTemplateSelector && (
-                <div className="bg-white border-b border-gray-200 px-4 py-4 flex justify-center print:hidden shadow-inner">
+                <div className="bg-white border-b border-gray-200 p-2 sm:p-4 flex justify-center print:hidden shadow-inner">
                     <TemplateSelector
                         currentTemplate={resume.template || 'modern'}
                         onTemplateChange={(template) => dispatch({ type: 'SET_TEMPLATE', payload: template })}
@@ -495,6 +497,7 @@ const EditorPageContent: React.FC = () => {
 
                 {/* Desktop Right Panel (Settings) */}
                 <div 
+                    data-tutorial="layout-controls"
                     className={`hidden lg:block bg-white border-l border-gray-200 overflow-y-auto print:hidden transition-all duration-300 ease-in-out ${
                         showRightSidebar ? 'w-80 opacity-100' : 'w-0 opacity-0 overflow-hidden border-none'
                     }`}
