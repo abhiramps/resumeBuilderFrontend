@@ -87,21 +87,25 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
 
   /**
    * Check if the personal info is valid for saving to backend
+   * Relaxed validation to allow saving incomplete drafts
    */
   const isPersonalInfoValid = (info: PersonalInfo): boolean => {
-    // Check required fields
-    if (!info.fullName.trim()) return false;
-    if (!info.title.trim()) return false;
-    if (!info.location.trim()) return false;
+    // Only check for format validity, allow empty required fields for draft saving
+    
+    // Check formatted fields if provided
+    if (info.email && info.email.trim()) {
+      if (!emailRegex.test(info.email)) return false;
+    }
 
-    // Check formatted fields
-    if (validateEmail(info.email)) return false;
-    if (validatePhone(info.phone)) return false;
+    if (info.phone && info.phone.trim()) {
+      const cleanPhone = info.phone.replace(/[\s\-\(\)]/g, "");
+      if (!phoneRegex.test(cleanPhone)) return false;
+    }
 
     // Check optional URLs
-    if (info.linkedin && validateUrl(info.linkedin, "LinkedIn")) return false;
-    if (info.github && validateUrl(info.github, "GitHub")) return false;
-    if (info.portfolio && validateUrl(info.portfolio, "Portfolio")) return false;
+    if (info.linkedin && !urlRegex.test(info.linkedin)) return false;
+    if (info.github && !urlRegex.test(info.github)) return false;
+    if (info.portfolio && !urlRegex.test(info.portfolio)) return false;
 
     return true;
   };
@@ -338,7 +342,7 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
 
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 mb-4 ${className}`}>
+    <div data-tutorial="personal-info" className={`bg-white rounded-lg border border-gray-200 mb-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
         {/* Title - Clickable to collapse/expand */}
