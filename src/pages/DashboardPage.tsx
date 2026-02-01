@@ -10,8 +10,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/UI/Button';
 import { Input } from '../components/UI/Input';
 import { ImportExportModal } from '../components/UI/ImportExportModal';
+import { EmailVerificationBanner } from '../components/UI/EmailVerificationBanner';
 import { SkeletonCardGrid } from '../components/UI/SkeletonCard';
-import { Plus, Search, FileText, Copy, Trash2, Share2, MoreVertical, Download, Upload, CheckSquare, User, LogOut } from 'lucide-react';
+import { Plus, Search, FileText, Copy, Trash2, Share2, MoreVertical, Download, Upload, CheckSquare, User, LogOut, Lock } from 'lucide-react';
 import { defaultSections } from '../constants/defaultResume';
 import type { ResumeResponse, ResumeContent } from '../types/api.types';
 import { TemplateThumbnail } from '../components/Templates/TemplateThumbnail';
@@ -19,7 +20,7 @@ import { TemplateType } from '../types/resume.types';
 
 export const DashboardPage: React.FC = () => {
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const { user, logout, isEmailVerified } = useAuth();
     const {
         resumes,
         isLoading,
@@ -34,6 +35,7 @@ export const DashboardPage: React.FC = () => {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [showImportExportModal, setShowImportExportModal] = useState(false);
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
     const [selectedResume, setSelectedResume] = useState<ResumeResponse | null>(null);
     const [bulkSelectMode, setBulkSelectMode] = useState(false);
     const [selectedResumes, setSelectedResumes] = useState<Set<string>>(new Set());
@@ -146,6 +148,11 @@ export const DashboardPage: React.FC = () => {
     };
 
     const handleExportResume = (resume: ResumeResponse) => {
+        if (!isEmailVerified) {
+            setShowVerificationModal(true);
+            setActiveMenu(null);
+            return;
+        }
         setSelectedResume(resume);
         setShowImportExportModal(true);
         setActiveMenu(null);
@@ -158,6 +165,10 @@ export const DashboardPage: React.FC = () => {
 
     const handleBulkExport = () => {
         if (selectedResumes.size === 0) return;
+        if (!isEmailVerified) {
+            setShowVerificationModal(true);
+            return;
+        }
         setShowImportExportModal(true);
     };
 
@@ -221,6 +232,58 @@ export const DashboardPage: React.FC = () => {
                     </div>
                 </div>
             </header>
+
+            {/* Verification Banner */}
+            {!isEmailVerified && user && (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                    <EmailVerificationBanner 
+                        email={user.email} 
+                        className="rounded-lg shadow-sm"
+                    />
+                </div>
+            )}
+
+            {/* Verification Required Modal */}
+            {showVerificationModal && user && (
+                 <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setShowVerificationModal(false)}></div>
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                        <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                            <div className="sm:flex sm:items-start">
+                                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                    <Lock className="h-6 w-6 text-blue-600" />
+                                </div>
+                                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                        Verification Required
+                                    </h3>
+                                    <div className="mt-2">
+                                        <p className="text-sm text-gray-500">
+                                            To prevent spam and ensure quality, please verify your email address to export resumes.
+                                        </p>
+                                        <div className="mt-4">
+                                            <EmailVerificationBanner 
+                                                email={user.email} 
+                                                className="rounded-md border-0 bg-blue-50"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setShowVerificationModal(false)}
+                                    className="w-full sm:w-auto"
+                                >
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
