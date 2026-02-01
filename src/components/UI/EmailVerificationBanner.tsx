@@ -4,8 +4,9 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from './Button';
-import { Input } from './Input';
+// import { Button } from './Button';
+// import { Input } from './Input';
+import { API_CONFIG } from '../../config/api.config';
 
 interface EmailVerificationBannerProps {
     /** User's email address */
@@ -22,6 +23,7 @@ interface EmailVerificationBannerProps {
     className?: string;
 }
 
+/*
 interface ResendState {
     isLoading: boolean;
     lastSentAt: number | null;
@@ -29,15 +31,17 @@ interface ResendState {
     success: string | null;
     nextAttemptAt: number | null;
 }
+*/
 
 export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = ({
-    email,
-    onChangeEmail,
+    // email,
+    // onChangeEmail,
     onVerificationComplete,
-    onDismiss,
-    allowDismiss = false,
-    className = '',
+    // onDismiss,
+    // allowDismiss = false,
+    // className = '',
 }) => {
+    /*
     const [resendState, setResendState] = useState<ResendState>({
         isLoading: false,
         lastSentAt: null,
@@ -45,17 +49,18 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
         success: null,
         nextAttemptAt: null,
     });
+    */
     const [isPolling, setIsPolling] = useState(false);
-    const [showChangeEmail, setShowChangeEmail] = useState(false);
-    const [newEmail, setNewEmail] = useState('');
+    // const [showChangeEmail, setShowChangeEmail] = useState(false);
+    // const [newEmail, setNewEmail] = useState('');
 
     // Check verification status
     const checkVerificationStatus = useCallback(async () => {
         try {
-            const response = await fetch(`/api/verification/status?email=${encodeURIComponent(email)}`);
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.SESSION}`);
             if (response.ok) {
                 const data = await response.json();
-                if (data.verified) {
+                if (data.user?.isEmailVerified) {
                     onVerificationComplete?.();
                     return true;
                 }
@@ -64,7 +69,7 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
             console.error('Failed to check verification status:', error);
         }
         return false;
-    }, [email, onVerificationComplete]);
+    }, [onVerificationComplete]);
 
     // Poll for verification status every 30 seconds
     useEffect(() => {
@@ -85,12 +90,13 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
         return () => setIsPolling(false);
     }, []);
 
+    /*
     // Handle resend verification email
     const handleResendEmail = async () => {
         setResendState(prev => ({ ...prev, isLoading: true, error: null, success: null }));
 
         try {
-            const response = await fetch('/api/verification/resend', {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.RESEND_VERIFICATION}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,131 +165,20 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
 
     const timeUntilNextResend = getTimeUntilNextResend();
     const canResend = timeUntilNextResend === 0 && !resendState.isLoading;
+    */
 
+    // TEMPORARY: Disable verification banner for all users as requested
+    return null;
+
+    /* Original Banner Logic - Commented out for now
     return (
         <div className={`bg-blue-50 border-l-4 border-blue-400 p-4 ${className}`}>
             <div className="flex items-start">
-                <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                </div>
-                <div className="ml-3 flex-1">
-                    <h3 className="text-sm font-medium text-blue-800">
-                        Please verify your email
-                    </h3>
-                    <div className="mt-2 text-sm text-blue-700">
-                        <p>
-                            We sent a verification link to{' '}
-                            <span className="font-medium">{email}</span>
-                        </p>
-                        <p className="mt-1">
-                            Click the link in the email to verify your account and start building your resume.
-                        </p>
-                        <p className="mt-1 font-medium">
-                            Please check your spam folder if you do not see the email.
-                        </p>
-                    </div>
-
-                    {/* Status Messages */}
-                    {resendState.success && (
-                        <div className="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded">
-                            {resendState.success}
-                        </div>
-                    )}
-                    {resendState.error && (
-                        <div className="mt-2 text-sm text-red-700 bg-red-50 p-2 rounded">
-                            {resendState.error}
-                        </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={handleManualCheck}
-                            disabled={isPolling}
-                        >
-                            {isPolling ? 'Checking...' : 'I\'ve verified'}
-                        </Button>
-
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={handleResendEmail}
-                            disabled={!canResend}
-                        >
-                            {resendState.isLoading ? 'Sending...' : 'Resend email'}
-                        </Button>
-
-                        {onChangeEmail && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setShowChangeEmail(!showChangeEmail)}
-                            >
-                                Change email
-                            </Button>
-                        )}
-
-                        {allowDismiss && onDismiss && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={onDismiss}
-                            >
-                                Dismiss
-                            </Button>
-                        )}
-                    </div>
-
-                    {/* Rate limit message */}
-                    {timeUntilNextResend > 0 && (
-                        <p className="mt-2 text-xs text-blue-600">
-                            Next resend available in {timeUntilNextResend} seconds
-                        </p>
-                    )}
-
-                    {/* Change Email Form */}
-                    {showChangeEmail && (
-                        <div className="mt-3 p-3 bg-white border border-blue-200 rounded">
-                            <div className="flex gap-2">
-                                <Input
-                                    type="email"
-                                    placeholder="newemail@example.com"
-                                    value={newEmail}
-                                    onChange={(e) => setNewEmail(e.target.value)}
-                                    className="flex-1"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="primary"
-                                    size="sm"
-                                    onClick={handleChangeEmail}
-                                    disabled={!newEmail.trim()}
-                                >
-                                    Update
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setShowChangeEmail(false)}
-                                >
-                                    Cancel
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </div>
+    ...
             </div>
         </div>
     );
+    */
 };
 
 
