@@ -342,7 +342,7 @@ export const PersonalInfoEditor: React.FC<PersonalInfoEditorProps> = ({
 
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 mb-4 ${className}`}>
+    <div data-tutorial="personal-info" className={`bg-white rounded-lg border border-gray-200 mb-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-lg">
         {/* Title - Clickable to collapse/expand */}
