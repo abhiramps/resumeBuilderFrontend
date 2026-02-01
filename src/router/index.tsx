@@ -20,6 +20,7 @@ import {
   PrivacyPolicyPage,
   OAuthCallbackPage,
   ResetPasswordPage,
+  VerifyEmailPage,
 } from "../pages";
 import { useAuth } from "../contexts/AuthContext";
 import { ResumeProvider } from "../contexts/ResumeContext";
@@ -129,6 +130,14 @@ export const router = createBrowserRouter([
     element: (
       <PublicRoute>
         <OAuthCallbackPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/verify",
+    element: (
+      <PublicRoute>
+        <VerifyEmailPage />
       </PublicRoute>
     ),
   },

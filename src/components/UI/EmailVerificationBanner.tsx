@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
+import { API_CONFIG } from '../../config/api.config';
 
 interface EmailVerificationBannerProps {
     /** User's email address */
@@ -52,10 +53,10 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
     // Check verification status
     const checkVerificationStatus = useCallback(async () => {
         try {
-            const response = await fetch(`/api/verification/status?email=${encodeURIComponent(email)}`);
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.SESSION}`);
             if (response.ok) {
                 const data = await response.json();
-                if (data.verified) {
+                if (data.user?.isEmailVerified) {
                     onVerificationComplete?.();
                     return true;
                 }
@@ -64,7 +65,7 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
             console.error('Failed to check verification status:', error);
         }
         return false;
-    }, [email, onVerificationComplete]);
+    }, [onVerificationComplete]);
 
     // Poll for verification status every 30 seconds
     useEffect(() => {
@@ -90,7 +91,7 @@ export const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = (
         setResendState(prev => ({ ...prev, isLoading: true, error: null, success: null }));
 
         try {
-            const response = await fetch('/api/verification/resend', {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.RESEND_VERIFICATION}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
