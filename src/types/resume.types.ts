@@ -185,7 +185,7 @@ export interface LayoutSettings {
   };
 }
 
-export type TemplateType = "classic" | "modern" | "minimal" | "professional" | "academic";
+export type TemplateType = "classic" | "modern" | "minimal" | "professional" | "academic" | "professional-sample-1";
 
 /**
  * Main resume data structure containing all sections and settings

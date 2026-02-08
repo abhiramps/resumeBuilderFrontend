@@ -21,6 +21,7 @@ export const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
     modern: <ModernThumbnail />,
     minimal: <MinimalThumbnail />,
     professional: <ProfessionalThumbnail />,
+    "professional-sample-1": <ProfessionalThumbnail />,
     academic: <AcademicThumbnail />,
   };
 

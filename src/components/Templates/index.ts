@@ -13,6 +13,7 @@ export { ClassicTemplate } from "./ClassicTemplate";
 export { ModernTemplate } from "./ModernTemplate";
 export { MinimalTemplate } from "./MinimalTemplate";
 export { ProfessionalTemplate } from "./ProfessionalTemplate";
+export { ProfessionalSample1Template } from "./ProfessionalSample1Template";
 export { AcademicTemplate } from "./AcademicTemplate";
 export { TemplateThumbnail } from "./TemplateThumbnail";
 

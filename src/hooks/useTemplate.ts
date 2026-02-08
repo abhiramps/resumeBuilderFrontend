@@ -183,15 +183,16 @@ export const useTemplate = () => {
     let score = 100;
 
     // All templates are ATS compliant by design
-    const atsScores = {
+    const atsScores: Record<string, number> = {
       classic: 95,
       modern: 90,
       minimal: 98,
       professional: 100,
+      "professional-sample-1": 100,
       academic: 98,
     };
 
-    const atsScore = atsScores[templateId];
+    const atsScore = atsScores[templateId] || 90;
     if (atsScore < 90) {
       issues.push('Template may have ATS compatibility issues');
       score -= 10;
@@ -234,19 +235,21 @@ export const useTemplate = () => {
     const templateConfig = getTemplate(templateId);
     if (!templateConfig) return null;
 
-    const atsScores = {
+    const atsScores: Record<string, number> = {
       classic: 95,
       modern: 90,
       minimal: 98,
       professional: 100,
+      "professional-sample-1": 100,
       academic: 98,
     };
 
-    const bestForMap = {
+    const bestForMap: Record<string, string[]> = {
       classic: ['Traditional industries', 'Conservative companies', 'Senior roles'],
       modern: ['Tech companies', 'Startups', 'Creative roles'],
       minimal: ['Academic positions', 'Research roles', 'Content-heavy resumes'],
       professional: ['Backend engineering', 'DevOps', 'Technical leadership'],
+      "professional-sample-1": ['Backend engineering', 'ATS-heavy applications', 'Technical leadership'],
       academic: ['Academic positions', 'Research roles', 'FAANG applications', 'Graduate students'],
     };
 
