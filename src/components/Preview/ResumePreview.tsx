@@ -5,6 +5,7 @@ import {
   ModernTemplate,
   MinimalTemplate,
   ProfessionalTemplate,
+  ProfessionalSample1Template,
   AcademicTemplate,
 } from "../Templates";
 
@@ -66,6 +67,8 @@ const ResumePreviewComponent = forwardRef<HTMLDivElement, ResumePreviewProps>(
         return <MinimalTemplate ref={ref} {...templateProps} />;
       case "professional":
         return <ProfessionalTemplate ref={ref} {...templateProps} />;
+      case "professional-sample-1":
+        return <ProfessionalSample1Template ref={ref} {...templateProps} />;
       case "academic":
         return <AcademicTemplate ref={ref} {...templateProps} />;
       default:

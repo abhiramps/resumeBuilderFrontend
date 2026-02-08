@@ -186,6 +186,37 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
       },
     },
   },
+  "professional-sample-1": {
+    id: "professional-sample-1",
+    name: "Professional Sample 1",
+    description:
+      "ATS-optimized professional template with standard bullet points and enhanced certification details.",
+    preview: "",
+    styles: {
+      header: {
+        nameSize: 22,
+        titleSize: 12,
+        contactSize: 9,
+        alignment: "center",
+      },
+      sections: {
+        headerStyle: "uppercase",
+        headerSize: 12,
+        headerDecoration: "border-bottom",
+        spacing: 18,
+      },
+      layout: {
+        maxWidth: 800,
+        columns: 1,
+      },
+      colors: {
+        primary: "#2c3e50",
+        secondary: "#555",
+        text: "#333",
+        background: "#ffffff",
+      },
+    },
+  },
 };
 
 // Template utility functions

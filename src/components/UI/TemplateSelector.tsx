@@ -85,6 +85,19 @@ const TEMPLATE_INFO: Record<TemplateType, TemplateInfo> = {
       "Traditional formatting",
     ],
   },
+  "professional-sample-1": {
+    id: "professional-sample-1",
+    name: "Professional Sample 1",
+    description: "ATS-optimized professional template with standard bullets",
+    atsScore: 100,
+    bestFor: "Backend engineers, technical roles, ATS-heavy applications",
+    features: [
+      "Standard hyphens",
+      "Enhanced Cert IDs",
+      "Centered header",
+      "Maximum ATS parsing",
+    ],
+  },
 };
 
 export const TemplateSelector: React.FC<TemplateSelectorProps> = ({

@@ -137,6 +137,39 @@ export const PROFESSIONAL_TEMPLATE_CONFIG: TemplateConfig = {
   },
 };
 
+// Professional Sample 1 Template Configuration (ATS Optimized)
+export const PROFESSIONAL_SAMPLE_1_TEMPLATE_CONFIG: TemplateConfig = {
+  id: "professional-sample-1",
+  name: "Professional Sample 1",
+  description:
+    "ATS-optimized professional template with standard bullet points and enhanced certification details.",
+  preview: "",
+  styles: {
+    header: {
+      nameSize: 22,
+      titleSize: 12,
+      contactSize: 9,
+      alignment: "center",
+    },
+    sections: {
+      headerStyle: "uppercase",
+      headerSize: 12,
+      headerDecoration: "border-bottom",
+      spacing: 18,
+    },
+    layout: {
+      maxWidth: 800,
+      columns: 1,
+    },
+    colors: {
+      primary: "#2c3e50",
+      secondary: "#555555",
+      text: "#333333",
+      background: "#ffffff",
+    },
+  },
+};
+
 // Academic Template Configuration (LaTeX-inspired)
 export const ACADEMIC_TEMPLATE_CONFIG: TemplateConfig = {
   id: "academic",
@@ -175,6 +208,7 @@ export const TEMPLATE_CONFIGS: Record<TemplateType, TemplateConfig> = {
   modern: MODERN_TEMPLATE_CONFIG,
   minimal: MINIMAL_TEMPLATE_CONFIG,
   professional: PROFESSIONAL_TEMPLATE_CONFIG,
+  "professional-sample-1": PROFESSIONAL_SAMPLE_1_TEMPLATE_CONFIG,
   academic: ACADEMIC_TEMPLATE_CONFIG,
 };
 
@@ -208,6 +242,15 @@ export const TEMPLATE_DEFAULT_LAYOUTS = {
   },
 
   professional: {
+    pageMargins: { top: 1.0, right: 1.0, bottom: 1.0, left: 1.0 },
+    sectionSpacing: 18,
+    lineHeight: 1.4,
+    fontSize: { name: 22, title: 12, sectionHeader: 12, body: 11 },
+    fontFamily: "Arial",
+    colors: { primary: "#2c3e50", secondary: "#555555", text: "#333333" },
+  },
+
+  "professional-sample-1": {
     pageMargins: { top: 1.0, right: 1.0, bottom: 1.0, left: 1.0 },
     sectionSpacing: 18,
     lineHeight: 1.4,
@@ -262,6 +305,17 @@ export const TEMPLATE_CUSTOMIZATION_OPTIONS = {
   },
 
   professional: {
+    customizableColors: ["primary", "secondary"],
+    customizableFonts: true,
+    customizableSpacing: true,
+    customizableMargins: true,
+    maxColumns: 1,
+    supportsImages: false,
+    supportsTables: false,
+    atsCompliant: true,
+  },
+
+  "professional-sample-1": {
     customizableColors: ["primary", "secondary"],
     customizableFonts: true,
     customizableSpacing: true,
@@ -394,5 +448,18 @@ export const TEMPLATE_COMPARISON = {
     customizationScore: 80,
     modernAppeal: 75,
     bestFor: ["Backend engineering", "DevOps", "Technical leadership"],
+  },
+
+  "professional-sample-1": {
+    atsScore: 100,
+    readabilityScore: 90,
+    customizationScore: 80,
+    modernAppeal: 75,
+    bestFor: [
+      "Backend engineering",
+      "DevOps",
+      "ATS-heavy applications",
+      "Technical leadership",
+    ],
   },
 } as const;
