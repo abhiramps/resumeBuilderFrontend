@@ -2,62 +2,14 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Input, Select, Textarea } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
 import { useResumeBackend } from "../../contexts/ResumeBackendContext";
-import { WorkExperience, Resume } from "../../types/resume.types";
+import { WorkExperience } from "../../types/resume.types";
+import { frontendResumeToBackendContent as mapResumeToContent } from "../../utils/resumeConverter";
 import {
     validateExperience,
     hasValidationErrors,
     checkATSCompliance,
     ExperienceValidationErrors
 } from "../../utils/experienceValidation";
-
-// Helper to convert frontend Resume state to backend ResumeContent
-const mapResumeToContent = (resume: Resume): any => {
-    const content: any = {
-        personalInfo: resume.personalInfo,
-        sectionOrder: resume.sections.map(s => ({
-            id: s.id,
-            type: s.type,
-            title: s.title,
-            enabled: s.enabled,
-            order: s.order
-        }))
-    };
-
-    resume.sections.forEach(section => {
-        // Map content regardless of enabled status to ensure data persistence
-        const sectionContent = section.content as any;
-        switch (section.type) {
-            case 'summary':
-                content.summary = sectionContent.summary;
-                break;
-            case 'experience':
-                content.experience = sectionContent.experiences;
-                break;
-            case 'education':
-                content.education = sectionContent.education;
-                break;
-            case 'skills':
-                content.skills = sectionContent.skills;
-                break;
-            case 'projects':
-                content.projects = sectionContent.projects;
-                break;
-            case 'certifications':
-                content.certifications = sectionContent.certifications;
-                break;
-            case 'custom':
-                if (!content.customSections) content.customSections = [];
-                content.customSections.push({
-                    id: sectionContent.custom.id,
-                    title: sectionContent.custom.title,
-                    content: sectionContent.custom.content,
-                    order: section.order
-                });
-                break;
-        }
-    });
-    return content;
-};
 
 /**
  * Experience Editor Component Props
@@ -689,6 +641,8 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
 
     // Ref to store the debounce timer
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // Separate timer for the backend save so rapid edits collapse into one network call.
+    const backendSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     /**
      * Debounced update function
@@ -715,11 +669,14 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         [dispatch, experienceSection]
     );
 
-    // Cleanup debounce timer on unmount
+    // Cleanup debounce timers on unmount
     useEffect(() => {
         return () => {
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
+            }
+            if (backendSaveTimerRef.current) {
+                clearTimeout(backendSaveTimerRef.current);
             }
         };
     }, []);
@@ -766,28 +723,14 @@ export const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
             exp.id === id ? { ...exp, ...updates } : exp
         );
         debouncedUpdate(updatedExperiences);
-        
-        // Debounce backend save to avoid too many requests while typing
-        setTimeout(() => {
+
+        // Collapse rapid keystrokes into a single backend save.
+        if (backendSaveTimerRef.current) {
+            clearTimeout(backendSaveTimerRef.current);
+        }
+        backendSaveTimerRef.current = setTimeout(() => {
             saveToBackend(updatedExperiences);
         }, 1000);
-        
-        // Store timer on component instance to clear if needed? 
-        // Actually, for typing inputs, maybe we should rely on the blur or a longer debounce.
-        // But since we don't have a ref for backend save timer easily accessible here without more state,
-        // let's trust the useResumeBackend might handle some debouncing or just let it save.
-        // Better: let's save immediately for critical actions (add/delete) but debounce for typing.
-        // Since updateExperience is called often, we should probably debounce the saveToBackend call.
-        // However, for simplicity and ensuring data safety, let's call it. 
-        // If performance issues arise, we can add a specific backend debounce.
-        // Given existing pattern in SkillsEditor, it saves on every updateCategory call which is triggered on change.
-        // Wait, SkillsEditor debounces local dispatch but also calls saveToBackend immediately in some cases, 
-        // but for text inputs it might be heavy.
-        // Let's look at `handleFieldUpdate` in ExperienceEntry. It debounces the `onUpdate` call by 300ms.
-        // So `updateExperience` is already debounced by the child component. 
-        // So calling `saveToBackend` here is effectively debounced by 300ms from the user's typing.
-        // That is acceptable.
-        saveToBackend(updatedExperiences);
     };
 
     /**
