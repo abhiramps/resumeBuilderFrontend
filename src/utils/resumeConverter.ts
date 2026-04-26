@@ -143,6 +143,63 @@ export const backendToFrontendResume = (backendResume: ResumeResponse | BackendR
 };
 
 /**
+ * Map a frontend Resume to the backend content shape used by the editors'
+ * `saveToBackend` helpers. Differs from `frontendToBackendContent`:
+ *   - Includes `sectionOrder` metadata so the backend can preserve order.
+ *   - Persists content for disabled sections too, so toggling visibility
+ *     doesn't lose data.
+ *
+ * Editors duplicated this exact function five times before this lived here.
+ * Use it from a `useCallback` (or call once per save) — don't run it in render.
+ */
+export const frontendResumeToBackendContent = (resume: Resume): any => {
+    const content: any = {
+        personalInfo: resume.personalInfo,
+        sectionOrder: resume.sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            enabled: s.enabled,
+            order: s.order,
+        })),
+    };
+
+    resume.sections.forEach(section => {
+        const sectionContent = section.content as any;
+        switch (section.type) {
+            case 'summary':
+                content.summary = sectionContent.summary;
+                break;
+            case 'experience':
+                content.experience = sectionContent.experiences;
+                break;
+            case 'education':
+                content.education = sectionContent.education;
+                break;
+            case 'skills':
+                content.skills = sectionContent.skills;
+                break;
+            case 'projects':
+                content.projects = sectionContent.projects;
+                break;
+            case 'certifications':
+                content.certifications = sectionContent.certifications;
+                break;
+            case 'custom':
+                if (!content.customSections) content.customSections = [];
+                content.customSections.push({
+                    id: sectionContent.custom.id,
+                    title: sectionContent.custom.title,
+                    content: sectionContent.custom.content,
+                    order: section.order,
+                });
+                break;
+        }
+    });
+    return content;
+};
+
+/**
  * Convert frontend Resume to backend ResumeContent format
  */
 export const frontendToBackendContent = (resume: Resume): ResumeContent => {

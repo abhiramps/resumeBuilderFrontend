@@ -9,7 +9,7 @@ import { SignupPage } from '../pages/SignupPage';
 import { LoginPage } from '../pages/LoginPage';
 import { AuthProvider } from '../contexts/AuthContext';
 
-// Mock the auth service
+// Mock the auth service 
 jest.mock('../services/auth.service');
 jest.mock('../contexts/AuthContext', () => ({
     ...jest.requireActual('../contexts/AuthContext'),

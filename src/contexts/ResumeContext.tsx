@@ -1,6 +1,7 @@
 import React, {
   createContext,
   useContext,
+  useMemo,
   useReducer,
   useEffect,
   ReactNode,
@@ -813,17 +814,20 @@ export const ResumeProvider: React.FC<ResumeProviderProps> = ({ children }) => {
   //   }
   // }, [autoSave.error]);
 
-  const contextValue: ResumeContextType = {
-    resume,
-    dispatch,
-    atsValidation,
-    isLoading,
-    error,
-    canUndo,
-    canRedo,
-    undo,
-    redo,
-  };
+  const contextValue = useMemo<ResumeContextType>(
+    () => ({
+      resume,
+      dispatch,
+      atsValidation,
+      isLoading,
+      error,
+      canUndo,
+      canRedo,
+      undo,
+      redo,
+    }),
+    [resume, atsValidation, isLoading, error, canUndo, canRedo, undo, redo]
+  );
 
   return (
     <ResumeContext.Provider value={contextValue}>

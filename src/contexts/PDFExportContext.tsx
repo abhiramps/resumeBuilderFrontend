@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useState } from 'react';
+import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
 
 interface PDFExportContextType {
     previewRef: React.RefObject<HTMLDivElement>;
@@ -15,8 +15,13 @@ export const PDFExportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [zoom, setZoom] = useState(100);
     const [printMode, setPrintMode] = useState(false);
 
+    const value = useMemo<PDFExportContextType>(
+        () => ({ previewRef, zoom, setZoom, printMode, setPrintMode }),
+        [zoom, printMode]
+    );
+
     return (
-        <PDFExportContext.Provider value={{ previewRef, zoom, setZoom, printMode, setPrintMode }}>
+        <PDFExportContext.Provider value={value}>
             {children}
         </PDFExportContext.Provider>
     );

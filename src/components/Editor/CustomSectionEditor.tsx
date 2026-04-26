@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ResumeSection, Resume } from '../../types/resume.types';
+import { ResumeSection } from '../../types/resume.types';
+import { frontendResumeToBackendContent as mapResumeToContent } from '../../utils/resumeConverter';
 import { useResumeContext } from '../../contexts/ResumeContext';
 import { useResumeBackend } from '../../contexts/ResumeBackendContext';
 import { Input } from '../UI';
@@ -7,54 +8,6 @@ import { Input } from '../UI';
 interface CustomSectionEditorProps {
     section: ResumeSection;
 }
-
-// Helper to convert frontend Resume state to backend ResumeContent
-const mapResumeToContent = (resume: Resume): any => {
-    const content: any = {
-        personalInfo: resume.personalInfo,
-        sectionOrder: resume.sections.map(s => ({
-            id: s.id,
-            type: s.type,
-            title: s.title,
-            enabled: s.enabled,
-            order: s.order
-        }))
-    };
-
-    resume.sections.forEach(section => {
-        const sectionContent = section.content as any;
-        switch (section.type) {
-            case 'summary':
-                content.summary = sectionContent.summary;
-                break;
-            case 'experience':
-                content.experience = sectionContent.experiences;
-                break;
-            case 'education':
-                content.education = sectionContent.education;
-                break;
-            case 'skills':
-                content.skills = sectionContent.skills;
-                break;
-            case 'projects':
-                content.projects = sectionContent.projects;
-                break;
-            case 'certifications':
-                content.certifications = sectionContent.certifications;
-                break;
-            case 'custom':
-                if (!content.customSections) content.customSections = [];
-                content.customSections.push({
-                    id: sectionContent.custom.id,
-                    title: sectionContent.custom.title,
-                    content: sectionContent.custom.content,
-                    order: section.order
-                });
-                break;
-        }
-    });
-    return content;
-};
 
 export const CustomSectionEditor: React.FC<CustomSectionEditorProps> = ({ section }) => {
     const { resume, dispatch } = useResumeContext();

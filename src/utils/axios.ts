@@ -3,6 +3,21 @@ import { supabase } from '../lib/supabase';
 import { API_CONFIG, STORAGE_KEYS } from '../config/api.config';
 import type { ApiError } from '../types/api.types';
 
+// In-memory cache of the access token. localStorage I/O is synchronous and
+// shows up on every request when read inside the axios interceptor; cache it
+// once at load and keep it in sync via setAuthToken / clearAuthToken / cross-tab
+// storage events.
+let cachedAccessToken: string | null =
+    typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN) : null;
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event) => {
+        if (event.key === STORAGE_KEYS.ACCESS_TOKEN) {
+            cachedAccessToken = event.newValue;
+        }
+    });
+}
+
 // Create axios instance
 export const apiClient = axios.create({
     baseURL: API_CONFIG.BASE_URL,
@@ -15,10 +30,8 @@ export const apiClient = axios.create({
 // Request interceptor - Add auth token
 apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-
-        if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
+        if (cachedAccessToken && config.headers) {
+            config.headers.Authorization = `Bearer ${cachedAccessToken}`;
         }
 
         return config;
@@ -40,10 +53,8 @@ apiClient.interceptors.response.use(
 
             // Unauthorized - clear tokens and redirect to login
             if (status === 401) {
-                localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-                localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-                localStorage.removeItem(STORAGE_KEYS.USER);
-                
+                clearAuthToken();
+
                 // CRITICAL: Sign out from Supabase to prevent auto-login loop
                 await supabase.auth.signOut();
 
@@ -82,11 +93,13 @@ apiClient.interceptors.response.use(
 
 // Helper function to set auth token
 export const setAuthToken = (token: string) => {
+    cachedAccessToken = token;
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
 };
 
 // Helper function to clear auth token
 export const clearAuthToken = () => {
+    cachedAccessToken = null;
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
@@ -94,7 +107,7 @@ export const clearAuthToken = () => {
 
 // Helper function to get auth token
 export const getAuthToken = (): string | null => {
-    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    return cachedAccessToken;
 };
 
 export default apiClient;

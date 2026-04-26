@@ -3,7 +3,7 @@
  * Handles all authentication-related API calls
  */
 
-import { apiClient, setAuthToken, clearAuthToken } from '../utils/axios';
+import { apiClient, setAuthToken, clearAuthToken, getAuthToken } from '../utils/axios';
 import { API_CONFIG, STORAGE_KEYS } from '../config/api.config';
 import { supabase } from '../lib/supabase';
 import type {
@@ -102,7 +102,7 @@ export const authService = {
      */
     async getSession(): Promise<SessionResponse> {
         // Ensure local supabase client is synced if we have a token but no session
-        const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+        const token = getAuthToken();
         if (token) {
              const { data: { session } } = await supabase.auth.getSession();
              if (!session) {
@@ -204,7 +204,7 @@ export const authService = {
      * Check if user is authenticated
      */
     isAuthenticated(): boolean {
-        return !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+        return !!getAuthToken();
     },
 
     /**
