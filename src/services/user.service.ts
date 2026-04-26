@@ -3,7 +3,7 @@
  * Handles user profile and account management API calls
  */
 
-import { apiClient } from '../utils/axios';
+import { apiClient, clearAuthToken } from '../utils/axios';
 import { API_CONFIG, STORAGE_KEYS } from '../config/api.config';
 import type {
     ApiResponse,
@@ -48,8 +48,6 @@ export const userService = {
         await apiClient.delete(API_CONFIG.ENDPOINTS.USER.DELETE_ACCOUNT);
 
         // Clear all stored data
-        localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USER);
+        clearAuthToken();
     },
 };

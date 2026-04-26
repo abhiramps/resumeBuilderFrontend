@@ -2,7 +2,8 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Button, Input, Select, Textarea } from "../UI";
 import { useResumeContext } from "../../contexts/ResumeContext";
 import { useResumeBackend } from "../../contexts/ResumeBackendContext";
-import { Project, Resume } from "../../types/resume.types";
+import { Project } from "../../types/resume.types";
+import { frontendResumeToBackendContent as mapResumeToContent } from "../../utils/resumeConverter";
 import {
     validateProject,
     hasValidationErrors,
@@ -11,55 +12,6 @@ import {
     TECH_STACK_SUGGESTIONS,
     filterTechStackSuggestions
 } from "../../utils/projectValidation";
-
-// Helper to convert frontend Resume state to backend ResumeContent
-const mapResumeToContent = (resume: Resume): any => {
-    const content: any = {
-        personalInfo: resume.personalInfo,
-        sectionOrder: resume.sections.map(s => ({
-            id: s.id,
-            type: s.type,
-            title: s.title,
-            enabled: s.enabled,
-            order: s.order
-        }))
-    };
-
-    resume.sections.forEach(section => {
-        // Map content regardless of enabled status to ensure data persistence
-        const sectionContent = section.content as any;
-        switch (section.type) {
-            case 'summary':
-                content.summary = sectionContent.summary;
-                break;
-            case 'experience':
-                content.experience = sectionContent.experiences;
-                break;
-            case 'education':
-                content.education = sectionContent.education;
-                break;
-            case 'skills':
-                content.skills = sectionContent.skills;
-                break;
-            case 'projects':
-                content.projects = sectionContent.projects;
-                break;
-            case 'certifications':
-                content.certifications = sectionContent.certifications;
-                break;
-            case 'custom':
-                if (!content.customSections) content.customSections = [];
-                content.customSections.push({
-                    id: sectionContent.custom.id,
-                    title: sectionContent.custom.title,
-                    content: sectionContent.custom.content,
-                    order: section.order
-                });
-                break;
-        }
-    });
-    return content;
-};
 
 /**
  * Projects Editor Component Props

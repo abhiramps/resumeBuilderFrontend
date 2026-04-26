@@ -3,7 +3,7 @@
  * Manages resume state with backend synchronization and auto-save
  */
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { resumeService } from '../services/resume.service';
 import type {
     ResumeResponse,
@@ -44,6 +44,13 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Mirror currentResume in a ref so callbacks that need its id don't have to
+    // depend on it — keeps their identity stable for downstream memoization.
+    const currentResumeRef = useRef(currentResume);
+    useEffect(() => {
+        currentResumeRef.current = currentResume;
+    }, [currentResume]);
+
     /**
      * Load a resume by ID
      */
@@ -66,12 +73,13 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
      * Update resume (manual save)
      */
     const updateResume = useCallback(async (data: UpdateResumeRequest) => {
-        if (!currentResume) return;
+        const current = currentResumeRef.current;
+        if (!current) return;
 
         setIsSaving(true);
         setError(null);
         try {
-            const updated = await resumeService.updateResume(currentResume.id, data);
+            const updated = await resumeService.updateResume(current.id, data);
             setCurrentResume(updated);
         } catch (err: any) {
             const errorMessage = err.message || 'Failed to save resume';
@@ -81,7 +89,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
         } finally {
             setIsSaving(false);
         }
-    }, [currentResume]);
+    }, []);
 
     /**
      * Create a new resume
@@ -113,7 +121,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
             await resumeService.deleteResume(id);
 
             // Clear current resume if it's the one being deleted
-            if (currentResume?.id === id) {
+            if (currentResumeRef.current?.id === id) {
                 setCurrentResume(null);
             }
 
@@ -126,7 +134,7 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
         } finally {
             setIsLoading(false);
         }
-    }, [currentResume]);
+    }, []);
 
     /**
      * Duplicate a resume
@@ -180,22 +188,40 @@ export const ResumeBackendProvider: React.FC<{ children: React.ReactNode }> = ({
         // No-op - manual save only
     }, []);
 
-    const value: ResumeBackendContextType = {
-        currentResume,
-        resumes,
-        isLoading,
-        isSaving,
-        error,
-        pagination,
-        loadResume,
-        updateResume,
-        createResume,
-        deleteResume,
-        duplicateResume,
-        listResumes,
-        clearError,
-        forceSync,
-    };
+    const value = useMemo<ResumeBackendContextType>(
+        () => ({
+            currentResume,
+            resumes,
+            isLoading,
+            isSaving,
+            error,
+            pagination,
+            loadResume,
+            updateResume,
+            createResume,
+            deleteResume,
+            duplicateResume,
+            listResumes,
+            clearError,
+            forceSync,
+        }),
+        [
+            currentResume,
+            resumes,
+            isLoading,
+            isSaving,
+            error,
+            pagination,
+            loadResume,
+            updateResume,
+            createResume,
+            deleteResume,
+            duplicateResume,
+            listResumes,
+            clearError,
+            forceSync,
+        ]
+    );
 
     return (
         <ResumeBackendContext.Provider value={value}>
