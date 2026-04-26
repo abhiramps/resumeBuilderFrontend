@@ -33,113 +33,110 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { SEO } from "../components/common/SEO";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
-import { useScrollPosition } from "../hooks/useScrollPosition";
+import { useScrollThreshold } from "../hooks/useScrollPosition";
+
+const FEATURES = [
+  {
+    icon: Shield,
+    title: "ATS-Optimized",
+    description:
+      "Built specifically to pass Applicant Tracking Systems with 100% parseability",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+    gradient: "from-green-400 to-emerald-600",
+  },
+  {
+    icon: Zap,
+    title: "Real-Time Preview",
+    description: "See your changes instantly with live preview as you edit",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
+    gradient: "from-blue-400 to-cyan-600",
+  },
+  {
+    icon: Palette,
+    title: "Multiple Templates",
+    description:
+      "Choose from 7 professional templates designed for software engineers",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    gradient: "from-purple-400 to-pink-600",
+  },
+  {
+    icon: FileText,
+    title: "Highly Customizable",
+    description:
+      "Control every detail: fonts, colors, margins, spacing, and more",
+    color: "text-orange-600",
+    bgColor: "bg-orange-50",
+    gradient: "from-orange-400 to-red-600",
+  },
+  {
+    icon: Download,
+    title: "PDF Export",
+    description: "Generate high-quality, print-ready PDFs with one click",
+    color: "text-red-600",
+    bgColor: "bg-red-50",
+    gradient: "from-red-400 to-rose-600",
+  },
+  {
+    icon: History,
+    title: "Version Control",
+    description: "Track changes and revert to previous versions anytime",
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50",
+    gradient: "from-indigo-400 to-purple-600",
+  },
+  {
+    icon: Share2,
+    title: "Easy Sharing",
+    description: "Share your resume with recruiters via secure links",
+    color: "text-teal-600",
+    bgColor: "bg-teal-50",
+    gradient: "from-teal-400 to-cyan-600",
+  },
+  {
+    icon: Upload,
+    title: "Import/Export",
+    description: "Import existing resumes or export your data in JSON format",
+    color: "text-pink-600",
+    bgColor: "bg-pink-50",
+    gradient: "from-pink-400 to-rose-600",
+  },
+];
+
+const TRUST_BADGES = [
+  { icon: CheckCircle2, text: "100% Free Forever", color: "text-green-600" },
+  { icon: CheckCircle2, text: "No Credit Card", color: "text-blue-600" },
+  { icon: CheckCircle2, text: "ATS-Optimized", color: "text-purple-600" },
+];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+    },
+  },
+};
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  const { scrollY } = useScrollPosition();
+  const isScrolled = useScrollThreshold(20);
+  const showStickyCTA = useScrollThreshold(500);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Simplified Navbar scroll state
-  const isScrolled = scrollY > 20;
-
-  const features = [
-    {
-      icon: Shield,
-      title: "ATS-Optimized",
-      description:
-        "Built specifically to pass Applicant Tracking Systems with 100% parseability",
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      gradient: "from-green-400 to-emerald-600",
-    },
-    {
-      icon: Zap,
-      title: "Real-Time Preview",
-      description: "See your changes instantly with live preview as you edit",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      gradient: "from-blue-400 to-cyan-600",
-    },
-    {
-      icon: Palette,
-      title: "Multiple Templates",
-      description:
-        "Choose from 7 professional templates designed for software engineers",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      gradient: "from-purple-400 to-pink-600",
-    },
-    {
-      icon: FileText,
-      title: "Highly Customizable",
-      description:
-        "Control every detail: fonts, colors, margins, spacing, and more",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      gradient: "from-orange-400 to-red-600",
-    },
-    {
-      icon: Download,
-      title: "PDF Export",
-      description: "Generate high-quality, print-ready PDFs with one click",
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-      gradient: "from-red-400 to-rose-600",
-    },
-    {
-      icon: History,
-      title: "Version Control",
-      description: "Track changes and revert to previous versions anytime",
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
-      gradient: "from-indigo-400 to-purple-600",
-    },
-    {
-      icon: Share2,
-      title: "Easy Sharing",
-      description: "Share your resume with recruiters via secure links",
-      color: "text-teal-600",
-      bgColor: "bg-teal-50",
-      gradient: "from-teal-400 to-cyan-600",
-    },
-    {
-      icon: Upload,
-      title: "Import/Export",
-      description: "Import existing resumes or export your data in JSON format",
-      color: "text-pink-600",
-      bgColor: "bg-pink-50",
-      gradient: "from-pink-400 to-rose-600",
-    },
-  ];
-
-  const trustBadges = [
-    { icon: CheckCircle2, text: "100% Free Forever", color: "text-green-600" },
-    { icon: CheckCircle2, text: "No Credit Card", color: "text-blue-600" },
-    { icon: CheckCircle2, text: "ATS-Optimized", color: "text-purple-600" },
-  ];
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
 
   return (
     <div className="relative min-h-screen font-sans text-gray-900">
@@ -156,26 +153,18 @@ export const LandingPage: React.FC = () => {
 
       {/* Background blobs and grid */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-white">
-        {/* Subtle Animated Grid Pattern */}
-        <motion.div 
+        {/* Subtle Grid Pattern */}
+        <div
           className="absolute inset-0 bg-[linear-gradient(to_right,#8080800d_1px,transparent_1px),linear-gradient(to_bottom,#8080800d_1px,transparent_1px)] bg-[size:24px_24px]"
-          animate={{ 
-            backgroundPosition: ["0px 0px", "24px 24px"] 
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
         />
-        
+
         {/* Radial Gradient Overlay for depth */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff1a,transparent)]" />
 
-        {/* Animated Blobs */}
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-50/40 blur-[100px] animate-blob" />
-        <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] rounded-full bg-purple-50/40 blur-[100px] animate-blob" style={{ animationDelay: '2s' }} />
-        <div className="absolute -bottom-[10%] left-[20%] w-[30%] h-[30%] rounded-full bg-pink-50/40 blur-[100px] animate-blob" style={{ animationDelay: '4s' }} />
+        {/* Animated Blobs — lower blur + GPU-promoted to keep paint cost off the scroll path */}
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-50/50 blur-3xl animate-blob transform-gpu will-change-transform" />
+        <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] rounded-full bg-purple-50/50 blur-3xl animate-blob transform-gpu will-change-transform" style={{ animationDelay: '2s' }} />
+        <div className="absolute -bottom-[10%] left-[20%] w-[30%] h-[30%] rounded-full bg-pink-50/50 blur-3xl animate-blob transform-gpu will-change-transform" style={{ animationDelay: '4s' }} />
       </div>
 
       {/* Enhanced Sticky Navigation */}
@@ -185,7 +174,7 @@ export const LandingPage: React.FC = () => {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/80 backdrop-blur-lg shadow-md py-3"
+            ? "bg-white/90 backdrop-blur-md shadow-md py-3"
             : "bg-transparent py-4 sm:py-6"
         }`}
       >
@@ -431,7 +420,7 @@ export const LandingPage: React.FC = () => {
               variants={containerVariants}
               className="flex flex-wrap items-center justify-center gap-6"
             >
-              {trustBadges.map((badge, index) => (
+              {TRUST_BADGES.map((badge, index) => (
                 <motion.div
                   key={index}
                   variants={itemVariants}
@@ -448,7 +437,7 @@ export const LandingPage: React.FC = () => {
         </section>
 
         {/* Enhanced Features Grid */}
-        <FeaturesSection features={features} />
+        <FeaturesSection features={FEATURES} />
 
         {/* Enhanced CTA Section */}
         <CTASection isAuthenticated={isAuthenticated} />
@@ -458,7 +447,7 @@ export const LandingPage: React.FC = () => {
 
         {/* Mobile Sticky CTA */}
         <AnimatePresence>
-          {!isAuthenticated && scrollY > 500 && (
+          {!isAuthenticated && showStickyCTA && (
             <motion.div
               initial={{ y: 100 }}
               animate={{ y: 0 }}
