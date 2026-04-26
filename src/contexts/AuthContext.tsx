@@ -48,26 +48,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     let mounted = true;
 
-    // Check for initial session (handling OAuth redirect automatically via Supabase client)
+    // Check for initial session (handling OAuth redirect automatically via Supabase client).
+    // Optimistic init: paint immediately from cached user, then revalidate in the background
+    // so the first render isn't blocked on a network round-trip.
     const initAuth = async () => {
-      try {
-          if (authService.isAuthenticated()) {
-             const session = await authService.getSession();
-             if (mounted) setUser(session.user);
-          } else {
-             const storedUser = authService.getStoredUser();
-             if (mounted && storedUser) setUser(storedUser);
-          }
-      } catch (err) {
-        if (mounted) {
-            await authService.signOut();
-            setUser(null);
-        }
-      } finally {
+      const isAuthed = authService.isAuthenticated();
+
+      if (!isAuthed) {
+        const storedUser = authService.getStoredUser();
+        if (mounted && storedUser) setUser(storedUser);
         if (mounted) setIsLoading(false);
+        return;
+      }
+
+      const storedUser = authService.getStoredUser();
+      if (mounted && storedUser) {
+        setUser(storedUser);
+        setIsLoading(false);
+      }
+
+      try {
+        const session = await authService.getSession();
+        if (mounted) {
+          setUser(session.user);
+          setIsLoading(false);
+        }
+      } catch {
+        if (mounted) {
+          await authService.signOut();
+          setUser(null);
+          setIsLoading(false);
+        }
       }
     };
-    
+
     initAuth();
 
     // Set up real-time auth listener
@@ -265,23 +279,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       user?.isEmailVerified === true
   );
 
-  const value: AuthContextType = {
-    user,
-    isAuthenticated: !!user,
-    isLoading,
-    error,
-    login,
-    signup,
-    logout,
-    refreshAuth,
-    clearError,
-    loginWithOAuth,
-    isEmailVerified,
-    pendingVerificationEmail,
-    resendVerificationEmail,
-    setPendingVerification,
-    clearPendingVerification,
-  };
+  const value = React.useMemo<AuthContextType>(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      error,
+      login,
+      signup,
+      logout,
+      refreshAuth,
+      clearError,
+      loginWithOAuth,
+      isEmailVerified,
+      pendingVerificationEmail,
+      resendVerificationEmail,
+      setPendingVerification,
+      clearPendingVerification,
+    }),
+    [
+      user,
+      isLoading,
+      error,
+      login,
+      signup,
+      logout,
+      refreshAuth,
+      clearError,
+      loginWithOAuth,
+      isEmailVerified,
+      pendingVerificationEmail,
+      resendVerificationEmail,
+      setPendingVerification,
+      clearPendingVerification,
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
